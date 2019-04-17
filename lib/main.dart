@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +17,11 @@ class SimpleBlocDelegate extends BlocDelegate {
 
 void main() {
   BlocSupervisor().delegate = SimpleBlocDelegate();
-  runApp(App(userRepository: UserRepository()));
+  runApp(App(userRepository: UserRepository(
+    userApiClient: UserApiClient(
+      httpClient: http.Client(),
+    )
+  )));
 }
 
 class App extends StatefulWidget {

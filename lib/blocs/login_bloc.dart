@@ -29,6 +29,16 @@ class LoginFailure extends LoginState {
   String toString() => 'LoginFailure { error: $error }';
 }
 
+class MessageArrived extends LoginState {
+  final bool isGood;
+  final String message;
+
+  MessageArrived({@required this.isGood, this.message}) : super([isGood, message]);
+
+  @override
+  String toString() => 'LoginFailure { error: $isGood }';
+}
+
 
 abstract class LoginEvent extends Equatable {
   LoginEvent([List props = const []]) : super(props);
@@ -46,6 +56,34 @@ class LoginButtonPressed extends LoginEvent {
   @override
   String toString() =>
       'LoginButtonPressed { username: $username, password: $password }';
+}
+
+class SignupButtonPressed extends LoginEvent {
+  final String username;
+  final String code;
+  final String password;
+
+  SignupButtonPressed({
+    @required this.username,
+    @required this.code,
+    @required this.password,
+  }) : super([username, code, password]);
+
+  @override
+  String toString() =>
+      'LoginButtonPressed { username: $username, code: $code, password: $password }';
+}
+
+class CodeRequested extends LoginEvent {
+  final String email;
+  CodeRequested({
+    @required this.email
+  }) : super([email]);
+
+  @override
+  String toString() =>
+      'LoginButtonPressed { username: $email}';
+
 }
 
 
@@ -67,15 +105,49 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginLoading();
 
       try {
-        final token = await userRepository.authenticate(
-          username: event.username,
-          password: event.password,
+        final token = await userRepository.login(
+          event.username,
+          event.password,
         );
 
-        authenticationBloc.dispatch(LoggedIn(token: token));
+        if (token.startsWith("failed:")) {
+          yield MessageArrived(isGood: false, message: token);
+        } else {
+          authenticationBloc.dispatch(LoggedIn(token: token));
+        }
         yield LoginInitial();
       } catch (error) {
-        yield LoginFailure(error: error.toString());
+        yield MessageArrived(isGood: false, message: error.toString());
+      }
+    } else if (event is SignupButtonPressed) {
+      yield LoginLoading();
+      try {
+        final token = await userRepository.signup(
+          event.username,
+          event.code,
+          event.password,
+        );
+        if (token.startsWith("failed:")) {
+          yield MessageArrived(isGood: false, message: token);
+        } else {
+          authenticationBloc.dispatch(LoggedIn(token: token));
+        }
+        yield LoginInitial();
+      } catch (error) {
+        yield MessageArrived(isGood: false, message: error.toString());
+      }
+    } else if (event is CodeRequested) {
+      try {
+        final sent = await userRepository.getVertificationCode(
+          event.email
+        );
+        if (sent) {
+          yield MessageArrived(isGood: true, message :"vertification code sent to your email");
+        } else {
+          yield MessageArrived(isGood: false, message: "vertification code not sent");
+        }
+      } catch (error) {
+        yield MessageArrived(isGood: false, message: error.toString());
       }
     }
   }
