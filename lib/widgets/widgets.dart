@@ -3,3 +3,4 @@ export './login_page.dart';
 export './home_page.dart';
 export './splash_page.dart';
 export './loading_indicator.dart';
+export './feed_page.dart';
