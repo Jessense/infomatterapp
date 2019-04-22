@@ -2,61 +2,148 @@ import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vibration/vibration.dart';
+import 'dart:async';
+
 
 import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/models/models.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
+import 'package:infomatterapp/widgets/widgets.dart';
 
 class FeedPage extends StatefulWidget {
+  FeedPage({Key key}):
+      super(key: key);
   @override
   _FeedPageState createState() => _FeedPageState();
 }
 
 class _FeedPageState extends State<FeedPage> {
   final _scrollController = ScrollController();
-  final EntryBloc _entryBloc = EntryBloc(
-      entriesRepository: EntriesRepository(
-          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-      )
-  );
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  Completer<void> _refreshCompleter = Completer<void>();
+  EntryBloc _entryBloc;
   final _scrollThreshold = 200.0;
+
 
   _FeedPageState() {
     _scrollController.addListener(_onScroll);
-    _entryBloc.dispatch(Fetch());
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print(PageStorage.of(context).readState(context, identifier: ValueKey('lastState')));
+    if (PageStorage.of(context).readState(context, identifier: ValueKey('lastState')) != null) {
+      _entryBloc = EntryBloc(
+        entriesRepository: EntriesRepository(
+          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+        ),
+        fromState: PageStorage.of(context).readState(context, identifier: ValueKey('lastState')),
+      );
+    } else {
+      _entryBloc = EntryBloc(
+        entriesRepository: EntriesRepository(
+          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+        ),
+        fromState: EntryUninitialized(),
+      );
+      _entryBloc.dispatch(Fetch(sourceId: -1));
+    }
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
       bloc: _entryBloc,
-      builder: (BuildContext context, EntryState state) {
+      builder: (BuildContext context, EntryState state) {PageStorage.of(context).writeState(context, state, identifier: ValueKey('lastState'));
         if (state is EntryUninitialized) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
         if (state is EntryError) {
+          _refreshCompleter?.complete();
+          _refreshCompleter = Completer();
+
           return Center(
             child: Text('failed to fetch entries'),
           );
         }
+//        if (state is EntryUpdating) {
+//          if (state.entries.isEmpty) {
+//            return Column(
+//              children: <Widget>[
+//                CircularProgressIndicator(),
+//                Center(
+//                  child: Text("no entries"),
+//                )
+//              ],
+//            );
+//          }
+//          return ListView.builder(
+//            itemBuilder: (BuildContext context, int index) {
+//              if (index == 0 || index > state.entries.length) {
+//                return BottomLoader();
+//              } else {
+//                return BlocProvider(
+//                  bloc: EntryStarBloc(
+//                      entryRepository: EntriesRepository(
+//                          entriesApiClient: EntriesApiClient(
+//                              httpClient: http.Client()
+//                          )
+//                      ),
+//                      fromState: state.entries[index - 1].isStarring ? EntryStarring() : EntryNotStarring()
+//                  ),
+//                  child: EntryWidget(entry: state.entries[index - 1]),
+//                );
+//              }
+//            },
+//            itemCount: state.hasReachedMax
+//                ? state.entries.length + 1
+//                : state.entries.length + 2,
+//            controller: _scrollController,
+//          );
+//        }
+
         if (state is EntryLoaded) {
+          _refreshCompleter?.complete();
+          _refreshCompleter = Completer();
+
           if (state.entries.isEmpty) {
             return Center(
               child: Text('no entries'),
             );
           }
-          return ListView.builder(
-            itemBuilder: (BuildContext context, int index) {
-              return index >= state.entries.length
-                  ? BottomLoader()
-                  : EntryWidget(entry: state.entries[index]);
+
+          return RefreshIndicator(
+            onRefresh: () {
+              _entryBloc.dispatch(Update(sourceId: -1));
+              return _refreshCompleter.future;
             },
-            itemCount: state.hasReachedMax
-                ? state.entries.length
-                : state.entries.length + 1,
-            controller: _scrollController,
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return index >= state.entries.length
+                    ? BottomLoader()
+                    : BlocProvider(
+                  bloc: EntryStarBloc(
+                      entryRepository: EntriesRepository(
+                          entriesApiClient: EntriesApiClient(
+                              httpClient: http.Client()
+                          )
+                      ),
+                      fromState: state.entries[index].isStarring ? EntryStarring() : EntryNotStarring()
+                  ),
+                  child: EntryWidget(entry: state.entries[index]),
+                );
+              },
+              itemCount: state.hasReachedMax
+                  ? state.entries.length
+                  : state.entries.length + 1,
+              controller: _scrollController,
+            ),
           );
         }
       },
@@ -74,40 +161,10 @@ class _FeedPageState extends State<FeedPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _entryBloc.dispatch(Fetch());
+      _entryBloc.dispatch(Fetch(sourceId: -1));
     }
   }
+
 }
 
-class BottomLoader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: Center(
-        child: SizedBox(
-          width: 33,
-          height: 33,
-          child: CircularProgressIndicator(
-            strokeWidth: 1.5,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
-class EntryWidget extends StatelessWidget {
-  final Entry entry;
-
-  const EntryWidget({Key key, @required this.entry}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(entry.title, style: TextStyle(fontSize: 16),),
-      isThreeLine: true,
-      subtitle: Text(entry.body, style: TextStyle(fontSize: 14),),
-    );
-  }
-}

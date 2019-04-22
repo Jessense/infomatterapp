@@ -10,12 +10,24 @@ class EntriesRepository {
     @required this.entriesApiClient,
   }) : assert(entriesApiClient != null);
 
-  Future<List<Entry>> getEntries(int startIndex, int limit) async {
-    return await entriesApiClient.fetchEntries(startIndex, limit);
-  }
-
   Future<List<Entry>> getTimeline(String lastTime, int lastId, int limit) async {
     return await entriesApiClient.fetchTimeline(lastTime, lastId, limit);
+  }
+
+  Future<List<Entry>> getTimelineOfSource(String lastTime, int lastId, int limit, int sourceId) async {
+    return await entriesApiClient.fetchTimelineOfSource(lastTime, lastId, limit, sourceId);
+  }
+
+  Future<List<Entry>> getBookmarks(int lastId, int limit) async {
+    return await entriesApiClient.fetchBookmark(lastId, limit);
+  }
+
+  Future<bool> starEntry(int entryId) async {
+    return await entriesApiClient.requestStar(entryId);
+  }
+
+  Future<bool> unstarEntry(int entryId) async {
+    return await entriesApiClient.requestUnstar(entryId);
   }
 
 }

@@ -62,7 +62,7 @@ class _AppState extends State<App> {
               return SplashPage();
             }
             if (state is AuthenticationAuthenticated) {
-              return Home();
+              return BottomNavigationBarController();
             }
             if (state is AuthenticationUnauthenticated) {
               return LoginPage(userRepository: userRepository);

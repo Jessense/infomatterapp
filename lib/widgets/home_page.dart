@@ -16,30 +16,35 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     FeedPage(),
-    PlaceholderWidget(Colors.deepOrange),
-    PlaceholderWidget(Colors.green),
-    PlaceholderWidget(Colors.blue)
+    BookmarkPage(),
+    SourcesDiscoveryPage(),
+    MePage()
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('My Flutter App'),
-      ),
+//      appBar: AppBar(
+//        title: Text('infomatter'),
+//      ),
       body: _children[_currentIndex], // new
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         onTap: onTabTapped, // new
         currentIndex: _currentIndex, // new
         items: [
-          new BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text('Home'),
           ),
-          new BottomNavigationBarItem(
+          BottomNavigationBarItem(
+              icon: Icon(Icons.bookmark),
+              title: Text('Bookmarks')
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.search),
             title: Text('Search'),
           ),
-          new BottomNavigationBarItem(
+          BottomNavigationBarItem(
               icon: Icon(Icons.person),
               title: Text('Me')
           )
@@ -54,38 +59,3 @@ class _HomeState extends State<Home> {
   }
 }
 
-class PlaceholderWidget extends StatelessWidget {
-  final Color color;
-
-  PlaceholderWidget(this.color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: color,
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final AuthenticationBloc authenticationBloc =
-    BlocProvider.of<AuthenticationBloc>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Container(
-        child: Center(
-            child: RaisedButton(
-              child: Text('logout'),
-              onPressed: () {
-                authenticationBloc.dispatch(LoggedOut());
-              },
-            )),
-      ),
-    );
-  }
-}
