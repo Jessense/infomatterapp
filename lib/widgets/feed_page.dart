@@ -33,13 +33,13 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
     // TODO: implement initState
-    print(PageStorage.of(context).readState(context, identifier: ValueKey('lastState')));
-    if (PageStorage.of(context).readState(context, identifier: ValueKey('lastState')) != null) {
+    print(PageStorage.of(context).readState(context, identifier: ValueKey('lastStateFeed')));
+    if (PageStorage.of(context).readState(context, identifier: ValueKey('lastStateFeed')) != null) {
       _entryBloc = EntryBloc(
         entriesRepository: EntriesRepository(
           entriesApiClient: EntriesApiClient(httpClient: http.Client()),
         ),
-        fromState: PageStorage.of(context).readState(context, identifier: ValueKey('lastState')),
+        fromState: PageStorage.of(context).readState(context, identifier: ValueKey('lastStateFeed')),
       );
     } else {
       _entryBloc = EntryBloc(
@@ -58,7 +58,8 @@ class _FeedPageState extends State<FeedPage> {
   Widget build(BuildContext context) {
     return BlocBuilder(
       bloc: _entryBloc,
-      builder: (BuildContext context, EntryState state) {PageStorage.of(context).writeState(context, state, identifier: ValueKey('lastState'));
+      builder: (BuildContext context, EntryState state) {
+        PageStorage.of(context).writeState(context, state, identifier: ValueKey('lastStateFeed'));
         if (state is EntryUninitialized) {
           return Center(
             child: CircularProgressIndicator(),
@@ -72,41 +73,10 @@ class _FeedPageState extends State<FeedPage> {
             child: Text('failed to fetch entries'),
           );
         }
-//        if (state is EntryUpdating) {
-//          if (state.entries.isEmpty) {
-//            return Column(
-//              children: <Widget>[
-//                CircularProgressIndicator(),
-//                Center(
-//                  child: Text("no entries"),
-//                )
-//              ],
-//            );
-//          }
-//          return ListView.builder(
-//            itemBuilder: (BuildContext context, int index) {
-//              if (index == 0 || index > state.entries.length) {
-//                return BottomLoader();
-//              } else {
-//                return BlocProvider(
-//                  bloc: EntryStarBloc(
-//                      entryRepository: EntriesRepository(
-//                          entriesApiClient: EntriesApiClient(
-//                              httpClient: http.Client()
-//                          )
-//                      ),
-//                      fromState: state.entries[index - 1].isStarring ? EntryStarring() : EntryNotStarring()
-//                  ),
-//                  child: EntryWidget(entry: state.entries[index - 1]),
-//                );
-//              }
-//            },
-//            itemCount: state.hasReachedMax
-//                ? state.entries.length + 1
-//                : state.entries.length + 2,
-//            controller: _scrollController,
-//          );
-//        }
+
+        if (state is EntryToTop) {
+          _entryBloc.dispatch(Update(sourceId: -1));
+        }
 
         if (state is EntryLoaded) {
           _refreshCompleter?.complete();

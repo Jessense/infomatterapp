@@ -43,13 +43,25 @@ class EntryError extends EntryState {
   String toString() => 'EntryError';
 }
 
+class EntryUpdated extends EntryState {
+  @override
+  String toString() => 'EntryUpdated';
+}
+
+class EntryToTop extends EntryState {
+  @override
+  String toString() => 'EntryToTop';
+}
+
 class EntryLoaded extends EntryState {
   final List<Entry> entries;
   final bool hasReachedMax;
+  final DateTime timenow;
 
   EntryLoaded({
     this.entries,
     this.hasReachedMax,
+    this.timenow
   }) : super([entries, hasReachedMax]);
 
   EntryLoaded copyWith({
@@ -64,31 +76,7 @@ class EntryLoaded extends EntryState {
 
   @override
   String toString() =>
-      'EntryLoaded { entries: ${entries.length}, hasReachedMax: $hasReachedMax }';
-}
-
-class EntryUpdating extends EntryState {
-  final List<Entry> entries;
-  final bool hasReachedMax;
-
-  EntryUpdating({
-    this.entries,
-    this.hasReachedMax,
-  }) : super([entries, hasReachedMax]);
-
-  EntryUpdating copyWith({
-    List<Entry> entries,
-    bool hasReachedMax,
-  }) {
-    return EntryUpdating(
-      entries: entries ?? this.entries,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-    );
-  }
-
-  @override
-  String toString() =>
-      'EntryUpdating { entries: ${entries.length}, hasReachedMax: $hasReachedMax }';
+      'EntryLoaded { entries: ${entries.length}, hasReachedMax: $hasReachedMax,  timenow: $timenow}';
 }
 
 
@@ -172,7 +160,20 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
         if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10);
           print(entries);
-          yield EntryLoaded(entries: entries, hasReachedMax: false);
+          yield EntryUpdated();
+          yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
+        }
+      } catch (_) {
+        print(_);
+        yield EntryError();
+      }
+    } else if (event is Update && event.sourceId == -2) {
+      try {
+        if (currentState is EntryLoaded) {
+          final entries = await entriesRepository.getBookmarks(1000000, 10);
+          print(entries);
+          yield EntryUpdated();
+          yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
         }
       } catch (_) {
         print(_);
