@@ -15,16 +15,18 @@ abstract class EntryEvent extends Equatable {
 
 class Fetch extends EntryEvent {
   final int sourceId;
-  Fetch({@required this.sourceId}):
-      super([sourceId]);
+  final String folder;
+  Fetch({@required this.sourceId, @required this.folder}):
+      super([sourceId, folder]);
   @override
   String toString() => 'Fetch';
 }
 
 class Update extends EntryEvent {
   final int sourceId;
-  Update({@required this.sourceId}):
-        super([sourceId]);
+  final String folder;
+  Update({@required this.sourceId, @required this.folder}):
+        super([sourceId, folder]);
   @override
   String toString() => 'Update';
 }
@@ -107,11 +109,11 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
     if (event is Fetch && event.sourceId == -1 && !_hasReachedMax(currentState)) {
       try {
         if (currentState is EntryUninitialized) {
-          final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10);
+          final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
           yield EntryLoaded(entries: entries, hasReachedMax: false);
         }
         if (currentState is EntryLoaded) {
-          final entries = await entriesRepository.getTimeline((currentState as EntryLoaded).entries.last.pubDate, 1000000, 10);
+          final entries = await entriesRepository.getTimeline((currentState as EntryLoaded).entries.last.pubDate, 1000000, 10, event.folder);
           yield entries.isEmpty
               ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
               : EntryLoaded(
@@ -158,7 +160,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
     } else if (event is Update && event.sourceId == -1) {
       try {
         if (currentState is EntryLoaded) {
-          final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10);
+          final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
           print(entries);
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
@@ -174,6 +176,17 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           print(entries);
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
+        }
+      } catch (_) {
+        print(_);
+        yield EntryError();
+      }
+    } else if (event is Update && event.sourceId > -1 && !_hasReachedMax(currentState)) {
+      try {
+        if (currentState is EntryLoaded) {
+          final entries = await entriesRepository.getTimelineOfSource("2049-12-31T23:59:59", 1000000, 10, event.sourceId);
+          yield EntryUpdated();
+          yield EntryLoaded(entries: entries, hasReachedMax: false);
         }
       } catch (_) {
         print(_);

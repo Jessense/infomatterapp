@@ -10,8 +10,8 @@ class EntriesRepository {
     @required this.entriesApiClient,
   }) : assert(entriesApiClient != null);
 
-  Future<List<Entry>> getTimeline(String lastTime, int lastId, int limit) async {
-    return await entriesApiClient.fetchTimeline(lastTime, lastId, limit);
+  Future<List<Entry>> getTimeline(String lastTime, int lastId, int limit, String folder) async {
+    return await entriesApiClient.fetchTimeline(lastTime, lastId, limit, folder);
   }
 
   Future<List<Entry>> getTimelineOfSource(String lastTime, int lastId, int limit, int sourceId) async {

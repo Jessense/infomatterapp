@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
 
 class SimpleBlocDelegate extends BlocDelegate {
   @override
@@ -52,27 +53,65 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthenticationBloc>(
-      bloc: authenticationBloc,
-      child: MaterialApp(
-        home: BlocBuilder<AuthenticationEvent, AuthenticationState>(
-          bloc: authenticationBloc,
-          builder: (BuildContext context, AuthenticationState state) {
-            if (state is AuthenticationUninitialized) {
-              return SplashPage();
-            }
-            if (state is AuthenticationAuthenticated) {
-              return BottomNavigationBarController();
-            }
-            if (state is AuthenticationUnauthenticated) {
-              return LoginPage(userRepository: userRepository);
-            }
-            if (state is AuthenticationLoading) {
-              return LoadingIndicator();
-            }
-          },
+    return new DynamicTheme(
+        defaultBrightness: Brightness.light,
+        data: (brightness) => new ThemeData(
+          primarySwatch: Colors.green,
+          primaryColor: Colors.black,
+          brightness: brightness,
         ),
-      ),
+        themedWidgetBuilder: (context, theme) {
+          return new MaterialApp(
+            theme: theme,
+            home: BlocProvider<AuthenticationBloc>(
+              bloc: authenticationBloc,
+              child: BlocBuilder<AuthenticationEvent, AuthenticationState>(
+                  bloc: authenticationBloc,
+                  builder: (BuildContext context, AuthenticationState state) {
+                    if (state is AuthenticationUninitialized) {
+                      return SplashPage();
+                    }
+                    if (state is AuthenticationAuthenticated) {
+                      return Home();
+                    }
+                    if (state is AuthenticationUnauthenticated) {
+                      return LoginPage(userRepository: userRepository);
+                    }
+                    if (state is AuthenticationLoading) {
+                      return LoadingIndicator();
+                    }
+                  },
+                ),
+            )
+          );
+        }
     );
+//    return BlocProvider<AuthenticationBloc>(
+//      bloc: authenticationBloc,
+//      child: MaterialApp(
+//        theme: new ThemeData(
+//          brightness: Brightness.dark,
+//          primaryColor: Colors.black,
+//          accentColor: Colors.black,
+//        ),
+//        home: BlocBuilder<AuthenticationEvent, AuthenticationState>(
+//          bloc: authenticationBloc,
+//          builder: (BuildContext context, AuthenticationState state) {
+//            if (state is AuthenticationUninitialized) {
+//              return SplashPage();
+//            }
+//            if (state is AuthenticationAuthenticated) {
+//              return Home();
+//            }
+//            if (state is AuthenticationUnauthenticated) {
+//              return LoginPage(userRepository: userRepository);
+//            }
+//            if (state is AuthenticationLoading) {
+//              return LoadingIndicator();
+//            }
+//          },
+//        ),
+//      ),
+//    );
   }
 }

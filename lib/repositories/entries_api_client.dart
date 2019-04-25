@@ -17,10 +17,15 @@ class EntriesApiClient {
 
 
 
-  Future<List<Entry>> fetchTimeline(String lastTime, int lastId, int limit) async {
+  Future<List<Entry>> fetchTimeline(String lastTime, int lastId, int limit, String tag) async {
+    String url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit';
+    if (tag.length > 0) {
+      url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&tag=$tag';
+    }
     final response = await httpClient.get(
-        '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit',
+        url,
         headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(url);
     print(response.statusCode.toString() + ": " + response.body);
     if (response.statusCode == 200) {
       final data = json.decode(response.body) as List;

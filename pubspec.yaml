@@ -27,6 +27,7 @@ dependencies:
   webview_flutter: ^0.3.0
   vertical_tabs: ^0.1.4
   vibration: 1.0.2
+  dynamic_theme: 1.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

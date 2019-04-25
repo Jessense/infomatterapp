@@ -20,7 +20,6 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   final _scrollController = ScrollController();
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   Completer<void> _refreshCompleter = Completer<void>();
   EntryBloc _entryBloc;
   final _scrollThreshold = 200.0;
@@ -32,24 +31,8 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    print(PageStorage.of(context).readState(context, identifier: ValueKey('lastStateFeed')));
-    if (PageStorage.of(context).readState(context, identifier: ValueKey('lastStateFeed')) != null) {
-      _entryBloc = EntryBloc(
-        entriesRepository: EntriesRepository(
-          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-        ),
-        fromState: PageStorage.of(context).readState(context, identifier: ValueKey('lastStateFeed')),
-      );
-    } else {
-      _entryBloc = EntryBloc(
-        entriesRepository: EntriesRepository(
-          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-        ),
-        fromState: EntryUninitialized(),
-      );
-      _entryBloc.dispatch(Fetch(sourceId: -1));
-    }
+    _entryBloc = BlocProvider.of<EntryBloc>(context);
+    _entryBloc.dispatch(Fetch(sourceId: -1, folder: ''));
     super.initState();
   }
 
@@ -59,7 +42,6 @@ class _FeedPageState extends State<FeedPage> {
     return BlocBuilder(
       bloc: _entryBloc,
       builder: (BuildContext context, EntryState state) {
-        PageStorage.of(context).writeState(context, state, identifier: ValueKey('lastStateFeed'));
         if (state is EntryUninitialized) {
           return Center(
             child: CircularProgressIndicator(),
@@ -73,9 +55,11 @@ class _FeedPageState extends State<FeedPage> {
             child: Text('failed to fetch entries'),
           );
         }
-
-        if (state is EntryToTop) {
-          _entryBloc.dispatch(Update(sourceId: -1));
+        
+        if (state is EntryUpdated) {
+          _refreshCompleter?.complete();
+          _refreshCompleter = Completer();
+          _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
         }
 
         if (state is EntryLoaded) {
@@ -90,7 +74,7 @@ class _FeedPageState extends State<FeedPage> {
 
           return RefreshIndicator(
             onRefresh: () {
-              _entryBloc.dispatch(Update(sourceId: -1));
+              _entryBloc.dispatch(Update(sourceId: -1, folder: ''));
               return _refreshCompleter.future;
             },
             child: ListView.builder(
@@ -131,7 +115,7 @@ class _FeedPageState extends State<FeedPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _entryBloc.dispatch(Fetch(sourceId: -1));
+      _entryBloc.dispatch(Fetch(sourceId: -1, folder: ''));
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
 
 import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/models/models.dart';
@@ -121,31 +122,36 @@ class SourceFeed extends StatefulWidget{
 }
 
 class SourceFeedState extends State<SourceFeed> {
-  final _scrollController = ScrollController();
-  final EntryBloc _entryBloc = EntryBloc(
-      entriesRepository: EntriesRepository(
-        entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-      )
+  EntryBloc entryBloc = EntryBloc(
+    entriesRepository: EntriesRepository(
+      entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+    ),
+    fromState: EntryUninitialized(),
   );
+
+  final _scrollController = ScrollController();
+  Completer<void> _refreshCompleter = Completer<void>();
   final _scrollThreshold = 200.0;
 
-  int get _sourceId => widget.sourceId;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
-  SourceFeedState() {
-    _scrollController.addListener(_onScroll);
-  }
+  int homeSourceId = -1;
+  String homeSourceFolder = '';
+
+  int get _sourceId => widget.sourceId;
 
   @override
   void initState() {
     // TODO: implement initState
-    _entryBloc.dispatch(Fetch(sourceId: _sourceId));
+    _scrollController.addListener(_onScroll);
+    fetch();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      bloc: _entryBloc,
+      bloc: entryBloc,
       builder: (BuildContext context, EntryState state) {
         if (state is EntryUninitialized) {
           return Center(
@@ -153,36 +159,57 @@ class SourceFeedState extends State<SourceFeed> {
           );
         }
         if (state is EntryError) {
+          _refreshCompleter?.complete();
+          _refreshCompleter = Completer();
+
           return Center(
             child: Text('failed to fetch entries'),
           );
         }
+
+//          if (state is EntryUpdated) {
+//            _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
+//            _refreshCompleter?.complete();
+//            _refreshCompleter = Completer();
+//          }
+
         if (state is EntryLoaded) {
+          _refreshCompleter?.complete();
+          _refreshCompleter = Completer();
+
           if (state.entries.isEmpty) {
             return Center(
               child: Text('no entries'),
             );
           }
-          return ListView.builder(
-            itemBuilder: (BuildContext context, int index) {
-              return index >= state.entries.length
-                  ? BottomLoader()
-                  : BlocProvider(
-                      bloc: EntryStarBloc(
-                          entryRepository: EntriesRepository(
-                              entriesApiClient: EntriesApiClient(
-                                  httpClient: http.Client()
-                              )
-                          ),
-                          fromState: state.entries[index].isStarring ? EntryStarring() : EntryNotStarring()
-                      ),
-                      child: EntryWidget(entry: state.entries[index]),
-                    );
+
+          return RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: () {
+              refresh();
+              return _refreshCompleter.future;
             },
-            itemCount: state.hasReachedMax
-                ? state.entries.length
-                : state.entries.length + 1,
-            controller: _scrollController,
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return index >= state.entries.length
+                    ? BottomLoader()
+                    : BlocProvider(
+                  bloc: EntryStarBloc(
+                      entryRepository: EntriesRepository(
+                          entriesApiClient: EntriesApiClient(
+                              httpClient: http.Client()
+                          )
+                      ),
+                      fromState: state.entries[index].isStarring ? EntryStarring() : EntryNotStarring()
+                  ),
+                  child: EntryWidget(entry: state.entries[index]),
+                );
+              },
+              itemCount: state.hasReachedMax
+                  ? state.entries.length
+                  : state.entries.length + 1,
+              controller: _scrollController,
+            ),
           );
         }
       },
@@ -191,7 +218,7 @@ class SourceFeedState extends State<SourceFeed> {
 
   @override
   void dispose() {
-    _entryBloc.dispose();
+    entryBloc.dispose();
     super.dispose();
   }
 
@@ -200,7 +227,15 @@ class SourceFeedState extends State<SourceFeed> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _entryBloc.dispatch(Fetch(sourceId: _sourceId));
+      fetch();
     }
+  }
+
+  void refresh() {
+    entryBloc.dispatch(Update(sourceId: _sourceId, folder: ''));
+  }
+
+  void fetch() {
+    entryBloc.dispatch(Fetch(sourceId: _sourceId, folder: ''));
   }
 }
