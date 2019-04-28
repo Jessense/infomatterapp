@@ -30,13 +30,32 @@ class EntriesApiClient {
     if (response.statusCode == 200) {
       final data = json.decode(response.body) as List;
       return data.map((rawEntry) {
+        if (rawEntry['form'] == 2) {
+          return Entry(
+              id: rawEntry['id'],
+              title: rawEntry['title'],
+              link: rawEntry['link'],
+              digest: rawEntry['digest'],
+              pubDate: rawEntry['time'],
+              form: rawEntry['form'],
+              sourcePhoto: rawEntry['source_photo'],
+              photo:  (json.decode(rawEntry['photo']) as List).map((img) {
+                return img.toString();
+              }).toList(),
+              sourceId: rawEntry['source_id'],
+              sourceName: rawEntry['source_name'],
+              isStarring: _isNumeric(rawEntry['star_user'].toString())
+          );
+        }
         return Entry(
           id: rawEntry['id'],
           title: rawEntry['title'],
           link: rawEntry['link'],
           digest: rawEntry['digest'],
           pubDate: rawEntry['time'],
-          photo: rawEntry['photo'],
+          form: rawEntry['form'],
+          sourcePhoto: rawEntry['source_photo'],
+          photo: [rawEntry['photo']],
           sourceId: rawEntry['source_id'],
           sourceName: rawEntry['source_name'],
           isStarring: _isNumeric(rawEntry['star_user'].toString())
@@ -56,13 +75,32 @@ class EntriesApiClient {
     if (response.statusCode == 200) {
       final data = json.decode(response.body) as List;
       return data.map((rawEntry) {
+        if (rawEntry['form'] == 2) {
+          return Entry(
+              id: rawEntry['id'],
+              title: rawEntry['title'],
+              link: rawEntry['link'],
+              digest: rawEntry['digest'],
+              pubDate: rawEntry['time'],
+              form: rawEntry['form'],
+              sourcePhoto: rawEntry['source_photo'],
+              photo:  (json.decode(rawEntry['photo']) as List).map((img) {
+                return img.toString();
+              }).toList(),
+              sourceId: rawEntry['source_id'],
+              sourceName: rawEntry['source_name'],
+              isStarring: _isNumeric(rawEntry['star_user'].toString())
+          );
+        }
         return Entry(
             id: rawEntry['id'],
             title: rawEntry['title'],
             link: rawEntry['link'],
             digest: rawEntry['digest'],
             pubDate: rawEntry['time'],
-            photo: rawEntry['photo'],
+            form: rawEntry['form'],
+            sourcePhoto: rawEntry['source_photo'],
+            photo:  [rawEntry['photo']],
             sourceId: rawEntry['source_id'],
             sourceName: rawEntry['source_name'],
             isStarring: _isNumeric(rawEntry['star_user'].toString())
@@ -83,17 +121,35 @@ class EntriesApiClient {
     if (response.statusCode == 200) {
       final data = json.decode(response.body) as List;
       return data.map((rawEntry) {
+        if (rawEntry['form'] == 2) {
+          return Entry(
+              id: rawEntry['id'],
+              title: rawEntry['title'],
+              link: rawEntry['link'],
+              digest: rawEntry['digest'],
+              pubDate: rawEntry['time'],
+              form: rawEntry['form'],
+              sourcePhoto: rawEntry['source_photo'],
+              photo:  (json.decode(rawEntry['photo']) as List).map((img) {
+                return img.toString();
+              }).toList(),
+              sourceId: rawEntry['source_id'],
+              sourceName: rawEntry['source_name'],
+              isStarring: true
+          );
+        }
         return Entry(
             id: rawEntry['id'],
-            starId: rawEntry['star_id'],
             title: rawEntry['title'],
             link: rawEntry['link'],
             digest: rawEntry['digest'],
             pubDate: rawEntry['time'],
-            photo: rawEntry['photo'],
+            form: rawEntry['form'],
+            sourcePhoto: rawEntry['source_photo'],
+            photo:  [rawEntry['photo']],
             sourceId: rawEntry['source_id'],
             sourceName: rawEntry['source_name'],
-            isStarring: _isNumeric(rawEntry['star_user'].toString())
+            isStarring: true
         );
       }).toList();
     } else {

@@ -10,6 +10,8 @@ import 'package:infomatterapp/blocs/entry_bloc.dart';
 import 'package:infomatterapp/blocs/entry_star_bloc.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+
 
 class Home extends StatefulWidget {
   @override
@@ -36,7 +38,8 @@ class _HomeState extends State<Home> {
 
   final _scrollController = ScrollController();
   Completer<void> _refreshCompleter = Completer<void>();
-  final _scrollThreshold = 200.0;
+  Completer<void> _refreshCompleter2 = Completer<void>();
+  final _scrollThreshold = 50.0;
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
@@ -66,6 +69,7 @@ class _HomeState extends State<Home> {
       body: BlocBuilder(
         bloc: entryBloc,
         builder: (BuildContext context, EntryState state) {
+
           if (state is EntryUninitialized) {
             return Center(
               child: CircularProgressIndicator(),
@@ -75,8 +79,20 @@ class _HomeState extends State<Home> {
             _refreshCompleter?.complete();
             _refreshCompleter = Completer();
 
-            return Center(
-              child: Text('failed to fetch entries'),
+            return RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: () {
+                entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
+                return _refreshCompleter.future;
+              },
+              child: ListView(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    child: Text('failed to fetch entries'),
+                  )
+                ],
+              ),
             );
           }
 
@@ -91,8 +107,20 @@ class _HomeState extends State<Home> {
             _refreshCompleter = Completer();
 
             if (state.entries.isEmpty) {
-              return Center(
-                child: Text('no entries'),
+              return RefreshIndicator(
+                  key: _refreshIndicatorKey,
+                  onRefresh: () {
+                    entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
+                    return _refreshCompleter.future;
+                  },
+                child: ListView(
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      child: Text('no entries'),
+                    )
+                  ],
+                ),
               );
             }
 
@@ -138,90 +166,123 @@ class _HomeState extends State<Home> {
                 );
               }
               if (state is SourceFolderError) {
-                return Center(
-                  child: Text("failed to fetch source folders"),
+                _refreshCompleter2?.complete();
+                _refreshCompleter2 = Completer();
+                return RefreshIndicator(
+                    onRefresh: () {
+                      sourceFolderBloc.dispatch(FetchSourceFolders());
+                      return _refreshCompleter2.future;
+                    },
+                  child: ListView(
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        child: Text('failed to fetch source folders'),
+                      )
+                    ],
+                  ),
                 );
               }
 
               if (state is SourceFolderLoaded) {
-                return ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return ListTile(
-                        title: Text("设置"),
-                      );
-                    } else if (index == 1) {
-                      return ListTile(
-                        title: Text("白天/夜间"),
+                _refreshCompleter2?.complete();
+                _refreshCompleter2 = Completer();
+                return RefreshIndicator(
+                  onRefresh: () {
+                    sourceFolderBloc.dispatch(FetchSourceFolders());
+                    return _refreshCompleter2.future;
+                  },
+                  child: ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == 0) {
+                        return ListTile(
+                          title: Text("设置"),
+                        );
+                      } else if (index == 1) {
+                        return ListTile(
+                          title: Text("白天/夜间"),
+                          onTap: (){
+                            changeBrightness();
+                            Navigator.of(context).pop();
+                          },
+                        );
+                      } else if (index == 2) {
+                        return ListTile(
+                          title: Text("收藏"),
+                          onTap: () {
+                            homeSourceId = -2;
+                            homeSourceFolder = '';
+                            Navigator.of(context).pop();
+                            refresh();
+                            setState(() {
+                              appBarText = "收藏";
+                            });
+                          },
+                        );
+                      } else if (index == 3) {
+                        return Divider();
+                      } else if (index == 4) {
+                        return ListTile(
+                          title: Text("订阅"),
+                          trailing: IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SourcesDiscoveryPage()));
+                              }
+                          ),
+                        );
+                      } else if (index == 5) {
+                        return ListTile(
+                          title: Text("show"),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ListTestPage()));
+                          },
+                        );
+                      }
+                      index = index - 6;
+                      return GestureDetector(
+                        child: ExpansionTile(
+                            title: state.sourceFolders[index].sourceFolderName.length > 0 ?
+                            Text(state.sourceFolders[index].sourceFolderName) :
+                            Text("全部"),
+                            children: state.sourceFolders[index].sourceList.map((source){
+                              return Container(
+                                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                child: ListTile(
+                                  leading: Image.network(source.photo, width: 20, height: 20,),
+                                  title: Text(source.name),
+                                  onTap: () {
+                                    homeSourceId = source.id;
+                                    Navigator.of(context).pop();
+                                    refresh();
+                                    setState(() {
+                                      appBarText = source.name;
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList()
+                        ),
                         onTap: (){
-                          changeBrightness();
+                          homeSourceId = -1;
+                          homeSourceFolder = state.sourceFolders[index].sourceFolderName;
                           Navigator.of(context).pop();
-                        },
-                      );
-                    } else if (index == 2) {
-                      return ListTile(
-                        title: Text("收藏"),
-                        onTap: () {
-                          homeSourceId = -2;
-                          homeSourceFolder = '';
                           refresh();
                           setState(() {
-                            appBarText = "收藏";
+                            setState(() {
+                              if (homeSourceFolder.length == 0) {
+                                appBarText = '全部';
+                              } else {
+                                appBarText = homeSourceFolder;
+                              }
+                            });
                           });
                         },
                       );
-                    } else if (index == 3) {
-                      return Divider();
-                    } else if (index == 4) {
-                      return ListTile(
-                        title: Text("订阅"),
-                        trailing: IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => SourcesDiscoveryPage()));
-                            }
-                        ),
-                      );
-                    }
-                    index = index - 5;
-                    return GestureDetector(
-                      child: ExpansionTile(
-                          title: state.sourceFolders[index].sourceFolderName.length > 0 ?
-                          Text(state.sourceFolders[index].sourceFolderName) :
-                          Text("全部"),
-                          children: state.sourceFolders[index].sourceList.map((source){
-                            return ListTile(
-                              leading: Image.network(source.photo, width: 20, height: 20,),
-                              title: Text(source.name),
-                              onTap: () {
-                                homeSourceId = source.id;
-                                Navigator.of(context).pop();
-                                refresh();
-                                setState(() {
-                                  appBarText = source.name;
-                                });
-                              },
-                            );
-                          }).toList()
-                      ),
-                      onTap: (){
-                        homeSourceId = -1;
-                        homeSourceFolder = state.sourceFolders[index].sourceFolderName;
-                        Navigator.of(context).pop();
-                        refresh();
-                        setState(() {
-                          setState(() {
-                            if (homeSourceFolder.length == 0) {
-                              appBarText = '全部';
-                            } else {
-                              appBarText = homeSourceFolder;
-                            }
-                          });
-                        });
-                      },
-                    );
-                  },
-                  itemCount: state.sourceFolders.length + 5,
+                    },
+                    itemCount: state.sourceFolders.length + 6,
+                  ),
                 );
               }
             }

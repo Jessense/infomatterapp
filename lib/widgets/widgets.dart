@@ -13,3 +13,4 @@ export './bookmark_page.dart';
 export './entry_widget.dart';
 export './bottom_loader.dart';
 export './bottom_navigation_bar_controller.dart';
+export './list_test_page.dart';

@@ -58,7 +58,10 @@ class SourceFolderLoaded extends SourceFolderState {
       'SourceFolderLoaded { sourceFolders: ${sourceFolders.length}, hasReachedMax: $hasReachedMax }';
 }
 
-
+class SourceFolderUpdated extends SourceFolderState {
+  @override
+  String toString() => 'SourceFolderUpdated';
+}
 
 
 class SourceFolderBloc extends Bloc<SourceFolderEvent, SourceFolderState> {
@@ -80,6 +83,7 @@ class SourceFolderBloc extends Bloc<SourceFolderEvent, SourceFolderState> {
         }
         if (currentState is SourceFolderLoaded) {
           final sourceFolders = await sourceFoldersRepository.getSourceFolders();
+          yield SourceFolderUpdated();
           yield SourceFolderLoaded(sourceFolders: sourceFolders, hasReachedMax: false);
         }
       } catch (_) {

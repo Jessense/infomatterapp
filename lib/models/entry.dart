@@ -6,7 +6,9 @@ class Entry extends Equatable {
   final String link;
   String digest;
   String pubDate;
-  String photo;
+  int form;
+  String sourcePhoto;
+  List<String> photo;
   int sourceId;
   String sourceName;
 
@@ -15,7 +17,7 @@ class Entry extends Equatable {
   //optional
   int starId;
 
-  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.photo, this.sourceId, this.sourceName, this.starId, this.isStarring}) : super([id, title, link, digest, pubDate, photo, sourceId, sourceName]);
+  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isStarring}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
 
   @override
   String toString() => 'Entry { id: $id }';

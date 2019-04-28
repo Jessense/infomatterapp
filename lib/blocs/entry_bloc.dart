@@ -159,35 +159,29 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       }
     } else if (event is Update && event.sourceId == -1) {
       try {
-        if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
           print(entries);
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
-        }
       } catch (_) {
         print(_);
         yield EntryError();
       }
     } else if (event is Update && event.sourceId == -2) {
       try {
-        if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getBookmarks(1000000, 10);
           print(entries);
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
-        }
       } catch (_) {
         print(_);
         yield EntryError();
       }
     } else if (event is Update && event.sourceId > -1 && !_hasReachedMax(currentState)) {
       try {
-        if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getTimelineOfSource("2049-12-31T23:59:59", 1000000, 10, event.sourceId);
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false);
-        }
       } catch (_) {
         print(_);
         yield EntryError();
