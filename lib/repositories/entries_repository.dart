@@ -22,6 +22,10 @@ class EntriesRepository {
     return await entriesApiClient.fetchBookmark(lastId, limit);
   }
 
+  Future<String> getArticle(int entryId) async{
+    return await entriesApiClient.fetchArticleContent(entryId);
+  }
+
   Future<bool> starEntry(int entryId) async {
     return await entriesApiClient.requestStar(entryId);
   }

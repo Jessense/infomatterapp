@@ -10,6 +10,7 @@ import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 
 class EntryWidget extends StatefulWidget{
@@ -34,45 +35,7 @@ class EntryWidgetState extends State<EntryWidget> {
   Widget build(BuildContext context) {
     return BlocProvider(
       bloc: _entryStarBloc,
-      child: GestureDetector(
-          onTap: (){
-            openWebView(context, _entry.link);
-          },
-//          onLongPress: () {
-//            Vibration.vibrate(duration: 20);
-//            showModalBottomSheet(context: context, builder: (BuildContext context){
-//              return BlocBuilder(
-//                bloc: _entryStarBloc,
-//                builder: (BuildContext context, EntryStarState state){
-//                  return Column(
-//                    mainAxisSize: MainAxisSize.min,
-//                    children: <Widget>[
-//                      new ListTile(
-//                        leading: (state is EntryStarring) ? Icon(Icons.bookmark): Icon(Icons.bookmark_border),
-//                        title: (state is EntryStarring)? Text('Bookmarked') : Text("Bookmark"),
-//                        onTap: () {
-//                          if (state is EntryNotStarring) {
-//                            _entryStarBloc.dispatch(StarEntry(entryId: _entry.id));
-//                          }
-//                          else if (state is EntryStarring) {
-//                            _entryStarBloc.dispatch(UnstarEntry(entryId: _entry.id));
-//                          }
-//                        },
-//                      ),
-//                      new ListTile(
-//                        leading: new Icon(Icons.arrow_forward),
-//                        title: new Text('Go to ' + _entry.sourceName),
-//                        onTap: () => {
-//                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SourcePage(sourceId: _entry.sourceId, sourceName: _entry.sourceName,)))
-//                        },
-//                      ),
-//                    ],
-//                  );;
-//                },
-//              );
-//            });
-//          },
-          child: Container(
+      child: Container(
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,20 +55,72 @@ class EntryWidgetState extends State<EntryWidget> {
                     ],
                   ),
                   SizedBox(height: 8,),
-                  _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
-                      : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo,),
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(
+                        context, MaterialPageRoute(
+                          builder: (context) => ArticlePage(
+                            title: _entry.title,
+                            link: _entry.link,
+                            id: _entry.id,
+                            sourceName: _entry.sourceName,
+                            time: _timestamp(_entry.pubDate),
+                            loadChoice: _entry.loadChoice,
+                            entryStarBloc: _entryStarBloc,
+                          ),
+                        )
+                      );
+                    },
+                    child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
+                        : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo,),
+                  ),
                   SizedBox(height: 10,),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 8,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        child: BlocBuilder(
+                          bloc: _entryStarBloc,
+                          builder: (BuildContext context, EntryStarState state) {
+                            return IconButton(
+                              icon: state is EntryStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+                              onPressed: () {
+                                if (state is EntryStarring) {
+                                  _entryStarBloc.dispatch(UnstarEntry(entryId: _entry.id));
+                                } else {
+                                  _entryStarBloc.dispatch(StarEntry(entryId: _entry.id));
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      )
+                    ],
+                  ),
                   Divider()
                 ],
               )
           ),
-        )
     );
   }
 
-  void openWebView(BuildContext context, String url) {
+  void openWebView(BuildContext context, String url, String sourceName, int id) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WebViewPage(url)));
+        MaterialPageRoute(builder: (context) => WebviewScaffold(
+          hidden: true,
+          url: url,
+          appBar: AppBar(
+            title: Text(sourceName),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.bookmark_border),
+              ),
+            ],
+          ),
+        )));
   }
 
   static String _timestamp(String timeUtcStr) {

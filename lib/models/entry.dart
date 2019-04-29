@@ -14,10 +14,12 @@ class Entry extends Equatable {
 
   bool isStarring;
 
+  int loadChoice;
+
   //optional
   int starId;
 
-  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isStarring}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
+  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isStarring, this.loadChoice}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
 
   @override
   String toString() => 'Entry { id: $id }';

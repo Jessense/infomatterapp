@@ -44,7 +44,8 @@ class EntriesApiClient {
               }).toList(),
               sourceId: rawEntry['source_id'],
               sourceName: rawEntry['source_name'],
-              isStarring: _isNumeric(rawEntry['star_user'].toString())
+              isStarring: _isNumeric(rawEntry['star_user'].toString()),
+              loadChoice: rawEntry['content_rss'],
           );
         }
         return Entry(
@@ -58,7 +59,8 @@ class EntriesApiClient {
           photo: [rawEntry['photo']],
           sourceId: rawEntry['source_id'],
           sourceName: rawEntry['source_name'],
-          isStarring: _isNumeric(rawEntry['star_user'].toString())
+          isStarring: _isNumeric(rawEntry['star_user'].toString()),
+          loadChoice: rawEntry['content_rss'],
         );
       }).toList();
     } else {
@@ -89,7 +91,8 @@ class EntriesApiClient {
               }).toList(),
               sourceId: rawEntry['source_id'],
               sourceName: rawEntry['source_name'],
-              isStarring: _isNumeric(rawEntry['star_user'].toString())
+              isStarring: _isNumeric(rawEntry['star_user'].toString()),
+            loadChoice: rawEntry['content_rss'],
           );
         }
         return Entry(
@@ -103,7 +106,8 @@ class EntriesApiClient {
             photo:  [rawEntry['photo']],
             sourceId: rawEntry['source_id'],
             sourceName: rawEntry['source_name'],
-            isStarring: _isNumeric(rawEntry['star_user'].toString())
+            isStarring: _isNumeric(rawEntry['star_user'].toString()),
+          loadChoice: rawEntry['content_rss'],
         );
       }).toList();
     } else {
@@ -135,7 +139,8 @@ class EntriesApiClient {
               }).toList(),
               sourceId: rawEntry['source_id'],
               sourceName: rawEntry['source_name'],
-              isStarring: true
+              isStarring: true,
+            loadChoice: rawEntry['content_rss'],
           );
         }
         return Entry(
@@ -149,7 +154,8 @@ class EntriesApiClient {
             photo:  [rawEntry['photo']],
             sourceId: rawEntry['source_id'],
             sourceName: rawEntry['source_name'],
-            isStarring: true
+            isStarring: true,
+          loadChoice: rawEntry['content_rss'],
         );
       }).toList();
     } else {
@@ -187,6 +193,18 @@ class EntriesApiClient {
       return true;
     } else {
       return false;
+    }
+  }
+  
+  Future<String> fetchArticleContent(int entryId) async {
+    final url = '$baseUrl/entries/content?entry_id=' + entryId.toString();
+    final response = await httpClient.get(url,
+        headers: {HttpHeaders.authorizationHeader: await getToken()});
+    if (response.statusCode == 200) {
+      print(response.body);
+      return response.body;
+    } else {
+      return '';
     }
   }
 
