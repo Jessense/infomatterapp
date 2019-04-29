@@ -38,40 +38,40 @@ class EntryWidgetState extends State<EntryWidget> {
           onTap: (){
             openWebView(context, _entry.link);
           },
-          onLongPress: () {
-            Vibration.vibrate(duration: 20);
-            showModalBottomSheet(context: context, builder: (BuildContext context){
-              return BlocBuilder(
-                bloc: _entryStarBloc,
-                builder: (BuildContext context, EntryStarState state){
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      new ListTile(
-                        leading: (state is EntryStarring) ? Icon(Icons.bookmark): Icon(Icons.bookmark_border),
-                        title: (state is EntryStarring)? Text('Bookmarked') : Text("Bookmark"),
-                        onTap: () {
-                          if (state is EntryNotStarring) {
-                            _entryStarBloc.dispatch(StarEntry(entryId: _entry.id));
-                          }
-                          else if (state is EntryStarring) {
-                            _entryStarBloc.dispatch(UnstarEntry(entryId: _entry.id));
-                          }
-                        },
-                      ),
-                      new ListTile(
-                        leading: new Icon(Icons.arrow_forward),
-                        title: new Text('Go to ' + _entry.sourceName),
-                        onTap: () => {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SourcePage(sourceId: _entry.sourceId, sourceName: _entry.sourceName,)))
-                        },
-                      ),
-                    ],
-                  );;
-                },
-              );
-            });
-          },
+//          onLongPress: () {
+//            Vibration.vibrate(duration: 20);
+//            showModalBottomSheet(context: context, builder: (BuildContext context){
+//              return BlocBuilder(
+//                bloc: _entryStarBloc,
+//                builder: (BuildContext context, EntryStarState state){
+//                  return Column(
+//                    mainAxisSize: MainAxisSize.min,
+//                    children: <Widget>[
+//                      new ListTile(
+//                        leading: (state is EntryStarring) ? Icon(Icons.bookmark): Icon(Icons.bookmark_border),
+//                        title: (state is EntryStarring)? Text('Bookmarked') : Text("Bookmark"),
+//                        onTap: () {
+//                          if (state is EntryNotStarring) {
+//                            _entryStarBloc.dispatch(StarEntry(entryId: _entry.id));
+//                          }
+//                          else if (state is EntryStarring) {
+//                            _entryStarBloc.dispatch(UnstarEntry(entryId: _entry.id));
+//                          }
+//                        },
+//                      ),
+//                      new ListTile(
+//                        leading: new Icon(Icons.arrow_forward),
+//                        title: new Text('Go to ' + _entry.sourceName),
+//                        onTap: () => {
+//                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SourcePage(sourceId: _entry.sourceId, sourceName: _entry.sourceName,)))
+//                        },
+//                      ),
+//                    ],
+//                  );;
+//                },
+//              );
+//            });
+//          },
           child: Container(
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
               child: Column(

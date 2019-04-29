@@ -131,6 +131,7 @@ class _HomeState extends State<Home> {
                 return _refreshCompleter.future;
               },
               child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics (),
                 itemBuilder: (BuildContext context, int index) {
                   return index >= state.entries.length
                       ? BottomLoader()
