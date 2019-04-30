@@ -7,7 +7,6 @@ import 'package:dynamic_theme/dynamic_theme.dart';
 
 import 'package:infomatterapp/blocs/source_folder_bloc.dart';
 import 'package:infomatterapp/blocs/entry_bloc.dart';
-import 'package:infomatterapp/blocs/entry_star_bloc.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -21,20 +20,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  SourceFolderBloc sourceFolderBloc = SourceFolderBloc(
-      sourceFoldersRepository: SourceFolderRepository(
-          sourceFolderApiClient: SourceFolderApiClient(
-            httpClient: http.Client()
-          )
-      )
-  );
-
-  EntryBloc entryBloc = EntryBloc(
-    entriesRepository: EntriesRepository(
-      entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-    ),
-    fromState: EntryUninitialized(),
-  );
+  SourceFolderBloc get sourceFolderBloc => BlocProvider.of<SourceFolderBloc>(context);
+  EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
 
   final _scrollController = ScrollController();
   Completer<void> _refreshCompleter = Completer<void>();
@@ -58,11 +45,8 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(title: Text(appBarText), ),
@@ -75,6 +59,7 @@ class _HomeState extends State<Home> {
               child: CircularProgressIndicator(),
             );
           }
+
           if (state is EntryError) {
             _refreshCompleter?.complete();
             _refreshCompleter = Completer();
@@ -133,19 +118,10 @@ class _HomeState extends State<Home> {
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics (),
                 itemBuilder: (BuildContext context, int index) {
+                  print('rebuild entry $index');
                   return index >= state.entries.length
                       ? BottomLoader()
-                      : BlocProvider(
-                          bloc: EntryStarBloc(
-                          entryRepository: EntriesRepository(
-                            entriesApiClient: EntriesApiClient(
-                                httpClient: http.Client()
-                            )
-                          ),
-                          fromState: state.entries[index].isStarring ? EntryStarring() : EntryNotStarring()
-                      ),
-                    child: EntryWidget(entry: state.entries[index]),
-                  );
+                      : EntryWidget(entry: state.entries[index]);
                 },
                 itemCount: state.hasReachedMax
                     ? state.entries.length

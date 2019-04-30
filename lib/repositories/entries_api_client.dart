@@ -45,6 +45,7 @@ class EntriesApiClient {
               sourceId: rawEntry['source_id'],
               sourceName: rawEntry['source_name'],
               isStarring: _isNumeric(rawEntry['star_user'].toString()),
+              isReaded: _isNumeric(rawEntry['readed_user'].toString()),
               loadChoice: rawEntry['content_rss'],
           );
         }
@@ -60,6 +61,7 @@ class EntriesApiClient {
           sourceId: rawEntry['source_id'],
           sourceName: rawEntry['source_name'],
           isStarring: _isNumeric(rawEntry['star_user'].toString()),
+          isReaded: _isNumeric(rawEntry['readed_user'].toString()),
           loadChoice: rawEntry['content_rss'],
         );
       }).toList();
@@ -92,6 +94,7 @@ class EntriesApiClient {
               sourceId: rawEntry['source_id'],
               sourceName: rawEntry['source_name'],
               isStarring: _isNumeric(rawEntry['star_user'].toString()),
+            isReaded: _isNumeric(rawEntry['readed_user'].toString()),
             loadChoice: rawEntry['content_rss'],
           );
         }
@@ -107,6 +110,7 @@ class EntriesApiClient {
             sourceId: rawEntry['source_id'],
             sourceName: rawEntry['source_name'],
             isStarring: _isNumeric(rawEntry['star_user'].toString()),
+          isReaded: _isNumeric(rawEntry['readed_user'].toString()),
           loadChoice: rawEntry['content_rss'],
         );
       }).toList();
@@ -140,6 +144,7 @@ class EntriesApiClient {
               sourceId: rawEntry['source_id'],
               sourceName: rawEntry['source_name'],
               isStarring: true,
+            isReaded: _isNumeric(rawEntry['readed_user'].toString()),
             loadChoice: rawEntry['content_rss'],
           );
         }
@@ -155,6 +160,7 @@ class EntriesApiClient {
             sourceId: rawEntry['source_id'],
             sourceName: rawEntry['source_name'],
             isStarring: true,
+          isReaded: _isNumeric(rawEntry['readed_user'].toString()),
           loadChoice: rawEntry['content_rss'],
         );
       }).toList();
@@ -167,6 +173,8 @@ class EntriesApiClient {
   Future<bool> requestStar(int entryId) async{
     final response = await httpClient.get("$baseUrl/users/star?entry_id=$entryId",
         headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(response.statusCode.toString() + ": " + response.body);
+
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -178,6 +186,8 @@ class EntriesApiClient {
   Future<bool> requestUnstar(int entryId) async{
     final response = await httpClient.get("$baseUrl/users/unstar?entry_id=$entryId",
         headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(response.statusCode.toString() + ": " + response.body);
+
     if (response.statusCode == 200) {
       return true;
     } else {

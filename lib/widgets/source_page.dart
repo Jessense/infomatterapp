@@ -193,17 +193,7 @@ class SourceFeedState extends State<SourceFeed> {
               itemBuilder: (BuildContext context, int index) {
                 return index >= state.entries.length
                     ? BottomLoader()
-                    : BlocProvider(
-                  bloc: EntryStarBloc(
-                      entryRepository: EntriesRepository(
-                          entriesApiClient: EntriesApiClient(
-                              httpClient: http.Client()
-                          )
-                      ),
-                      fromState: state.entries[index].isStarring ? EntryStarring() : EntryNotStarring()
-                  ),
-                  child: EntryWidget(entry: state.entries[index]),
-                );
+                    : EntryWidget(entry: state.entries[index]);
               },
               itemCount: state.hasReachedMax
                   ? state.entries.length

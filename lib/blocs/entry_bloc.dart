@@ -31,6 +31,26 @@ class Update extends EntryEvent {
   String toString() => 'Update';
 }
 
+class StarEntry extends EntryEvent{
+  final int entryId;
+  StarEntry({@required this.entryId}):
+        assert(entryId != null),
+        super([entryId]);
+
+  @override
+  String toString() => 'StarEntry { entry: $entryId }';
+}
+
+class UnstarEntry extends EntryEvent{
+  final int entryId;
+  UnstarEntry({@required this.entryId}):
+        assert(entryId != null),
+        super([entryId]);
+
+  @override
+  String toString() => 'UnstarEntry { entry: $entryId }';
+}
+
 abstract class EntryState extends Equatable {
   EntryState([List props = const []]) : super(props);
 }
@@ -53,6 +73,13 @@ class EntryUpdated extends EntryState {
 class EntryToTop extends EntryState {
   @override
   String toString() => 'EntryToTop';
+}
+
+class EntryMessageArrived extends EntryState {
+  final String message;
+  EntryMessageArrived(this.message);
+  @override
+  String toString() => 'EntryMessageArrived';
 }
 
 class EntryLoaded extends EntryState {
@@ -185,6 +212,35 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       } catch (_) {
         print(_);
         yield EntryError();
+      }
+    } else if (event is StarEntry) {
+      if (currentState is EntryLoaded) {
+        final response = await entriesRepository.starEntry(event.entryId);
+        if (response) {
+          final List<Entry> updatedEntries = (currentState as EntryLoaded).entries.map((entry) {
+            return entry.id == event.entryId ? entry.copyWith(isStarring: true) : entry;
+          }).toList();
+          yield EntryUpdated();
+          yield EntryLoaded(entries: updatedEntries, hasReachedMax: false);
+        } else {
+          yield EntryMessageArrived('star failed');
+          yield EntryLoaded(entries: (currentState as EntryLoaded).entries, hasReachedMax: false);
+        }
+      }
+    } else if (event is UnstarEntry) {
+      if (currentState is EntryLoaded) {
+        final response = await entriesRepository.unstarEntry(event.entryId);
+        if (response) {
+          final List<Entry> updatedEntries =
+          (currentState as EntryLoaded).entries.map((entry) {
+            return entry.id == event.entryId ? entry.copyWith(isStarring: false) : entry;
+          }).toList();
+          yield EntryUpdated();
+          yield EntryLoaded(entries: updatedEntries, hasReachedMax: false);
+        } else {
+          yield EntryMessageArrived('unstar failed');
+          yield EntryLoaded(entries: (currentState as EntryLoaded).entries, hasReachedMax: false);
+        }
       }
     }
   }

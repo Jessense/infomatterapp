@@ -5,19 +5,13 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:infomatterapp/blocs/article_bloc.dart';
-import 'package:infomatterapp/blocs/entry_star_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
-
+import 'package:infomatterapp/blocs/entry_bloc.dart';
+import 'package:infomatterapp/models/entry.dart';
 
 class ArticlePage extends StatefulWidget{
-  final String title;
-  final String link;
-  final int id;
-  final String sourceName;
-  final String time;
-  final int loadChoice; //1: full-text rss - from server;
-  final EntryStarBloc entryStarBloc;
-  ArticlePage({Key key, this.title, this.link, this.id, this.sourceName, this.time, this.loadChoice, this.entryStarBloc}):
+  final Entry entry;//1: full-text rss - from server;
+  ArticlePage({Key key, this.entry}):
       super(key: key);
   @override
   State<ArticlePage> createState() {
@@ -28,14 +22,10 @@ class ArticlePage extends StatefulWidget{
 
 class ArticlePageState extends State<ArticlePage> {
   ArticleBloc articleBloc;
-  String get _title => widget.title;
-  String get _link => widget.link;
-  int get _id => widget.id;
-  String get _sourceName => widget.sourceName;
-  String get _time => widget.time;
-  int get _loadChoice => widget.loadChoice;
 
-  EntryStarBloc get entryStarBloc => widget.entryStarBloc;
+  EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
+  Entry get entry => widget.entry;
+
 
   String header;
   final String css = "<style>p{font-size :16px !important;line-height:30px !important}</style><style>a{color:#4285F4; text-decoration:none}</style><body style=\"margin: 0; padding: 20\"><style>img{max-width: 100%; width:auto; height: auto;}</style>";
@@ -43,27 +33,44 @@ class ArticlePageState extends State<ArticlePage> {
   @override
   void initState() {
     // TODO: implement initState
-  if (_loadChoice == 1) {
+  if (entry.loadChoice == 1) {
     articleBloc = ArticleBloc(
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
-    articleBloc.dispatch(FetchArticle(entryId: _id));
+    articleBloc.dispatch(FetchArticle(entryId: entry.id));
   }
 
-    header = "<h2>" + "<a href=\"" + _link + "\" style=\"color:#000000\">" + _title + "</a>" + "</h2>" + "<i>" + _sourceName + " / " + _time + "</i><p>";
+    header = "<h2>" + "<a href=\"" + entry.link + "\" style=\"color:#000000\">" + entry.title + "</a>" + "</h2>" + "<i>" + entry.sourceName + " / " + entry.pubDate + "</i><p>";
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    if (_loadChoice == 1) {
+    if (entry.loadChoice == 1) {
       return BlocBuilder(
         bloc: articleBloc,
         builder: (BuildContext context, ArticleState state) {
           if (state is ArticleUninitialized) {
             return Scaffold(
-              appBar: articleAppBar(),
+              appBar: AppBar(
+                actions: <Widget>[
+                  BlocBuilder(
+                    bloc: entryBloc,
+                    builder: (BuildContext context, EntryState state) {
+                      return IconButton(
+                        icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+                        onPressed: () {
+                          if (!entry.isStarring) {
+                            entryBloc.dispatch(StarEntry(entryId: entry.id));
+                          } else {
+                            entryBloc.dispatch(UnstarEntry(entryId: entry.id));
+                          }
+                        },
+                      );
+                    },
+                  )
+                ],
+              ),
               body: Center(
                 child: CircularProgressIndicator(),
               ),
@@ -71,7 +78,25 @@ class ArticlePageState extends State<ArticlePage> {
           }
           if (state is ArticleLoaded) {
             return WebviewScaffold(
-              appBar: articleAppBar(),
+              appBar: AppBar(
+                actions: <Widget>[
+                  BlocBuilder(
+                    bloc: entryBloc,
+                    builder: (BuildContext context, EntryState state) {
+                      return IconButton(
+                        icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+                        onPressed: () {
+                          if (!entry.isStarring) {
+                            entryBloc.dispatch(StarEntry(entryId: entry.id));
+                          } else {
+                            entryBloc.dispatch(UnstarEntry(entryId: entry.id));
+                          }
+                        },
+                      );
+                    },
+                  )
+                ],
+              ),
               url: Uri.dataFromString(header + state.content + css, mimeType: 'text/html', encoding: utf8).toString(),
               hidden: true,
             );
@@ -80,26 +105,51 @@ class ArticlePageState extends State<ArticlePage> {
       );
     } else {
       return WebviewScaffold(
-        appBar: articleAppBar(),
-        url: _link,
+        appBar: AppBar(
+          actions: <Widget>[
+            BlocBuilder(
+              bloc: entryBloc,
+              builder: (BuildContext context, EntryState state) {
+                return IconButton(
+                  icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+                  onPressed: () {
+                    if (!entry.isStarring) {
+                      entryBloc.dispatch(StarEntry(entryId: entry.id));
+                    } else {
+                      entryBloc.dispatch(UnstarEntry(entryId: entry.id));
+                    }
+                  },
+                );
+              },
+            )
+          ],
+        ),
+        url: entry.link,
         hidden: true,
       );
     }
   }
+}
 
-  Widget articleAppBar() {
+class ArticleAppBar extends StatelessWidget {
+  final Entry entry;
+  ArticleAppBar(this.entry);
+  @override
+  Widget build(BuildContext context) {
+    final entryBloc = BlocProvider.of<EntryBloc>(context);
+    // TODO: implement build
     return AppBar(
       actions: <Widget>[
         BlocBuilder(
-          bloc: entryStarBloc,
-          builder: (BuildContext context, EntryStarState state) {
+          bloc: entryBloc,
+          builder: (BuildContext context, EntryState state) {
             return IconButton(
-              icon: state is EntryStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+              icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
               onPressed: () {
-                if (state is EntryStarring) {
-                  entryStarBloc.dispatch(UnstarEntry(entryId: _id));
+                if (!entry.isStarring) {
+                  entryBloc.dispatch(StarEntry(entryId: entry.id));
                 } else {
-                  entryStarBloc.dispatch(StarEntry(entryId: _id));
+                  entryBloc.dispatch(UnstarEntry(entryId: entry.id));
                 }
               },
             );

@@ -29,81 +29,72 @@ class EntryWidget extends StatefulWidget{
 class EntryWidgetState extends State<EntryWidget> {
 
   Entry get _entry => widget.entry;
-  EntryStarBloc get _entryStarBloc => BlocProvider.of<EntryStarBloc>(context);
+
   
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      bloc: _entryStarBloc,
-      child: Container(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Image.network(_entry.sourcePhoto, width: 20, height: 20,),
+    final entryBloc = BlocProvider.of<EntryBloc>(context);
+
+    return BlocBuilder(
+      bloc: entryBloc,
+      builder: (BuildContext context, EntryState state) {
+        return Container(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Image.network(_entry.sourcePhoto, width: 20, height: 20),
+                    ),
+                    Expanded(
+                      flex: 8,
+                      child: Text(_entry.sourceName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),),
+                    ),
+                    Expanded(
+                      child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
+                    )
+                  ],
+                ),
+                SizedBox(height: 8,),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ArticlePage(entry: _entry,),
+                    )
+                    );
+                  },
+                  child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
+                      : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo,),
+                ),
+                SizedBox(height: 10,),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 8,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      child: IconButton(
+                        icon: _entry.isStarring == true ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+                        onPressed: () {
+                          if (_entry.isStarring == true) {
+                            entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
+                          } else {
+                            entryBloc.dispatch(StarEntry(entryId: _entry.id));
+                          }
+                        },
                       ),
-                      Expanded(
-                        flex: 8,
-                        child: Text(_entry.sourceName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),),
-                      ),
-                      Expanded(
-                        child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 8,),
-                  GestureDetector(
-                    onTap: (){
-                      Navigator.push(
-                        context, MaterialPageRoute(
-                          builder: (context) => ArticlePage(
-                            title: _entry.title,
-                            link: _entry.link,
-                            id: _entry.id,
-                            sourceName: _entry.sourceName,
-                            time: _timestamp(_entry.pubDate),
-                            loadChoice: _entry.loadChoice,
-                            entryStarBloc: _entryStarBloc,
-                          ),
-                        )
-                      );
-                    },
-                    child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
-                        : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo,),
-                  ),
-                  SizedBox(height: 10,),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 8,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        child: BlocBuilder(
-                          bloc: _entryStarBloc,
-                          builder: (BuildContext context, EntryStarState state) {
-                            return IconButton(
-                              icon: state is EntryStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
-                              onPressed: () {
-                                if (state is EntryStarring) {
-                                  _entryStarBloc.dispatch(UnstarEntry(entryId: _entry.id));
-                                } else {
-                                  _entryStarBloc.dispatch(StarEntry(entryId: _entry.id));
-                                }
-                              },
-                            );
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                  Divider()
-                ],
-              )
-          ),
+                    )
+                  ],
+                ),
+                Divider()
+              ],
+            )
+        );
+      },
+
     );
   }
 
@@ -218,7 +209,7 @@ class ArticleEntry extends StatelessWidget{
               Expanded(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(5.0),
-                    child: Image.network(photo[0], height: 50, width: 50,),
+                    child: Image.network(photo[0], height: 50, width: 50, fit: BoxFit.cover,),
                   )
               ),
             ],
@@ -258,7 +249,7 @@ class WeiboEntry extends StatelessWidget{
 
     Widget imageWrapper(int index, double width) {
       return GestureDetector(
-        child: Image.network(photo[index], width: width, height: height,),
+        child: Image.network(photo[index], width: width, height: height, fit: BoxFit.cover,),
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => Container(
             child: GestureDetector(

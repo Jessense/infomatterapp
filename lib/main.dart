@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
+import 'package:infomatterapp/blocs/source_folder_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
@@ -36,11 +37,28 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   AuthenticationBloc authenticationBloc;
+  EntryBloc entryBloc;
+  SourceFolderBloc sourceFolderBloc;
   UserRepository get userRepository => widget.userRepository;
+
 
   @override
   void initState() {
     authenticationBloc = AuthenticationBloc(userRepository: userRepository);
+    entryBloc = EntryBloc(
+      entriesRepository: EntriesRepository(
+        entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+      ),
+      fromState: EntryUninitialized(),
+    );
+    sourceFolderBloc = SourceFolderBloc(
+        sourceFoldersRepository: SourceFolderRepository(
+            sourceFolderApiClient: SourceFolderApiClient(
+                httpClient: http.Client()
+            )
+        )
+    );
+
     authenticationBloc.dispatch(AppStarted());
     super.initState();
   }
@@ -61,6 +79,33 @@ class _AppState extends State<App> {
           brightness: brightness,
         ),
         themedWidgetBuilder: (context, theme) {
+          return BlocProviderTree(
+              blocProviders: [
+                BlocProvider<AuthenticationBloc>(bloc: authenticationBloc,),
+                BlocProvider<EntryBloc>(bloc: entryBloc,),
+                BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),
+              ],
+              child: MaterialApp(
+                  theme: theme,
+                  home: BlocBuilder<AuthenticationEvent, AuthenticationState>(
+                    bloc: authenticationBloc,
+                    builder: (BuildContext context, AuthenticationState state) {
+                      if (state is AuthenticationUninitialized) {
+                        return SplashPage();
+                      }
+                      if (state is AuthenticationAuthenticated) {
+                        return Home();
+                      }
+                      if (state is AuthenticationUnauthenticated) {
+                        return LoginPage(userRepository: userRepository);
+                      }
+                      if (state is AuthenticationLoading) {
+                        return LoadingIndicator();
+                      }
+                    },
+                  ),
+              )
+          );
           return new MaterialApp(
             theme: theme,
             home: BlocProvider<AuthenticationBloc>(
