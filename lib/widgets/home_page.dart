@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
                   print('rebuild entry $index');
                   return index >= state.entries.length
                       ? BottomLoader()
-                      : EntryWidget(entry: state.entries[index]);
+                      : EntryWidget(entry: state.entries[index], index: index,);
                 },
                 itemCount: state.hasReachedMax
                     ? state.entries.length

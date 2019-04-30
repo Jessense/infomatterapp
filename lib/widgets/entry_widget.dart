@@ -15,7 +15,8 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class EntryWidget extends StatefulWidget{
   final Entry entry;
-  EntryWidget({Key key, @required this.entry}):
+  final int index;
+  EntryWidget({Key key, @required this.entry, this.index}):
       assert(entry != null),
       super(key: key);
       
@@ -29,7 +30,7 @@ class EntryWidget extends StatefulWidget{
 class EntryWidgetState extends State<EntryWidget> {
 
   Entry get _entry => widget.entry;
-
+  int get _index => widget.index;
   
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,7 @@ class EntryWidgetState extends State<EntryWidget> {
                 GestureDetector(
                   onTap: (){
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ArticlePage(entry: _entry,),
+                      builder: (context) => ArticlePage(entry: _entry, index: _index,),
                     )
                     );
                   },
@@ -77,7 +78,7 @@ class EntryWidgetState extends State<EntryWidget> {
                     ),
                     Expanded(
                       child: IconButton(
-                        icon: _entry.isStarring == true ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+                        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
                         onPressed: () {
                           if (_entry.isStarring == true) {
                             entryBloc.dispatch(UnstarEntry(entryId: _entry.id));

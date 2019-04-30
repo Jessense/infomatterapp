@@ -74,7 +74,7 @@ class _AppState extends State<App> {
     return new DynamicTheme(
         defaultBrightness: Brightness.light,
         data: (brightness) => new ThemeData(
-          primarySwatch: Colors.green,
+          primarySwatch: Colors.red,
           primaryColor: Colors.black,
           brightness: brightness,
         ),

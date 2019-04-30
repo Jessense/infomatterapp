@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
@@ -8,10 +9,12 @@ import 'package:infomatterapp/blocs/article_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/blocs/entry_bloc.dart';
 import 'package:infomatterapp/models/entry.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticlePage extends StatefulWidget{
+  final int index;
   final Entry entry;//1: full-text rss - from server;
-  ArticlePage({Key key, this.entry}):
+  ArticlePage({Key key, this.entry, this.index}):
       super(key: key);
   @override
   State<ArticlePage> createState() {
@@ -25,10 +28,11 @@ class ArticlePageState extends State<ArticlePage> {
 
   EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
   Entry get entry => widget.entry;
+  int get _index => widget.index;
 
 
   String header;
-  final String css = "<style>p{font-size :16px !important;line-height:30px !important}</style><style>a{color:#4285F4; text-decoration:none}</style><body style=\"margin: 0; padding: 20\"><style>img{max-width: 100%; width:auto; height: auto;}</style>";
+  String colorCSS;
 
   @override
   void initState() {
@@ -38,39 +42,42 @@ class ArticlePageState extends State<ArticlePage> {
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
     articleBloc.dispatch(FetchArticle(entryId: entry.id));
-  }
+    header = "<h2>" + "<a href=\"" + entry.link + "\">" + entry.title + "</a>" + "</h2>" + "<i>" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</i><p>";
 
-    header = "<h2>" + "<a href=\"" + entry.link + "\" style=\"color:#000000\">" + entry.title + "</a>" + "</h2>" + "<i>" + entry.sourceName + " / " + entry.pubDate + "</i><p>";
+  }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (Theme.of(context).brightness == Brightness.light) {
+      colorCSS = '<style>'
+          'body {background-color: white; margin: 0; padding: 20;}'
+          'h1   {color: black;}'
+          'h2   {color: black;}'
+          'h3   {color: black;}'
+          'p    {color: black; font-size :16px; line-height:30px}'
+          'a    {color:#F44336; text-decoration: none;}'
+          'img  {max-width: 100%; width:auto; height: auto;}'
+          '</style>';
+    } else {
+      colorCSS = '<style>'
+          'body {background-color: black; margin: 0; padding: 20;}'
+          'h1   {color: white;}'
+          'h2   {color: white;}'
+          'h3   {color: white;}'
+          'p    {color: white; font-size :16px; line-height:30px}'
+          'a    {color:#F44336; text-decoration: none;}'
+          'img  {max-width: 100%; width:auto; height: auto;}'
+          '</style>';
+    }
     if (entry.loadChoice == 1) {
       return BlocBuilder(
         bloc: articleBloc,
         builder: (BuildContext context, ArticleState state) {
           if (state is ArticleUninitialized) {
             return Scaffold(
-              appBar: AppBar(
-                actions: <Widget>[
-                  BlocBuilder(
-                    bloc: entryBloc,
-                    builder: (BuildContext context, EntryState state) {
-                      return IconButton(
-                        icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
-                        onPressed: () {
-                          if (!entry.isStarring) {
-                            entryBloc.dispatch(StarEntry(entryId: entry.id));
-                          } else {
-                            entryBloc.dispatch(UnstarEntry(entryId: entry.id));
-                          }
-                        },
-                      );
-                    },
-                  )
-                ],
-              ),
+              appBar: articleAppBar(),
               body: Center(
                 child: CircularProgressIndicator(),
               ),
@@ -78,26 +85,8 @@ class ArticlePageState extends State<ArticlePage> {
           }
           if (state is ArticleLoaded) {
             return WebviewScaffold(
-              appBar: AppBar(
-                actions: <Widget>[
-                  BlocBuilder(
-                    bloc: entryBloc,
-                    builder: (BuildContext context, EntryState state) {
-                      return IconButton(
-                        icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
-                        onPressed: () {
-                          if (!entry.isStarring) {
-                            entryBloc.dispatch(StarEntry(entryId: entry.id));
-                          } else {
-                            entryBloc.dispatch(UnstarEntry(entryId: entry.id));
-                          }
-                        },
-                      );
-                    },
-                  )
-                ],
-              ),
-              url: Uri.dataFromString(header + state.content + css, mimeType: 'text/html', encoding: utf8).toString(),
+              appBar: articleAppBar(),
+              url: Uri.dataFromString(header + state.content + colorCSS, mimeType: 'text/html', encoding: utf8).toString(),
               hidden: true,
             );
           }
@@ -105,57 +94,72 @@ class ArticlePageState extends State<ArticlePage> {
       );
     } else {
       return WebviewScaffold(
-        appBar: AppBar(
-          actions: <Widget>[
-            BlocBuilder(
-              bloc: entryBloc,
-              builder: (BuildContext context, EntryState state) {
-                return IconButton(
-                  icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
-                  onPressed: () {
-                    if (!entry.isStarring) {
-                      entryBloc.dispatch(StarEntry(entryId: entry.id));
-                    } else {
-                      entryBloc.dispatch(UnstarEntry(entryId: entry.id));
-                    }
-                  },
-                );
-              },
-            )
-          ],
-        ),
+        appBar: articleAppBar(),
         url: entry.link,
         hidden: true,
       );
     }
   }
-}
 
-class ArticleAppBar extends StatelessWidget {
-  final Entry entry;
-  ArticleAppBar(this.entry);
-  @override
-  Widget build(BuildContext context) {
-    final entryBloc = BlocProvider.of<EntryBloc>(context);
-    // TODO: implement build
+
+  Widget articleAppBar() {
     return AppBar(
       actions: <Widget>[
         BlocBuilder(
           bloc: entryBloc,
           builder: (BuildContext context, EntryState state) {
+            if (state is EntryLoaded)
             return IconButton(
-              icon: entry.isStarring ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
+              icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
               onPressed: () {
-                if (!entry.isStarring) {
-                  entryBloc.dispatch(StarEntry(entryId: entry.id));
+                if (!state.entries[_index].isStarring) {
+                  entryBloc.dispatch(StarEntry(entryId: state.entries[_index].id));
                 } else {
-                  entryBloc.dispatch(UnstarEntry(entryId: entry.id));
+                  entryBloc.dispatch(UnstarEntry(entryId: state.entries[_index].id));
                 }
               },
             );
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.share),
+          onPressed: () {
+            Share.share(entry.title + '\n' + entry.link);
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.open_in_browser),
+          onPressed: () {
+            _launchURL(entry.link);
           },
         )
       ],
     );
   }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  static String _timestamp(String timeUtcStr) {
+    DateTime oldDate = DateTime.parse(timeUtcStr);
+    String timestamp;
+    DateTime currentDate = DateTime.now();
+    Duration difference = currentDate.difference(oldDate);
+    if (difference.inSeconds < 60) {
+      timestamp = 'Now';
+    } else if (difference.inMinutes < 60) {
+      timestamp = '${difference.inMinutes}m';
+    } else if (difference.inHours < 24) {
+      timestamp = '${difference.inHours}h';
+    } else if (difference.inDays < 30) {
+      timestamp = '${difference.inDays}d';
+    }
+    return timestamp;
+  }
+
 }
