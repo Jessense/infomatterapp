@@ -49,7 +49,23 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(title: Text(appBarText), ),
+      appBar: AppBar(
+        title: Text(appBarText),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: () {
+
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+
+            },
+          )
+        ],
+      ),
       body: BlocBuilder(
         bloc: entryBloc,
         builder: (BuildContext context, EntryState state) {
