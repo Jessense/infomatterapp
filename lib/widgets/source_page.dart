@@ -122,12 +122,7 @@ class SourceFeed extends StatefulWidget{
 }
 
 class SourceFeedState extends State<SourceFeed> {
-  EntryBloc entryBloc = EntryBloc(
-    entriesRepository: EntriesRepository(
-      entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-    ),
-    fromState: EntryUninitialized(),
-  );
+  EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
 
   final _scrollController = ScrollController();
   Completer<void> _refreshCompleter = Completer<void>();
@@ -135,7 +130,7 @@ class SourceFeedState extends State<SourceFeed> {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
-  int homeSourceId = -1;
+  int get homeSourceId => widget.sourceId;
   String homeSourceFolder = '';
 
   int get _sourceId => widget.sourceId;
@@ -144,7 +139,7 @@ class SourceFeedState extends State<SourceFeed> {
   void initState() {
     // TODO: implement initState
     _scrollController.addListener(_onScroll);
-    fetch();
+    refresh();
     super.initState();
   }
 
@@ -153,17 +148,31 @@ class SourceFeedState extends State<SourceFeed> {
     return BlocBuilder(
       bloc: entryBloc,
       builder: (BuildContext context, EntryState state) {
+
         if (state is EntryUninitialized) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
+
         if (state is EntryError) {
           _refreshCompleter?.complete();
           _refreshCompleter = Completer();
 
-          return Center(
-            child: Text('failed to fetch entries'),
+          return RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: () {
+              entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
+              return _refreshCompleter.future;
+            },
+            child: ListView(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Text('failed to fetch entries'),
+                )
+              ],
+            ),
           );
         }
 
@@ -178,22 +187,35 @@ class SourceFeedState extends State<SourceFeed> {
           _refreshCompleter = Completer();
 
           if (state.entries.isEmpty) {
-            return Center(
-              child: Text('no entries'),
+            return RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: () {
+                entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
+                return _refreshCompleter.future;
+              },
+              child: ListView(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    child: Text('no entries'),
+                  )
+                ],
+              ),
             );
           }
 
           return RefreshIndicator(
             key: _refreshIndicatorKey,
             onRefresh: () {
-              refresh();
+              entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
               return _refreshCompleter.future;
             },
             child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics (),
               itemBuilder: (BuildContext context, int index) {
                 return index >= state.entries.length
                     ? BottomLoader()
-                    : EntryWidget(entry: state.entries[index]);
+                    : EntryWidget(entry: state.entries[index], index: index,);
               },
               itemCount: state.hasReachedMax
                   ? state.entries.length
@@ -206,12 +228,6 @@ class SourceFeedState extends State<SourceFeed> {
     );
   }
 
-  @override
-  void dispose() {
-    entryBloc.dispose();
-    super.dispose();
-  }
-
   void _onScroll() {
 
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -221,11 +237,24 @@ class SourceFeedState extends State<SourceFeed> {
     }
   }
 
-  void refresh() {
-    entryBloc.dispatch(Update(sourceId: _sourceId, folder: ''));
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    entryBloc.dispatch(Update(sourceId: -1, folder: 'all'));
+    super.deactivate();
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void fetch() {
-    entryBloc.dispatch(Fetch(sourceId: _sourceId, folder: ''));
+    entryBloc.dispatch(Fetch(sourceId: homeSourceId, folder: homeSourceFolder));
+  }
+
+  void refresh() {
+    entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
   }
 }

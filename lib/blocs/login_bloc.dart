@@ -20,14 +20,7 @@ class LoginLoading extends LoginState {
   String toString() => 'LoginLoading';
 }
 
-class LoginFailure extends LoginState {
-  final String error;
 
-  LoginFailure({@required this.error}) : super([error]);
-
-  @override
-  String toString() => 'LoginFailure { error: $error }';
-}
 
 class MessageArrived extends LoginState {
   final bool isGood;
@@ -86,6 +79,34 @@ class CodeRequested extends LoginEvent {
 
 }
 
+class ResetPasswordVerify extends LoginEvent {
+  final String email;
+  ResetPasswordVerify({
+    @required this.email
+  }) : super([email]);
+
+  @override
+  String toString() =>
+      'ResetPasswordVerify { username: $email}';
+
+}
+
+class ResetPassword extends LoginEvent {
+  final String username;
+  final String code;
+  final String password;
+
+  ResetPassword({
+    @required this.username,
+    @required this.code,
+    @required this.password,
+  }) : super([username, code, password]);
+
+  @override
+  String toString() =>
+      'ResetPassword { username: $username, code: $code, password: $password }';
+}
+
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final UserRepository userRepository;
@@ -115,7 +136,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         } else {
           authenticationBloc.dispatch(LoggedIn(token: token));
         }
-        yield LoginInitial();
       } catch (error) {
         yield MessageArrived(isGood: false, message: error.toString());
       }
@@ -145,6 +165,35 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           yield MessageArrived(isGood: true, message :"vertification code sent to your email");
         } else {
           yield MessageArrived(isGood: false, message: "vertification code not sent");
+        }
+      } catch (error) {
+        yield MessageArrived(isGood: false, message: error.toString());
+      }
+    } else if (event is ResetPasswordVerify) {
+      try {
+        final sent = await userRepository.resetPasswordVerify(
+            event.email
+        );
+        if (sent) {
+          yield MessageArrived(isGood: true, message :"vertification code sent to your email");
+        } else {
+          yield MessageArrived(isGood: false, message: "vertification code not sent");
+        }
+      } catch (error) {
+        yield MessageArrived(isGood: false, message: error.toString());
+      }
+    } else if (event is ResetPassword) {
+      yield LoginLoading();
+      try {
+        final result = await userRepository.resetPassword(
+          event.username,
+          event.code,
+          event.password,
+        );
+        if (result) {
+          yield MessageArrived(isGood: true, message :"password reset");
+        } else {
+          yield MessageArrived(isGood: false, message :"failed to reset password");
         }
       } catch (error) {
         yield MessageArrived(isGood: false, message: error.toString());

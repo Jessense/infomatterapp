@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:infomatterapp/blocs/source_bloc.dart';
-import 'package:infomatterapp/blocs/source_item_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/models/models.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
@@ -84,12 +83,9 @@ class SourceListOfCategory extends StatefulWidget{
 
 class _SourceListOfCategoryState extends State<SourceListOfCategory> {
   final _scrollController = ScrollController();
-  final SourceBloc _sourceBloc = SourceBloc(
-      sourcesRepository: SourceRepository(
-        sourceApiClient: SourceApiClient(httpClient: http.Client()),
-      )
-  );
   final _scrollThreshold = 200.0;
+
+  SourceBloc get sourceBloc => BlocProvider.of<SourceBloc>(context);
 
   _SourceListOfCategoryState() {
     _scrollController.addListener(_onScroll);
@@ -98,7 +94,7 @@ class _SourceListOfCategoryState extends State<SourceListOfCategory> {
   @override
   void initState() {
     // TODO: implement initState
-    _sourceBloc.dispatch(Fetch(target: widget.target));
+    sourceBloc.dispatch(FetchSources(target: widget.target));
     super.initState();
   }
 
@@ -106,7 +102,7 @@ class _SourceListOfCategoryState extends State<SourceListOfCategory> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-      bloc: _sourceBloc,
+      bloc: sourceBloc,
       builder: (BuildContext context, SourceState state) {
         if (state is SourceUninitialized) {
           return Center(
@@ -124,20 +120,35 @@ class _SourceListOfCategoryState extends State<SourceListOfCategory> {
               child: Text('no sources'),
             );
           }
+
+          if (sourceBloc.sourcesRepository.showSnackbar == true) {
+            _onWidgetDidBuild(() {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('Followed'),
+                action: SnackBarAction(
+                  label: 'Assign Folder',
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return MyDialog(sourceId: sourceBloc.sourcesRepository.sourceId, sourceName: sourceBloc.sourcesRepository.sourceName,);
+                        }
+                    );
+                  },
+                ),
+              ));
+              sourceBloc.sourcesRepository.showSnackbar = false;
+              sourceBloc.sourcesRepository.sourceId = -1;
+              sourceBloc.sourcesRepository.sourceName = '';
+            });
+          }
+
           return ListView.builder(
             itemBuilder: (BuildContext context, int index) {
               return index >= state.sources.length
                   ? BottomLoader()
                   : SourceItemWidget(
                     source: state.sources[index],
-                    sourceItemBloc: SourceItemBloc(
-                        sourcesRepository: SourceRepository(
-                            sourceApiClient: SourceApiClient(
-                                httpClient: http.Client()
-                            )
-                        ),
-                        fromState: state.sources[index].isFollowing ? SourceFollowing() : SourceNotFollowing()
-                    ),
                   );
             },
             itemCount: state.hasReachedMax
@@ -150,19 +161,20 @@ class _SourceListOfCategoryState extends State<SourceListOfCategory> {
     );
   }
 
-  @override
-  void dispose() {
-    _sourceBloc.dispose();
-    super.dispose();
-  }
 
   void _onScroll() {
 
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _sourceBloc.dispatch(Fetch(target: widget.target));
+      sourceBloc.dispatch(FetchSources(target: widget.target));
     }
+  }
+
+  void _onWidgetDidBuild(Function callback) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callback();
+    });
   }
 }
 

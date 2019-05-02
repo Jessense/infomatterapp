@@ -19,6 +19,14 @@ class UserRepository {
     return await userApiClient.postForLogin(email, password);
   }
 
+  Future<bool> resetPasswordVerify(String email) async{
+    return await userApiClient.resetPasswordVerify(email);
+  }
+
+  Future<bool> resetPassword(String email, String password, String code) async{
+    return await userApiClient.resetPassword(email, password, code);
+  }
+
   Future<void> deleteToken() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove("token");

@@ -5,17 +5,14 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:infomatterapp/blocs/source_bloc.dart';
-import 'package:infomatterapp/blocs/source_item_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/models/models.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 
 class SourceItemWidget extends StatefulWidget{
   final Source source;
-  final SourceItemBloc sourceItemBloc;
   SourceItemWidget({
     Key key, @required this.source,
-    @required this.sourceItemBloc
   }) : super(key: key);
 
   @override
@@ -27,34 +24,45 @@ class SourceItemWidget extends StatefulWidget{
 
 class SourceItemWidgetState extends State<SourceItemWidget>{
   Source get _source => widget.source;
-  SourceItemBloc get _sourceItemBloc => widget.sourceItemBloc;
   bool notNull(Object o) => o != null;
+
+  SourceBloc get sourceBloc => BlocProvider.of<SourceBloc>(context);
+
+
+  bool checkboxValueCity = false;
+  List<String> allCities = ['Alpha', 'Beta', 'Gamma'];
+  List<String> selectedCities = [];
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return BlocBuilder<SourceItemEvent, SourceItemState>(
-      bloc: _sourceItemBloc,
+    return BlocBuilder<SourceEvent, SourceState>(
+      bloc: sourceBloc,
       builder: (
         BuildContext context,
-        SourceItemState state) {
+        SourceState state) {
         return GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => SourcePage(sourceId: _source.id, sourceName: _source.name,)));
-          },
+//          onTap: () {
+//            Navigator.push(context, MaterialPageRoute(builder: (context) =>
+//              Scaffold(
+//                appBar: AppBar(title: Text(_source.name),),
+//                body: SourceFeed(sourceId: _source.id),
+//              )));
+//          },
           child: Container(
             padding: const EdgeInsets.fromLTRB(5, 5, 5, 10),
             child: Row(
               children: <Widget>[
                 _source.photo != null ? Expanded(
                   child: Image.network(_source.photo, width: 20, height: 20,),
-                ) : null,
+                ) : Expanded(child: Container(width: 20, height: 20,),),
                 Expanded(
                   flex: 3,
                   child: Text(_source.name, maxLines: 1,),
                 ),
                 Expanded(
                   child: IconButton(
-                      icon: (state is SourceFollowing) ? Icon(
+                      icon: _source.isFollowing ? Icon(
                         Icons.check,
                         color: Theme.of(context).accentColor,
                       ) : Icon(
@@ -62,11 +70,12 @@ class SourceItemWidgetState extends State<SourceItemWidget>{
                         color: Theme.of(context).accentColor,
                       ),
                       onPressed: (){
-                        if (state is SourceNotFollowing)
-                          _sourceItemBloc.dispatch(FollowSource(sourceId: _source.id));
-                        else if (state is SourceFollowing) {
-                          _sourceItemBloc.dispatch(UnfollowSource(sourceId: _source.id));
+                        if (_source.isFollowing)
+                          sourceBloc.dispatch(UnfollowSource(sourceId: _source.id, sourceName: _source.name));
+                        else {
+                          sourceBloc.dispatch(FollowSource(sourceId: _source.id, sourceName: _source.name));
                         }
+
                       }
                   ),
                 )

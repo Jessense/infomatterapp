@@ -133,56 +133,7 @@ class EntryWidgetState extends State<EntryWidget> {
   }
 }
 
-//class FeedBottomSheet extends StatefulWidget{
-//  final Entry entry;
-//  FeedBottomSheet({Key key, @required this.entry}):
-//      assert(entry != null),
-//      super(key: key);
-//  @override
-//  State<FeedBottomSheet> createState() {
-//    // TODO: implement createState
-//    return FeedBottomSheetState();
-//  }
-//}
-//
-//class FeedBottomSheetState extends State<FeedBottomSheet> {
-//  Entry get _entry => widget.entry;
-//  EntryStarBloc get _entryStarBloc => BlocProvider.of<EntryStarBloc>(context);
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    // TODO: implement build
-//    return BlocBuilder(
-//      bloc: _entryStarBloc,
-//      builder: (BuildContext context, EntryStarState state){
-//        return Column(
-//          mainAxisSize: MainAxisSize.min,
-//          children: <Widget>[
-//            new ListTile(
-//              leading: (state is EntryStarring) ? Icon(Icons.bookmark): Icon(Icons.bookmark_border),
-//              title: (state is EntryStarring)? Text('Bookmarked') : Text("Bookmark"),
-//              onTap: () {
-//                if (state is EntryNotStarring) {
-//                  _entryStarBloc.dispatch(StarEntry(entryId: _entry.id));
-//                }
-//                else if (state is EntryStarring) {
-//                  _entryStarBloc.dispatch(UnstarEntry(entryId: _entry.id));
-//                }
-//              },
-//            ),
-//            new ListTile(
-//              leading: new Icon(Icons.arrow_forward),
-//              title: new Text('Go to ' + _entry.sourceName),
-//              onTap: () => {
-//              Navigator.of(context).push(MaterialPageRoute(builder: (context) => SourcePage(sourceId: _entry.sourceId, sourceName: _entry.sourceName,)))
-//              },
-//            ),
-//          ],
-//        );;
-//      },
-//    );
-//  }
-//}
+
 
 class ArticleEntry extends StatelessWidget{
   final String title;

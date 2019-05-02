@@ -39,6 +39,7 @@ class _AppState extends State<App> {
   AuthenticationBloc authenticationBloc;
   EntryBloc entryBloc;
   SourceFolderBloc sourceFolderBloc;
+  SourceBloc sourceBloc;
   UserRepository get userRepository => widget.userRepository;
 
 
@@ -57,6 +58,14 @@ class _AppState extends State<App> {
                 httpClient: http.Client()
             )
         )
+    );
+    sourceBloc = SourceBloc(
+        sourcesRepository: SourceRepository(
+            sourceApiClient: SourceApiClient(
+                httpClient: http.Client()
+            )
+        ),
+        sourceFolderBloc: sourceFolderBloc
     );
 
     authenticationBloc.dispatch(AppStarted());
@@ -84,6 +93,7 @@ class _AppState extends State<App> {
                 BlocProvider<AuthenticationBloc>(bloc: authenticationBloc,),
                 BlocProvider<EntryBloc>(bloc: entryBloc,),
                 BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),
+                BlocProvider<SourceBloc>(bloc: sourceBloc),
               ],
               child: MaterialApp(
                   theme: theme,

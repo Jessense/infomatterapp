@@ -5,6 +5,14 @@ import 'package:infomatterapp/models/models.dart';
 
 class SourceRepository {
   final SourceApiClient sourceApiClient;
+
+  bool showSnackbar = false;
+  int sourceId = -1;
+  String sourceName = '';
+
+  String target = 'all';
+
+
   SourceRepository({@required this.sourceApiClient}): assert(sourceApiClient != null);
 
   Future<List<Source>> getSources(int lastCount, int lastId, int limit) async {

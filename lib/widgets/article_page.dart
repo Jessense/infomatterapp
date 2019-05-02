@@ -10,6 +10,8 @@ import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/blocs/entry_bloc.dart';
 import 'package:infomatterapp/models/entry.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class ArticlePage extends StatefulWidget{
   final int index;
@@ -50,7 +52,11 @@ class ArticlePageState extends State<ArticlePage> {
 
   @override
   Widget build(BuildContext context) {
+    Color backgroudColor;
+    Color fontColor;
     if (Theme.of(context).brightness == Brightness.light) {
+      backgroudColor = Colors.white;
+      fontColor = Colors.black;
       colorCSS = '<style>'
           'body {background-color: white; margin: 0; padding: 20;}'
           'h1   {color: black;}'
@@ -59,8 +65,11 @@ class ArticlePageState extends State<ArticlePage> {
           'p    {color: black; font-size :16px; line-height:30px}'
           'a    {color:#F44336; text-decoration: none;}'
           'img  {max-width: 100%; width:auto; height: auto;}'
+          'iframe {width:\"640\"; height:\"480\";}'
           '</style>';
     } else {
+      backgroudColor = Colors.black;
+      fontColor = Colors.white;
       colorCSS = '<style>'
           'body {background-color: black; margin: 0; padding: 20;}'
           'h1   {color: white;}'
@@ -69,27 +78,34 @@ class ArticlePageState extends State<ArticlePage> {
           'p    {color: white; font-size :16px; line-height:30px}'
           'a    {color:#F44336; text-decoration: none;}'
           'img  {max-width: 100%; width:auto; height: auto;}'
+          'iframe {width:\"640\"; height:\"480\";}'
           '</style>';
     }
     if (entry.loadChoice == 1) {
       return BlocBuilder(
         bloc: articleBloc,
         builder: (BuildContext context, ArticleState state) {
-          if (state is ArticleUninitialized) {
-            return Scaffold(
-              appBar: articleAppBar(),
-              body: Center(
-                child: CircularProgressIndicator(),
+          return Scaffold(
+            appBar: articleAppBar(),
+            body: SingleChildScrollView(
+              child: Center(
+                child: state is ArticleLoaded ? Html(
+                  data: header + state.content + colorCSS,
+                  padding: EdgeInsets.all(15.0),
+                  backgroundColor: backgroudColor,
+                  defaultTextStyle: TextStyle(fontSize: 16, color: fontColor, height: 1.3),
+                  linkStyle: const TextStyle(
+                    color: Colors.redAccent,
+                  ),
+                  onLinkTap: (url) {
+                    _launchURL(url);
+                    // open url in a webview
+                  },)
+                    : Container(padding: EdgeInsets.all(15), child: CircularProgressIndicator()),
               ),
-            );
-          }
-          if (state is ArticleLoaded) {
-            return WebviewScaffold(
-              appBar: articleAppBar(),
-              url: Uri.dataFromString(header + state.content + colorCSS, mimeType: 'text/html', encoding: utf8).toString(),
-              hidden: true,
-            );
-          }
+            ),
+          );
+
         },
       );
     } else {

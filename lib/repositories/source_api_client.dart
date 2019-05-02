@@ -40,7 +40,13 @@ class SourceApiClient {
   }
 
   Future<List<Source>> fetchSourcesOfCategory(String cate, int lastCount, int lastId, int limit) async {
-    final response = await httpClient.get("$baseUrl/sources?category=$cate&last_count=$lastCount&last_id=$lastId&batch_size=$limit",
+    String url = '';
+    if (cate == 'all') {
+      url = "$baseUrl/sources?last_count=$lastCount&last_id=$lastId&batch_size=$limit";
+    } else {
+      url = "$baseUrl/sources?category=$cate&last_count=$lastCount&last_id=$lastId&batch_size=$limit";
+    }
+    final response = await httpClient.get(url,
         headers: {HttpHeaders.authorizationHeader: await getToken()});
     print("fetchSources: " + response.statusCode.toString() + ": " + response.body);
     if (response.statusCode == 200) {

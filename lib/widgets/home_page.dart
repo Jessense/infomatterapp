@@ -24,6 +24,7 @@ class _HomeState extends State<Home> {
   EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
 
   final _scrollController = ScrollController();
+  final _scrollController2 = ScrollController();
   Completer<void> _refreshCompleter = Completer<void>();
   Completer<void> _refreshCompleter2 = Completer<void>();
   final _scrollThreshold = 50.0;
@@ -51,20 +52,20 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(appBarText),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.filter_list),
-            onPressed: () {
-
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-
-            },
-          )
-        ],
+//        actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.filter_list),
+//            onPressed: () {
+//
+//            },
+//          ),
+//          IconButton(
+//            icon: Icon(Icons.search),
+//            onPressed: () {
+//
+//            },
+//          )
+//        ],
       ),
       body: BlocBuilder(
         bloc: entryBloc,
@@ -134,7 +135,6 @@ class _HomeState extends State<Home> {
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics (),
                 itemBuilder: (BuildContext context, int index) {
-                  print('rebuild entry $index');
                   return index >= state.entries.length
                       ? BottomLoader()
                       : EntryWidget(entry: state.entries[index], index: index,);
@@ -178,6 +178,7 @@ class _HomeState extends State<Home> {
               }
 
               if (state is SourceFolderLoaded) {
+                print('SourceFolderLoaded');
                 _refreshCompleter2?.complete();
                 _refreshCompleter2 = Completer();
                 return RefreshIndicator(
@@ -186,10 +187,16 @@ class _HomeState extends State<Home> {
                     return _refreshCompleter2.future;
                   },
                   child: ListView.builder(
+                    key: PageStorageKey('SourceFolders'),
                     itemBuilder: (BuildContext context, int index) {
                       if (index == 0) {
                         return ListTile(
                           title: Text("设置"),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                              return SettingPage();
+                            }));
+                          },
                         );
                       } else if (index == 1) {
                         return ListTile(
@@ -221,25 +228,19 @@ class _HomeState extends State<Home> {
                               icon: Icon(Icons.add),
                               onPressed: () {
                                 Navigator.of(context).pop();
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => SourcesDiscoveryPage()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SourceCatalog()));
                               }
                           ),
                         );
-                      } else if (index == 5) {
-                        return ListTile(
-                          title: Text("show"),
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ListTestPage()));
-                          },
-                        );
                       }
-                      index = index - 6;
+                      index = index - 5;
                       return GestureDetector(
                         child: ExpansionTile(
-                            title: state.sourceFolders[index].sourceFolderName.length > 0 ?
-                            Text(state.sourceFolders[index].sourceFolderName) :
+                            key: PageStorageKey(sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName),
+                            title: sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName.length > 0 ?
+                            Text(sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName) :
                             Text("全部"),
-                            children: state.sourceFolders[index].sourceList.map((source){
+                            children: sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceList.map((source){
                               return Container(
                                 padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                 child: ListTile(
@@ -253,13 +254,17 @@ class _HomeState extends State<Home> {
                                       appBarText = source.name;
                                     });
                                   },
+                                  onLongPress: () {
+                                    showModalBottomSheet(context: context, builder: (BuildContext context) => SourceOption(
+                                      sourceId: source.id, sourceName: source.name,));
+                                  },
                                 ),
                               );
                             }).toList()
                         ),
                         onTap: (){
                           homeSourceId = -1;
-                          homeSourceFolder = state.sourceFolders[index].sourceFolderName;
+                          homeSourceFolder = sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName;
                           Navigator.of(context).pop();
                           refresh();
                           setState(() {
@@ -272,12 +277,22 @@ class _HomeState extends State<Home> {
                             });
                           });
                         },
+                        onLongPress: () {
+                          if (sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName != '') {
+                            showModalBottomSheet(context: context, builder: (BuildContext context) => SourceFolderOption(
+                              sourceFolderName: sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName,));
+                          }
+                        },
                       );
                     },
-                    itemCount: state.sourceFolders.length + 6,
+                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 5,
                   ),
                 );
               }
+              return Container(
+                width: 0,
+                height: 0,
+              );
             }
         )
       ),
