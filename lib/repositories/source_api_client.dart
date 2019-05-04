@@ -89,6 +89,28 @@ class SourceApiClient {
     }
   }
 
+  Future<int> addSource(Source source) async{
+    final response = await httpClient.post("$baseUrl/sources/add",
+        headers: {HttpHeaders.authorizationHeader: await getToken()},
+        body: {
+          'name': source.name,
+          'link': source.link,
+          'feedUrl': source.feedUrl,
+          'photo': source.photo,
+          'category': source.category,
+          'form': source.form,
+          'content_rss': source.content_rss,
+          'description': source.description,
+        });
+    print(response.statusCode.toString() + ': ' + response.body);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as List;
+      return data[0]['LAST_INSERT_ID()'];
+    } else {
+      return -1;
+    }
+  }
+
   Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final String token =  prefs.getString("token");

@@ -31,4 +31,8 @@ class SourceRepository {
     return await sourceApiClient.requestUnfollow(sourceId);
   }
 
+  Future<int> addSource(Source source) async {
+    return await sourceApiClient.addSource(source);
+  }
+
 }

@@ -41,6 +41,7 @@ class _AppState extends State<App> {
   SourceFolderBloc sourceFolderBloc;
   SourceBloc sourceBloc;
   UserRepository get userRepository => widget.userRepository;
+  SearchBloc searchBloc;
 
 
   @override
@@ -66,6 +67,14 @@ class _AppState extends State<App> {
             )
         ),
         sourceFolderBloc: sourceFolderBloc
+    );
+    searchBloc = SearchBloc(
+        searchRepository: SearchRepository(
+            SearchApiClient(
+                httpClient: http.Client()
+            )
+        ),
+        sourceBloc: sourceBloc
     );
 
     authenticationBloc.dispatch(AppStarted());
@@ -94,6 +103,7 @@ class _AppState extends State<App> {
                 BlocProvider<EntryBloc>(bloc: entryBloc,),
                 BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),
                 BlocProvider<SourceBloc>(bloc: sourceBloc),
+                BlocProvider<SearchBloc>(bloc: searchBloc,),
               ],
               child: MaterialApp(
                   theme: theme,

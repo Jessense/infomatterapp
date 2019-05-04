@@ -31,6 +31,25 @@ class UpdateSources extends SourceEvent {
   String toString() => 'UpdateSources';
 }
 
+class PassSources extends SourceEvent{
+  final List<Source> sources;
+  PassSources({@required this.sources}):
+      super([sources]);
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'PassSources';
+  }
+}
+
+class PassLoading extends SourceEvent{
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'PassLoading';
+  }
+}
+
 
 class FollowSource extends SourceEvent{
   final int sourceId;
@@ -54,6 +73,16 @@ class UnfollowSource extends SourceEvent{
   String toString() => 'UnfollowSource { source: $sourceId }';
 }
 
+class AddSource extends SourceEvent{
+  final Source source;
+  AddSource({@required this.source}):
+      super([source]);
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'AddSource';
+  }
+}
 
 
 abstract class SourceState extends Equatable {
@@ -199,6 +228,30 @@ class SourceBloc extends Bloc<SourceEvent, SourceState> {
           yield SourceLoaded(sources: updatedSources, hasReachedMax: (currentState as SourceLoaded).hasReachedMax);
         } else {
           yield SourceLoaded(sources: (currentState as SourceLoaded).sources, hasReachedMax: (currentState as SourceLoaded).hasReachedMax);
+        }
+      }
+    } else if (event is PassSources) {
+      yield SourceLoaded(sources: event.sources, hasReachedMax: true);
+    } else if (event is PassLoading) {
+      yield SourceUninitialized();
+    } else if (event is AddSource) {
+      if (currentState is SourceLoaded) {
+        final response = await sourcesRepository.addSource(event.source);
+        if (response != -1) {
+          final List<Source> updatedSources =
+          (currentState as SourceLoaded).sources.map((source) {
+            return event.source.id == source.id ? source.copyWith(isFollowing: true) : source;
+          }).toList();
+          sourcesRepository.showSnackbar = true;
+          sourcesRepository.sourceId = response;
+          sourcesRepository.sourceName = event.source.name;
+
+          final sourceFolders = await sourceFolderBloc.sourceFoldersRepository.getSourceFolders();
+          sourceFolderBloc.sourceFoldersRepository.sourceFolders = sourceFolders;
+
+          yield SourceLoaded(sources: updatedSources, hasReachedMax: (currentState as SourceLoaded).hasReachedMax);
+        } else {
+          yield SourceLoaded(sources: (currentState as SourceLoaded).sources, hasReachedMax: (currentState as SourceLoaded).hasReachedMax,);
         }
       }
     }

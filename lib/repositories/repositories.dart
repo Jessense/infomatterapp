@@ -6,3 +6,5 @@ export './source_repository.dart';
 export './source_api_client.dart';
 export './source_folder_repository.dart';
 export './source_folder_api_client.dart';
+export './search_api_client.dart';
+export './search_repository.dart';

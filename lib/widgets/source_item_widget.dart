@@ -11,8 +11,9 @@ import 'package:infomatterapp/widgets/widgets.dart';
 
 class SourceItemWidget extends StatefulWidget{
   final Source source;
+  final int type; //0: follow, 1: create
   SourceItemWidget({
-    Key key, @required this.source,
+    Key key, @required this.source, @required this.type
   }) : super(key: key);
 
   @override
@@ -24,6 +25,7 @@ class SourceItemWidget extends StatefulWidget{
 
 class SourceItemWidgetState extends State<SourceItemWidget>{
   Source get _source => widget.source;
+  int get _type => widget.type;
   bool notNull(Object o) => o != null;
 
   SourceBloc get sourceBloc => BlocProvider.of<SourceBloc>(context);
@@ -73,7 +75,10 @@ class SourceItemWidgetState extends State<SourceItemWidget>{
                         if (_source.isFollowing)
                           sourceBloc.dispatch(UnfollowSource(sourceId: _source.id, sourceName: _source.name));
                         else {
-                          sourceBloc.dispatch(FollowSource(sourceId: _source.id, sourceName: _source.name));
+                          if (_type == 0)
+                            sourceBloc.dispatch(FollowSource(sourceId: _source.id, sourceName: _source.name));
+                          else if (_type == 1)
+                            sourceBloc.dispatch(AddSource(source: _source));
                         }
 
                       }

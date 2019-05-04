@@ -8,8 +8,12 @@ class Source extends Equatable{
   String link;
   int followerCount;
   bool isFollowing;
+  String feedUrl;
+  String category;
+  String form;
+  String content_rss;
 
-  Source({this.id, this.name, this.photo, this.description, this.link, this.followerCount, this.isFollowing}): super([id, name, photo, description, link, followerCount, isFollowing]);
+  Source({this.id, this.name, this.photo, this.description, this.link, this.followerCount, this.isFollowing, this.feedUrl, this.category, this.form, this.content_rss}): super([id, name, photo, description, link, followerCount, isFollowing]);
 
   Source copyWith({bool isFollowing}) {
     return Source(
@@ -19,6 +23,10 @@ class Source extends Equatable{
       description: this.description,
       link: this.link,
       followerCount: this.followerCount,
+      feedUrl: this.feedUrl,
+      category: this.category,
+      form: this.form,
+      content_rss: this.content_rss,
       isFollowing: isFollowing ?? this.isFollowing
     );
 

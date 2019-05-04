@@ -28,7 +28,20 @@ class SourceCatalogState extends State<SourceCatalog>{
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(title: Text('发现'),),
+      appBar: AppBar(
+        title: Text('发现'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: MySearchDelegate(),
+              );
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder(
           bloc: sourceBloc,
           builder: (BuildContext context, SourceState state) {
