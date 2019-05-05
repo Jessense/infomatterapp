@@ -10,8 +10,8 @@ class Source extends Equatable{
   bool isFollowing;
   String feedUrl;
   String category;
-  String form;
-  String content_rss;
+  int form;
+  int content_rss;
 
   Source({this.id, this.name, this.photo, this.description, this.link, this.followerCount, this.isFollowing, this.feedUrl, this.category, this.form, this.content_rss}): super([id, name, photo, description, link, followerCount, isFollowing]);
 

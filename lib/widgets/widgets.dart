@@ -19,3 +19,4 @@ export './source_list.dart';
 export './source_folder_option.dart';
 export './source_option.dart';
 export './search_delegate.dart';
+export './full_coverage.dart';

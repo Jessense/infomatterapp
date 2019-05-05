@@ -27,11 +27,11 @@ class SourceFolderApiClient {
         final rawSourceList = json.decode(rawFolder['list']) as List;
         List<Source> sourceList = [];
         rawSourceList.forEach((rawSource) {
-          if (rawSource['source_id'] != -1) {
+          if (rawSource['source_id'] != -1 && rawSource['source_id'] != null && rawSource['name'] != null) {
             sourceList.add(Source(
                 id: rawSource['source_id'],
                 name: rawSource['name'],
-                photo: rawSource['photo']
+                photo: rawSource['photo'] ?? ''
             ));
           }
         });

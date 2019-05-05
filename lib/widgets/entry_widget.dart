@@ -47,7 +47,7 @@ class EntryWidgetState extends State<EntryWidget> {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: Image.network(_entry.sourcePhoto, width: 20, height: 20),
+                      child: _entry.sourcePhoto != null ? Image.network(_entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
                     ),
                     Expanded(
                       flex: 8,
@@ -73,8 +73,13 @@ class EntryWidgetState extends State<EntryWidget> {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      flex: 8,
+                      flex: 6,
                       child: Container(),
+                    ),
+                    Expanded(
+                      child: _entry.sim_count != null && _entry.sim_count > 1 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
+                      }) : Container(),
                     ),
                     Expanded(
                       child: IconButton(
@@ -126,7 +131,7 @@ class EntryWidgetState extends State<EntryWidget> {
       timestamp = '${difference.inMinutes}m';
     } else if (difference.inHours < 24) {
       timestamp = '${difference.inHours}h';
-    } else if (difference.inDays < 30) {
+    } else {
       timestamp = '${difference.inDays}d';
     }
     return timestamp;

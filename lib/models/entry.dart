@@ -17,10 +17,13 @@ class Entry extends Equatable {
 
   int loadChoice;
 
+  int cluster;
+  int sim_count;
+
   //optional
   int starId;
 
-  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isReaded, this.isStarring, this.loadChoice}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
+  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isReaded, this.isStarring, this.loadChoice, this.cluster, this.sim_count}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
 
 
   Entry copyWith({bool isStarring, bool isReaded}) {

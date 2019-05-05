@@ -22,6 +22,10 @@ class EntriesRepository {
     return await entriesApiClient.fetchBookmark(lastId, limit);
   }
 
+  Future<List<Entry>> getFullCoverage(int cluster) async{
+    return await entriesApiClient.fetchFullCoverage(cluster);
+  }
+
   Future<String> getArticle(int entryId) async{
     return await entriesApiClient.fetchArticleContent(entryId);
   }

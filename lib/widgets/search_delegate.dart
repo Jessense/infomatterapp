@@ -41,8 +41,11 @@ class MySearchDelegate extends SearchDelegate{
   Widget buildResults(BuildContext context) {
     SourceBloc sourceBloc = BlocProvider.of<SourceBloc>(context);
     SearchBloc searchBloc = BlocProvider.of<SearchBloc>(context);
-    if (query.length > 0)
+    if (query.length > 0) {
+      if (query.startsWith('http://') || query.startsWith('https://'))
+        searchBloc.searchRepository.type = 'RSS';
       searchBloc.dispatch(GoSearch(target: query));
+    }
     else {
       return buildSuggestions(context);
     }
@@ -70,7 +73,7 @@ class MySearchDelegate extends SearchDelegate{
               }
               return ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
-                    return SourceItemWidget(source: sourceState.sources[index], type: 1,);
+                    return SourceItemWidget(source: sourceState.sources[index],);
                   },
                   itemCount: sourceState.sources.length,
               );
@@ -84,32 +87,134 @@ class MySearchDelegate extends SearchDelegate{
 
   @override
   Widget buildSuggestions(BuildContext context) {
+
+    // TODO: implement buildSuggestions
+    return SearchSelector();
+  }
+
+}
+
+class SearchSelector extends StatefulWidget{
+  @override
+  State<SearchSelector> createState() {
+    // TODO: implement createState
+    return SearchSelectorState();
+  }
+}
+
+class SearchSelectorState extends State<SearchSelector>{
+  String hint = '请输入内容源关键词';
+  @override
+  Widget build(BuildContext context) {
     SourceBloc sourceBloc = BlocProvider.of<SourceBloc>(context);
     SearchBloc searchBloc = BlocProvider.of<SearchBloc>(context);
-    // TODO: implement buildSuggestions
+    // TODO: implement build
     return Column(
       children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(20),
+          child: Text(hint),
+        ),
+        Divider(),
+        SizedBox(height: 10,),
+        Text('创建订阅源'),
+        SizedBox(height: 10,),
+
         Row(
           children: <Widget>[
             Expanded(
               child: FlatButton(
-                  onPressed: () {
-                    searchBloc.searchRepository.type = 'sourceKeyword';
-                  },
-                  child: Text('RSS', style: TextStyle(
-                      color: searchBloc.searchRepository.type == 'sourceKeyword'
-                          ? Colors.red
-                          : Colors.black
-                  ),),
+                onPressed: () {
+                  setState(() {
+                    hint = '请输入RSS链接';
+                    searchBloc.searchRepository.type = 'RSS';
+                  });
+                },
+                child: Text('RSS', style: TextStyle(
+                    color: searchBloc.searchRepository.type == 'RSS'
+                        ? Colors.red
+                        : Colors.black
+                ),),
               ),
             ),
             Expanded(
               child: FlatButton(
                   onPressed: () {
-                    searchBloc.searchRepository.type = 'weiboUser';
+                    setState(() {
+                      hint = '请输入微博用户名';
+                      searchBloc.searchRepository.type = 'weiboUser';
+                    });
                   },
                   child: Text('微博用户', style: TextStyle(
                       color: searchBloc.searchRepository.type == 'weiboUser'
+                          ? Colors.red
+                          : Colors.black
+                  ))
+              ),
+            )
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    hint = '请输入微信公众号名称';
+                    searchBloc.searchRepository.type = 'wechat';
+                  });
+                },
+                child: Text('微信公众号', style: TextStyle(
+                    color: searchBloc.searchRepository.type == 'wechat'
+                        ? Colors.red
+                        : Colors.black
+                ),),
+              ),
+            ),
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      hint = '请输入知乎用户名';
+                      searchBloc.searchRepository.type = 'zhihuUser';
+                    });
+                  },
+                  child: Text('知乎用户', style: TextStyle(
+                      color: searchBloc.searchRepository.type == 'zhihuUser'
+                          ? Colors.red
+                          : Colors.black
+                  ))
+              ),
+            )
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    hint = '请输入Bilibili Up主名称';
+                    searchBloc.searchRepository.type = 'Bilibili';
+                  });
+                },
+                child: Text('Bilibili Up主', style: TextStyle(
+                    color: searchBloc.searchRepository.type == 'Bilibili'
+                        ? Colors.red
+                        : Colors.black
+                ),),
+              ),
+            ),
+            Expanded(
+              child: FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      hint = '请访问https://docs.rsshub.app/查看文档, 在搜索框中输入<路由>, 如\'/douban/movie/playing\'';
+                      searchBloc.searchRepository.type = 'any';
+                    });
+                  },
+                  child: Text('更多', style: TextStyle(
+                      color: searchBloc.searchRepository.type == 'any'
                           ? Colors.red
                           : Colors.black
                   ))
@@ -120,5 +225,4 @@ class MySearchDelegate extends SearchDelegate{
       ],
     );
   }
-
 }

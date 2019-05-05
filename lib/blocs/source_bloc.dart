@@ -235,9 +235,12 @@ class SourceBloc extends Bloc<SourceEvent, SourceState> {
     } else if (event is PassLoading) {
       yield SourceUninitialized();
     } else if (event is AddSource) {
+      print('00000000');
       if (currentState is SourceLoaded) {
+        print('111111111');
         final response = await sourcesRepository.addSource(event.source);
-        if (response != -1) {
+        print('222222222');
+        if (response > 0) {
           final List<Source> updatedSources =
           (currentState as SourceLoaded).sources.map((source) {
             return event.source.id == source.id ? source.copyWith(isFollowing: true) : source;

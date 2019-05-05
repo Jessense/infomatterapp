@@ -4,16 +4,15 @@ import 'package:bloc/bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:infomatterapp/blocs/source_bloc.dart';
+import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/models/models.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 
 class SourceItemWidget extends StatefulWidget{
   final Source source;
-  final int type; //0: follow, 1: create
   SourceItemWidget({
-    Key key, @required this.source, @required this.type
+    Key key, @required this.source
   }) : super(key: key);
 
   @override
@@ -25,7 +24,6 @@ class SourceItemWidget extends StatefulWidget{
 
 class SourceItemWidgetState extends State<SourceItemWidget>{
   Source get _source => widget.source;
-  int get _type => widget.type;
   bool notNull(Object o) => o != null;
 
   SourceBloc get sourceBloc => BlocProvider.of<SourceBloc>(context);
@@ -75,10 +73,13 @@ class SourceItemWidgetState extends State<SourceItemWidget>{
                         if (_source.isFollowing)
                           sourceBloc.dispatch(UnfollowSource(sourceId: _source.id, sourceName: _source.name));
                         else {
-                          if (_type == 0)
+                          if (BlocProvider.of<SearchBloc>(context).searchRepository.type == 'sourceKeyword')
                             sourceBloc.dispatch(FollowSource(sourceId: _source.id, sourceName: _source.name));
-                          else if (_type == 1)
+                          else {
+                            print('hihihihi');
                             sourceBloc.dispatch(AddSource(source: _source));
+                          }
+
                         }
 
                       }

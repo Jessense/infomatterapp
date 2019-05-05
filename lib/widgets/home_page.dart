@@ -52,20 +52,14 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(appBarText),
-//        actions: <Widget>[
-//          IconButton(
-//            icon: Icon(Icons.filter_list),
-//            onPressed: () {
-//
-//            },
-//          ),
-//          IconButton(
-//            icon: Icon(Icons.search),
-//            onPressed: () {
-//
-//            },
-//          )
-//        ],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+
+            },
+          )
+        ],
       ),
       body: BlocBuilder(
         bloc: entryBloc,
@@ -244,7 +238,7 @@ class _HomeState extends State<Home> {
                               return Container(
                                 padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                 child: ListTile(
-                                  leading: Image.network(source.photo, width: 20, height: 20,),
+                                  leading: source.photo !=null ? Image.network(source.photo, width: 20, height: 20,) : Container(width: 20, height: 20,),
                                   title: Text(source.name),
                                   onTap: () {
                                     homeSourceId = source.id;

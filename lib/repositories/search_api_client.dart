@@ -23,8 +23,12 @@ class SearchApiClient {
       } else {
         url = '$baseUrl/sources/search?name=$target';
       }
+    } else if (type == 'RSS') {
+      url = '$baseUrl/sources/search?feedUrl=$target';
     } else if (type == 'weiboUser') {
       url = 'http://39.105.127.55:5000/weibo?keyword==$target';
+    } else if (type == 'any') {
+      url = '$baseUrl/sources/search?feedUrl=http://127.0.0.1:1200$target';
     }
     print(url);
     final response = await httpClient.get(url,
@@ -41,7 +45,11 @@ class SearchApiClient {
               description: rawSource['description'] ?? '',
               link: rawSource['link'] ?? '',
               followerCount: rawSource['follower'] ?? 0,
-              isFollowing: _isNumeric(rawSource['user_id'].toString()) ?? false
+              isFollowing: _isNumeric(rawSource['user_id'].toString()) ?? false,
+              feedUrl: rawSource['feedUrl'],
+              category: rawSource['category'],
+              form: rawSource['form'],
+              content_rss: rawSource['content_rss'],
           );
         }).toList();
       } catch(_) {
