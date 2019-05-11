@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vibration/vibration.dart';
 
 import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/models/models.dart';

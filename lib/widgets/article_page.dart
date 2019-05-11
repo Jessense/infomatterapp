@@ -11,7 +11,6 @@ import 'package:infomatterapp/blocs/entry_bloc.dart';
 import 'package:infomatterapp/models/entry.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:flutter_html/flutter_html.dart';
 
 class ArticlePage extends StatefulWidget{
   final int index;
@@ -44,7 +43,7 @@ class ArticlePageState extends State<ArticlePage> {
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
     articleBloc.dispatch(FetchArticle(entryId: entry.id));
-    header = "<h2>" + "<a href=\"" + entry.link + "\">" + entry.title + "</a>" + "</h2>" + "<i>" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</i><p>";
+    header = "<h2>" +  entry.title + "</h2>" + "<i>" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</i><p><br>";
 
   }
     super.initState();
@@ -62,7 +61,7 @@ class ArticlePageState extends State<ArticlePage> {
           'h1   {color: black;}'
           'h2   {color: black;}'
           'h3   {color: black;}'
-          'p    {color: black; font-size :16px; line-height:30px}'
+          'p    {color: black; font-size :18px; line-height:30px}'
           'a    {color:#F44336; text-decoration: none;}'
           'img  {max-width: 100%; width:auto; height: auto;}'
           'iframe {width:\"640\"; height:\"480\";}'
@@ -75,7 +74,7 @@ class ArticlePageState extends State<ArticlePage> {
           'h1   {color: white;}'
           'h2   {color: white;}'
           'h3   {color: white;}'
-          'p    {color: white; font-size :16px; line-height:30px}'
+          'p    {color: white; font-size :18px; line-height:30px}'
           'a    {color:#F44336; text-decoration: none;}'
           'img  {max-width: 100%; width:auto; height: auto;}'
           'iframe {width:\"640\"; height:\"480\";}'
@@ -88,19 +87,15 @@ class ArticlePageState extends State<ArticlePage> {
           return Scaffold(
             appBar: articleAppBar(),
             body: SingleChildScrollView(
+              key: PageStorageKey(entry.id),
               child: Center(
-                child: state is ArticleLoaded ? Html(
-                  data: header + state.content + colorCSS,
-                  padding: EdgeInsets.all(15.0),
-                  backgroundColor: backgroudColor,
-                  defaultTextStyle: TextStyle(fontSize: 16, color: fontColor, height: 1.3),
-                  linkStyle: const TextStyle(
-                    color: Colors.redAccent,
-                  ),
-                  onLinkTap: (url) {
-                    _launchURL(url);
-                    // open url in a webview
-                  },)
+                child: state is ArticleLoaded ? HtmlWidget(
+                  header + "<div style=\'font-size:16px;\'>" + state.content + "</div>",
+                  webView: true,
+                  webViewJs: true,
+                  hyperlinkColor: Colors.blue,
+                  bodyPadding: EdgeInsets.all(15.0),
+                )
                     : Container(padding: EdgeInsets.all(15), child: CircularProgressIndicator()),
               ),
             ),

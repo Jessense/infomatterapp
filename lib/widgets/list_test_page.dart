@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:video_player/video_player.dart';
@@ -58,7 +57,14 @@ class ListTestPageState extends State<ListTestPage>{
               <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="http://music.163.com/outchain/player?type=2&id=268154&auto=1&height=66">
               </iframe>
               """,
-              config: Config(webView: true, webViewJs: true),
+              webViewJs: true,
+              webView: true,
+            ),
+            HtmlWidget(
+              """
+              <div style='font-size:20px;'>I am good</div>
+              """,
+              webView: true,
             )
           ],
         ),
@@ -88,7 +94,8 @@ class VideoWidgetState extends State<VideoWidget>{
       <iframe width="640" height="480" src=$_videoUrl scrolling="no" border="0"
         frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
       """,
-      config: Config(webView: true),
+      webView: true,
+      webViewJs: true,
     );
   }
 }

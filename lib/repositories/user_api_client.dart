@@ -8,7 +8,7 @@ import 'dart:developer';
 import 'package:infomatterapp/models/models.dart';
 
 class UserApiClient {
-  static const baseUrl = 'http://39.105.127.55:3001';
+  static const baseUrl = 'http://api.infomatter.cn';
   final http.Client httpClient;
 
   UserApiClient({@required this.httpClient}) : assert(httpClient != null);

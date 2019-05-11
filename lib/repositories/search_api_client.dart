@@ -10,7 +10,7 @@ import 'dart:developer';
 import 'package:infomatterapp/models/models.dart';
 
 class SearchApiClient {
-  static const baseUrl = 'http://39.105.127.55:3001';
+  static const baseUrl = 'http://api.infomatter.cn';
   final http.Client httpClient;
 
   SearchApiClient({@required this.httpClient}): assert(httpClient != null);
@@ -26,7 +26,7 @@ class SearchApiClient {
     } else if (type == 'RSS') {
       url = '$baseUrl/sources/search?feedUrl=$target';
     } else if (type == 'weiboUser') {
-      url = 'http://39.105.127.55:5000/weibo?keyword==$target';
+      url = 'http://apisearch.infomatter.cn/weibo?keyword==$target';
     } else if (type == 'any') {
       url = '$baseUrl/sources/search?feedUrl=http://127.0.0.1:1200$target';
     }

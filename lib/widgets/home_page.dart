@@ -213,9 +213,25 @@ class _HomeState extends State<Home> {
                             });
                           },
                         );
-                      } else if (index == 3) {
-                        return Divider();
                       } else if (index == 4) {
+                        return Divider();
+                      } else if (index == 3) {
+                        return ListTile(
+                          title: Text('推荐'),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ListTestPage()));
+//                            homeSourceId = -1;
+//                            homeSourceFolder = sourceFolderBloc.sourceFoldersRepository.sourceFolders.last.sourceFolderName;
+//                            Navigator.of(context).pop();
+//                            refresh();
+//                            setState(() {
+//                              setState(() {
+//                                appBarText = '推荐';
+//                              });
+//                            });
+                          },
+                        );
+                      } else if (index == 5) {
                         return ListTile(
                           title: Text("订阅"),
                           trailing: IconButton(
@@ -227,7 +243,7 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       }
-                      index = index - 5;
+                      index = index - 6;
                       return GestureDetector(
                         child: ExpansionTile(
                             key: PageStorageKey(sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName),
@@ -279,7 +295,7 @@ class _HomeState extends State<Home> {
                         },
                       );
                     },
-                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 5,
+                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 6,
                   ),
                 );
               }
