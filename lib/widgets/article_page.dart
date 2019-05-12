@@ -43,7 +43,7 @@ class ArticlePageState extends State<ArticlePage> {
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
     articleBloc.dispatch(FetchArticle(entryId: entry.id));
-    header = "<h2>" +  entry.title + "</h2>" + "<i>" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</i><p><br>";
+    header = "<div style=\'font-size:18px;\'>" + "<h2>" +  entry.title + "</h2>" + "</div>" + "<div style=\'font-size:16px;\'>" + "<i>" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</i></div><br>";
 
   }
     super.initState();
@@ -90,11 +90,17 @@ class ArticlePageState extends State<ArticlePage> {
               key: PageStorageKey(entry.id),
               child: Center(
                 child: state is ArticleLoaded ? HtmlWidget(
-                  header + "<div style=\'font-size:16px;\'>" + state.content + "</div>",
+                  header + state.content,
                   webView: true,
                   webViewJs: true,
                   hyperlinkColor: Colors.blue,
-                  bodyPadding: EdgeInsets.all(15.0),
+                  textPadding: EdgeInsets.fromLTRB(15, 5, 15, 5),
+//                  bodyPadding: EdgeInsets.all(15.0),
+                  textStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                    height: 1.3,
+                  ),
                 )
                     : Container(padding: EdgeInsets.all(15), child: CircularProgressIndicator()),
               ),
