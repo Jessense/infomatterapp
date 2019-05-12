@@ -219,7 +219,6 @@ class _HomeState extends State<Home> {
                         return ListTile(
                           title: Text('推荐'),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ListTestPage()));
 //                            homeSourceId = -1;
 //                            homeSourceFolder = sourceFolderBloc.sourceFoldersRepository.sourceFolders.last.sourceFolderName;
 //                            Navigator.of(context).pop();

@@ -12,6 +12,12 @@ class Entry extends Equatable {
   int sourceId;
   String sourceName;
 
+  String video;
+  String videoFrame;
+  String audio;
+  String audioFrame;
+
+
   bool isStarring;
   bool isReaded;
 
@@ -23,7 +29,7 @@ class Entry extends Equatable {
   //optional
   int starId;
 
-  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isReaded, this.isStarring, this.loadChoice, this.cluster, this.sim_count}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
+  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isReaded, this.isStarring, this.loadChoice, this.cluster, this.sim_count, this.video, this.videoFrame, this.audio, this.audioFrame}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
 
 
   Entry copyWith({bool isStarring, bool isReaded}) {
@@ -41,7 +47,11 @@ class Entry extends Equatable {
       starId: this.starId,
       isStarring: isStarring ?? this.isStarring,
       isReaded: isReaded ?? this.isReaded,
-      loadChoice: this.loadChoice
+      loadChoice: this.loadChoice,
+      video: this.video,
+      videoFrame: this.videoFrame,
+      audio: this.audio,
+      audioFrame: this.audioFrame
     );
   }
 

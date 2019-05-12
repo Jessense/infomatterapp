@@ -10,6 +10,10 @@ import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:chewie/chewie.dart';
+import 'package:video_player/video_player.dart';
+
 
 
 class EntryWidget extends StatefulWidget{
@@ -66,8 +70,9 @@ class EntryWidgetState extends State<EntryWidget> {
                     );
                   },
                   child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
-                      : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo,),
+                      : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo, audioUrl: _entry.audio,),
                 ),
+                _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame) : Container(),
                 SizedBox(height: 10,),
                 Row(
                   children: <Widget>[
@@ -140,38 +145,116 @@ class EntryWidgetState extends State<EntryWidget> {
 
 
 class ArticleEntry extends StatelessWidget{
+  final String audioUrl;
   final String title;
   final String digest;
   final List<String> photo;
-  ArticleEntry({Key key, this.title, this.digest, this.photo}):
+  ArticleEntry({Key key, this.audioUrl, this.title, this.digest, this.photo}):
       super(key: key);
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), maxLines: 3,),
-          SizedBox(height: 7,),
-          (photo.length > 0 && photo[0].length > 0)? Row(
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: Text(digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 3,),
-              ),
-              SizedBox(width: 10,),
-              Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5.0),
-                    child: Image.network(photo[0], height: 50, width: 50, fit: BoxFit.cover,),
-                  )
-              ),
-            ],
-          ) : Text(digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 3,),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), maxLines: 2,),
+                SizedBox(height: 5,),
+                Text(digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
+              ],
+            ),
+          ),
+          SizedBox(width: 5,),
+          audioUrl.length > 0 ? AudioWidget(audioUrl: audioUrl) : Container(),
+          (photo.length > 0 && photo[0].length > 0 && audioUrl.length == 0) ? ClipRRect(
+              borderRadius: BorderRadius.circular(5.0),
+              child: Image.network(photo[0], height: 80, width: 80, fit: BoxFit.cover,),
+            ) : Container(),
+
         ],
       ),
+//      child: Column(
+//        crossAxisAlignment: CrossAxisAlignment.start,
+//        children: <Widget>[
+//          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), maxLines: 3,),
+//          SizedBox(height: 7,),
+//          (photo.length > 0 && photo[0].length > 0)? Row(
+//            children: <Widget>[
+//              Expanded(
+//                flex: 3,
+//                child: Text(digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 3,),
+//              ),
+//              SizedBox(width: 10,),
+//              Expanded(
+//                  child: ClipRRect(
+//                    borderRadius: BorderRadius.circular(5.0),
+//                    child: Image.network(photo[0], height: 50, width: 50, fit: BoxFit.cover,),
+//                  )
+//              ),
+//            ],
+//          ) : Text(digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 3,),
+//        ],
+//      ),
+    );
+  }
+}
+
+
+class VideoWidget extends StatefulWidget{
+  final String videoUrl;
+  VideoWidget({Key key, @required this.videoUrl}):
+      super(key: key);
+  @override
+  State<VideoWidget> createState() {
+    // TODO: implement createState
+    return VideoWidgetState();
+  }
+}
+
+class VideoWidgetState extends State<VideoWidget>{
+  String get _videoUrl => widget.videoUrl;
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Chewie(
+      controller: ChewieController(
+        videoPlayerController: VideoPlayerController.network(_videoUrl),
+        aspectRatio: 3 / 2,
+        autoPlay: false,
+        looping: false,
+      )
+    );
+  }
+}
+
+class VideoFrameWidget extends StatefulWidget{
+  final String videoUrl;
+  VideoFrameWidget({Key key, @required this.videoUrl}):
+        super(key: key);
+  @override
+  State<VideoFrameWidget> createState() {
+    // TODO: implement createState
+    return VideoFrameWidgetState();
+  }
+}
+
+class VideoFrameWidgetState extends State<VideoFrameWidget>{
+  String get _videoUrl => widget.videoUrl;
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return HtmlWidget(
+      """
+      <iframe width="1080" height="607" src=$_videoUrl scrolling="no" border="0"
+        frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+      """,
+      webView: true,
+      webViewJs: true,
     );
   }
 }

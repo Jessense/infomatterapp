@@ -49,6 +49,10 @@ class EntriesApiClient {
               loadChoice: rawEntry['content_rss'],
               cluster: rawEntry['cluster'],
               sim_count: rawEntry['sim_count'],
+              video: rawEntry['video'],
+              videoFrame: rawEntry['video_frame'],
+              audio: rawEntry['audio'],
+              audioFrame: rawEntry['audio_frame'],
           );
         }
         return Entry(
@@ -67,6 +71,10 @@ class EntriesApiClient {
           loadChoice: rawEntry['content_rss'],
           cluster: rawEntry['cluster'],
           sim_count: rawEntry['sim_count'],
+          video: rawEntry['video'],
+          videoFrame: rawEntry['video_frame'],
+          audio: rawEntry['audio'],
+          audioFrame: rawEntry['audio_frame'],
         );
       }).toList();
     } else {
@@ -102,6 +110,10 @@ class EntriesApiClient {
             loadChoice: rawEntry['content_rss'],
             cluster: rawEntry['cluster'],
             sim_count: rawEntry['sim_count'],
+            video: rawEntry['video'],
+            videoFrame: rawEntry['video_frame'],
+            audio: rawEntry['audio'],
+            audioFrame: rawEntry['audio_frame'],
           );
         }
         return Entry(
@@ -120,6 +132,10 @@ class EntriesApiClient {
           loadChoice: rawEntry['content_rss'],
           cluster: rawEntry['cluster'],
           sim_count: rawEntry['sim_count'],
+          video: rawEntry['video'],
+          videoFrame: rawEntry['video_frame'],
+          audio: rawEntry['audio'],
+          audioFrame: rawEntry['audio_frame'],
         );
       }).toList();
     } else {
@@ -156,6 +172,10 @@ class EntriesApiClient {
             loadChoice: rawEntry['content_rss'],
             cluster: rawEntry['cluster'],
             sim_count: rawEntry['sim_count'],
+            video: rawEntry['video'],
+            videoFrame: rawEntry['video_frame'],
+            audio: rawEntry['audio'],
+            audioFrame: rawEntry['audio_frame'],
           );
         }
         return Entry(
@@ -174,6 +194,10 @@ class EntriesApiClient {
           loadChoice: rawEntry['content_rss'],
           cluster: rawEntry['cluster'],
           sim_count: rawEntry['sim_count'],
+          video: rawEntry['video'],
+          videoFrame: rawEntry['video_frame'],
+          audio: rawEntry['audio'],
+          audioFrame: rawEntry['audio_frame'],
         );
       }).toList();
     } else {
@@ -209,6 +233,10 @@ class EntriesApiClient {
             loadChoice: rawEntry['content_rss'],
             cluster: rawEntry['cluster'],
             sim_count: rawEntry['sim_count'],
+            video: rawEntry['video'],
+            videoFrame: rawEntry['video_frame'],
+            audio: rawEntry['audio'],
+            audioFrame: rawEntry['audio_frame'],
           );
         }
         return Entry(
@@ -227,6 +255,10 @@ class EntriesApiClient {
           loadChoice: rawEntry['content_rss'],
           cluster: rawEntry['cluster'],
           sim_count: rawEntry['sim_count'],
+          video: rawEntry['video'],
+          videoFrame: rawEntry['video_frame'],
+          audio: rawEntry['audio'],
+          audioFrame: rawEntry['audio_frame'],
         );
       }).toList();
     } else {
