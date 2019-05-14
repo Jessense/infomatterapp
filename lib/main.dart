@@ -38,6 +38,8 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   AuthenticationBloc authenticationBloc;
   EntryBloc entryBloc;
+  BookmarkEntryBloc bookmarkEntryBloc;
+  SourceEntryBloc sourceEntryBloc;
   SourceFolderBloc sourceFolderBloc;
   SourceBloc sourceBloc;
   UserRepository get userRepository => widget.userRepository;
@@ -53,6 +55,18 @@ class _AppState extends State<App> {
         entriesApiClient: EntriesApiClient(httpClient: http.Client()),
       ),
       fromState: EntryUninitialized(),
+    );
+    bookmarkEntryBloc = BookmarkEntryBloc(
+      entriesRepository: EntriesRepository(
+        entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+      ),
+      fromState: BookmarkEntryUninitialized(),
+    );
+    sourceEntryBloc = SourceEntryBloc(
+      entriesRepository: EntriesRepository(
+        entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+      ),
+      fromState: SourceEntryUninitialized(),
     );
     sourceFolderBloc = SourceFolderBloc(
         sourceFoldersRepository: SourceFolderRepository(
@@ -107,6 +121,8 @@ class _AppState extends State<App> {
                 BlocProvider<SourceBloc>(bloc: sourceBloc),
                 BlocProvider<SearchBloc>(bloc: searchBloc,),
                 BlocProvider<AudioBloc>(bloc: audioBloc,),
+                BlocProvider<BookmarkEntryBloc>(bloc: bookmarkEntryBloc,),
+                BlocProvider<SourceEntryBloc>(bloc: sourceEntryBloc,),
               ],
               child: MaterialApp(
                   theme: theme,

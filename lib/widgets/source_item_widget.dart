@@ -42,13 +42,10 @@ class SourceItemWidgetState extends State<SourceItemWidget>{
         BuildContext context,
         SourceState state) {
         return GestureDetector(
-//          onTap: () {
-//            Navigator.push(context, MaterialPageRoute(builder: (context) =>
-//              Scaffold(
-//                appBar: AppBar(title: Text(_source.name),),
-//                body: SourceFeed(sourceId: _source.id),
-//              )));
-//          },
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>
+              SourceFeed(sourceId: _source.id, sourceName: _source.name,)));
+          },
           child: Container(
             padding: const EdgeInsets.fromLTRB(5, 5, 5, 10),
             child: Row(

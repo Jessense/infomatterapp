@@ -109,8 +109,9 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class SourceFeed extends StatefulWidget{
+  final String sourceName;
   final int sourceId;
-  SourceFeed({Key key, @required this.sourceId}):
+  SourceFeed({Key key, @required this.sourceId, @required this.sourceName}):
       assert(sourceId != null),
       super(key: key);
 
@@ -122,7 +123,7 @@ class SourceFeed extends StatefulWidget{
 }
 
 class SourceFeedState extends State<SourceFeed> {
-  EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
+  SourceEntryBloc get sourceEntryBloc => BlocProvider.of<SourceEntryBloc>(context);
 
   final _scrollController = ScrollController();
   Completer<void> _refreshCompleter = Completer<void>();
@@ -134,97 +135,101 @@ class SourceFeedState extends State<SourceFeed> {
   String homeSourceFolder = '';
 
   int get _sourceId => widget.sourceId;
-
+  String get _sourceName => widget.sourceName;
   @override
   void initState() {
     // TODO: implement initState
     _scrollController.addListener(_onScroll);
-    refresh();
+    fetch();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      bloc: entryBloc,
-      builder: (BuildContext context, EntryState state) {
+    return Scaffold(
+      appBar: AppBar(title: Text(_sourceName),),
+      body: BlocBuilder(
+        bloc: sourceEntryBloc,
+        builder: (BuildContext context, SourceEntryState state) {
 
-        if (state is EntryUninitialized) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+          if (state is SourceEntryUninitialized) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-        if (state is EntryError) {
-          _refreshCompleter?.complete();
-          _refreshCompleter = Completer();
+          if (state is SourceEntryError) {
+            _refreshCompleter?.complete();
+            _refreshCompleter = Completer();
 
-          return RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: () {
-              entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
-              return _refreshCompleter.future;
-            },
-            child: ListView(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(20),
-                  child: Text('failed to fetch entries'),
-                )
-              ],
-            ),
-          );
-        }
-
-//          if (state is EntryUpdated) {
-//            _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
-//            _refreshCompleter?.complete();
-//            _refreshCompleter = Completer();
-//          }
-
-        if (state is EntryLoaded) {
-          _refreshCompleter?.complete();
-          _refreshCompleter = Completer();
-
-          if (state.entries.isEmpty) {
             return RefreshIndicator(
               key: _refreshIndicatorKey,
               onRefresh: () {
-                entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
+                sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
                 return _refreshCompleter.future;
               },
               child: ListView(
                 children: <Widget>[
                   Container(
                     padding: EdgeInsets.all(20),
-                    child: Text('no entries'),
+                    child: Text('failed to fetch entries'),
                   )
                 ],
               ),
             );
           }
 
-          return RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: () {
-              entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
-              return _refreshCompleter.future;
-            },
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics (),
-              itemBuilder: (BuildContext context, int index) {
-                return index >= state.entries.length
-                    ? BottomLoader()
-                    : EntryWidget(entry: state.entries[index], index: index,);
+//          if (state is EntryUpdated) {
+//            _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
+//            _refreshCompleter3?.complete();
+//            _refreshCompleter3 = Completer();
+//          }
+
+          if (state is SourceEntryLoaded) {
+            _refreshCompleter?.complete();
+            _refreshCompleter = Completer();
+
+            if (state.entries.isEmpty) {
+              return RefreshIndicator(
+                key: _refreshIndicatorKey,
+                onRefresh: () {
+                  sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+                  return _refreshCompleter.future;
+                },
+                child: ListView(
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      child: Text('no entries'),
+                    )
+                  ],
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: () {
+                sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+                return _refreshCompleter.future;
               },
-              itemCount: state.hasReachedMax
-                  ? state.entries.length
-                  : state.entries.length + 1,
-              controller: _scrollController,
-            ),
-          );
-        }
-      },
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics (),
+                itemBuilder: (BuildContext context, int index) {
+                  return index >= state.entries.length
+                      ? BottomLoader()
+                      : EntryWidget(entry: state.entries[index], index: index, type: 3,);
+                },
+                itemCount: state.hasReachedMax
+                    ? state.entries.length
+                    : state.entries.length + 1,
+                controller: _scrollController,
+              ),
+            );
+          }
+          return Container();
+        },
+      ),
     );
   }
 
@@ -240,7 +245,7 @@ class SourceFeedState extends State<SourceFeed> {
   @override
   void deactivate() {
     // TODO: implement deactivate
-    entryBloc.dispatch(Update(sourceId: -1, folder: 'all'));
+    sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
     super.deactivate();
   }
 
@@ -251,10 +256,10 @@ class SourceFeedState extends State<SourceFeed> {
   }
 
   void fetch() {
-    entryBloc.dispatch(Fetch(sourceId: homeSourceId, folder: homeSourceFolder));
+    sourceEntryBloc.dispatch(FetchSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
   }
 
   void refresh() {
-    entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
+    sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
   }
 }

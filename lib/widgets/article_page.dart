@@ -5,17 +5,17 @@ import 'package:share/share.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
-import 'package:infomatterapp/blocs/article_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
-import 'package:infomatterapp/blocs/entry_bloc.dart';
 import 'package:infomatterapp/models/entry.dart';
+import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class ArticlePage extends StatefulWidget{
+  final int type;
   final int index;
   final Entry entry;//1: full-text rss - from server;
-  ArticlePage({Key key, this.entry, this.index}):
+  ArticlePage({Key key, this.entry, this.index, this.type}):
       super(key: key);
   @override
   State<ArticlePage> createState() {
@@ -30,6 +30,7 @@ class ArticlePageState extends State<ArticlePage> {
   EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
   Entry get entry => widget.entry;
   int get _index => widget.index;
+  int get _type => widget.type;
 
 
   String header;
@@ -120,38 +121,107 @@ class ArticlePageState extends State<ArticlePage> {
 
 
   Widget articleAppBar() {
-    return AppBar(
-      actions: <Widget>[
-        BlocBuilder(
-          bloc: entryBloc,
-          builder: (BuildContext context, EntryState state) {
-            if (state is EntryLoaded)
-            return IconButton(
-              icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
-              onPressed: () {
-                if (!state.entries[_index].isStarring) {
-                  entryBloc.dispatch(StarEntry(entryId: state.entries[_index].id));
-                } else {
-                  entryBloc.dispatch(UnstarEntry(entryId: state.entries[_index].id));
-                }
-              },
-            );
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.share),
-          onPressed: () {
-            Share.share(entry.title + '\n' + entry.link);
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.open_in_browser),
-          onPressed: () {
-            _launchURL(entry.link);
-          },
-        )
-      ],
-    );
+    if (_type == 1) {
+      return AppBar(
+        actions: <Widget>[
+          BlocBuilder(
+            bloc: BlocProvider.of<EntryBloc>(context),
+            builder: (BuildContext context, EntryState state) {
+              if (state is EntryLoaded)
+                return IconButton(
+                  icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+                  onPressed: () {
+                    if (!state.entries[_index].isStarring) {
+                      BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: state.entries[_index].id));
+                    } else {
+                      BlocProvider.of<EntryBloc>(context).dispatch(UnstarEntry(entryId: state.entries[_index].id));
+                    }
+                  },
+                );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              Share.share(entry.title + '\n' + entry.link);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.open_in_browser),
+            onPressed: () {
+              _launchURL(entry.link);
+            },
+          )
+        ],
+      );
+    } else if (_type == 2) {
+      return AppBar(
+        actions: <Widget>[
+          BlocBuilder(
+            bloc: BlocProvider.of<SourceEntryBloc>(context),
+            builder: (BuildContext context, SourceEntryState state) {
+              if (state is SourceEntryLoaded)
+                return IconButton(
+                  icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+                  onPressed: () {
+                    if (!state.entries[_index].isStarring) {
+                      BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: state.entries[_index].id));
+                    } else {
+                      BlocProvider.of<SourceEntryBloc>(context).dispatch(UnstarSourceEntry(entryId: state.entries[_index].id));
+                    }
+                  },
+                );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              Share.share(entry.title + '\n' + entry.link);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.open_in_browser),
+            onPressed: () {
+              _launchURL(entry.link);
+            },
+          )
+        ],
+      );
+    } else if (_type == 3) {
+      return AppBar(
+        actions: <Widget>[
+          BlocBuilder(
+            bloc: BlocProvider.of<BookmarkEntryBloc>(context),
+            builder: (BuildContext context, BookmarkEntryState state) {
+              if (state is BookmarkEntryLoaded)
+                return IconButton(
+                  icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+                  onPressed: () {
+                    if (!state.entries[_index].isStarring) {
+                      BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: state.entries[_index].id));
+                    } else {
+                      BlocProvider.of<BookmarkEntryBloc>(context).dispatch(UnstarBookmarkEntry(entryId: state.entries[_index].id));
+                    }
+                  },
+                );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              Share.share(entry.title + '\n' + entry.link);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.open_in_browser),
+            onPressed: () {
+              _launchURL(entry.link);
+            },
+          )
+        ],
+      );
+    }
+
   }
 
   _launchURL(String url) async {

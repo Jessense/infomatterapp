@@ -5,6 +5,8 @@ import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 
 class SourceCatalog extends StatefulWidget{
+  SourceCatalog({Key key}):
+      super(key: key);
   @override
   State<SourceCatalog> createState() {
     // TODO: implement createState
@@ -27,22 +29,7 @@ class SourceCatalogState extends State<SourceCatalog>{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('发现'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: MySearchDelegate(),
-              );
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder(
+    return BlocBuilder(
           bloc: sourceBloc,
           builder: (BuildContext context, SourceState state) {
             if (sourceBloc.sourcesRepository.showSnackbar == true) {
@@ -96,8 +83,7 @@ class SourceCatalogState extends State<SourceCatalog>{
               ],
             );
           }
-      ),
-    );
+      );
   }
 
   void _onWidgetDidBuild(Function callback) {

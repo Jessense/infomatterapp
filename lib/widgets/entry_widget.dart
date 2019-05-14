@@ -19,7 +19,8 @@ import 'package:video_player/video_player.dart';
 class EntryWidget extends StatefulWidget{
   final Entry entry;
   final int index;
-  EntryWidget({Key key, @required this.entry, this.index}):
+  final int type;
+  EntryWidget({Key key, @required this.entry, this.index, this.type}):
       assert(entry != null),
       super(key: key);
       
@@ -34,78 +35,98 @@ class EntryWidgetState extends State<EntryWidget> {
 
   Entry get _entry => widget.entry;
   int get _index => widget.index;
-  
+  int get _type => widget.type;
   @override
   Widget build(BuildContext context) {
-    final entryBloc = BlocProvider.of<EntryBloc>(context);
-
-    return BlocBuilder(
-      bloc: entryBloc,
-      builder: (BuildContext context, EntryState state) {
-        return Container(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: _entry.sourcePhoto != null ? Image.network(_entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
-                    ),
-                    Expanded(
-                      flex: 8,
-                      child: Text(_entry.sourceName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),),
-                    ),
-                    Expanded(
-                      child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
-                    )
-                  ],
+                Expanded(
+                  child: _entry.sourcePhoto != null ? Image.network(_entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
                 ),
-                SizedBox(height: 8,),
-                GestureDetector(
-                  onTap: (){
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ArticlePage(entry: _entry, index: _index,),
-                    )
-                    );
-                  },
-                  child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
-                      : ArticleEntry(entry: _entry,),
+                Expanded(
+                  flex: 8,
+                  child: Text(_entry.sourceName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),),
                 ),
-                _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame) : Container(),
-                SizedBox(height: 10,),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 6,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      child: _entry.sim_count != null && _entry.sim_count > 1 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
-                      }) : Container(),
-                    ),
-                    Expanded(
-                      child: IconButton(
-                        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
-                        onPressed: () {
-                          if (_entry.isStarring == true) {
-                            entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
-                          } else {
-                            entryBloc.dispatch(StarEntry(entryId: _entry.id));
-                          }
-                        },
-                      ),
-                    )
-                  ],
-                ),
-                Divider()
+                Expanded(
+                  child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
+                )
               ],
-            )
-        );
-      },
-
+            ),
+            SizedBox(height: 8,),
+            GestureDetector(
+              onTap: (){
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ArticlePage(entry: _entry, index: _index, type: _type,),
+                )
+                );
+              },
+              child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
+                  : ArticleEntry(entry: _entry,),
+            ),
+            _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame) : Container(),
+            SizedBox(height: 10,),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 6,
+                  child: Container(),
+                ),
+                Expanded(
+                  child: _entry.sim_count != null && _entry.sim_count > 1 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
+                  }) : Container(),
+                ),
+                Expanded(
+                  child: _buildFavbtn(),
+                )
+              ],
+            ),
+            Divider()
+          ],
+        )
     );
+  }
+
+  Widget _buildFavbtn() {
+    if (_type == 1) {
+      return IconButton(
+        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+        onPressed: () {
+          if (_entry.isStarring == true) {
+            BlocProvider.of<EntryBloc>(context).dispatch(UnstarEntry(entryId: _entry.id));
+          } else {
+            BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: _entry.id));
+          }
+        },
+      );
+    } else if (_type == 2) {
+      return IconButton(
+        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+        onPressed: () {
+          if (_entry.isStarring == true) {
+            BlocProvider.of<SourceEntryBloc>(context).dispatch(UnstarSourceEntry(entryId: _entry.id));
+          } else {
+            BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: _entry.id));
+          }
+        },
+      );
+    } else if (_type == 3) {
+      return IconButton(
+        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+        onPressed: () {
+          if (_entry.isStarring == true) {
+            BlocProvider.of<BookmarkEntryBloc>(context).dispatch(UnstarBookmarkEntry(entryId: _entry.id));
+          } else {
+            BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: _entry.id));
+          }
+        },
+      );
+    }
   }
 
   void openWebView(BuildContext context, String url, String sourceName, int id) {

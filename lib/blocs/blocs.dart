@@ -7,3 +7,5 @@ export './source_folder_bloc.dart';
 export './search_bloc.dart';
 export './full_coverage_bloc.dart';
 export './audio_bloc.dart';
+export './entry_bloc_bookmark.dart';
+export 'source_entry_bloc.dart';
