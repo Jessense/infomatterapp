@@ -38,7 +38,7 @@ class ArticlePageState extends State<ArticlePage> {
   @override
   void initState() {
     // TODO: implement initState
-  if (entry.loadChoice == 1) {
+  if (entry.loadChoice == 1 && entry.form == 1) {
     articleBloc = ArticleBloc(
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
@@ -80,7 +80,7 @@ class ArticlePageState extends State<ArticlePage> {
           'iframe {width:\"640\"; height:\"480\";}'
           '</style>';
     }
-    if (entry.loadChoice == 1) {
+    if (entry.loadChoice == 1 && entry.form == 1) {
       return BlocBuilder(
         bloc: articleBloc,
         builder: (BuildContext context, ArticleState state) {

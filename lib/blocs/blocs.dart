@@ -6,3 +6,4 @@ export './source_bloc.dart';
 export './source_folder_bloc.dart';
 export './search_bloc.dart';
 export './full_coverage_bloc.dart';
+export './audio_bloc.dart';

@@ -42,6 +42,7 @@ class _AppState extends State<App> {
   SourceBloc sourceBloc;
   UserRepository get userRepository => widget.userRepository;
   SearchBloc searchBloc;
+  AudioBloc audioBloc;
 
 
   @override
@@ -76,6 +77,7 @@ class _AppState extends State<App> {
         ),
         sourceBloc: sourceBloc
     );
+    audioBloc = AudioBloc();
 
     authenticationBloc.dispatch(AppStarted());
     super.initState();
@@ -104,6 +106,7 @@ class _AppState extends State<App> {
                 BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),
                 BlocProvider<SourceBloc>(bloc: sourceBloc),
                 BlocProvider<SearchBloc>(bloc: searchBloc,),
+                BlocProvider<AudioBloc>(bloc: audioBloc,),
               ],
               child: MaterialApp(
                   theme: theme,

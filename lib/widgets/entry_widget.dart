@@ -70,7 +70,7 @@ class EntryWidgetState extends State<EntryWidget> {
                     );
                   },
                   child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
-                      : ArticleEntry(title: _entry.title, digest: _entry.digest, photo: _entry.photo, audioUrl: _entry.audio,),
+                      : ArticleEntry(entry: _entry,),
                 ),
                 _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame) : Container(),
                 SizedBox(height: 10,),
@@ -145,11 +145,8 @@ class EntryWidgetState extends State<EntryWidget> {
 
 
 class ArticleEntry extends StatelessWidget{
-  final String audioUrl;
-  final String title;
-  final String digest;
-  final List<String> photo;
-  ArticleEntry({Key key, this.audioUrl, this.title, this.digest, this.photo}):
+  final Entry entry;
+  ArticleEntry({Key key, this.entry}):
       super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -163,17 +160,44 @@ class ArticleEntry extends StatelessWidget{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), maxLines: 2,),
+                Text(entry.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), maxLines: 2,),
                 SizedBox(height: 5,),
-                Text(digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
+                Text(entry.digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
               ],
             ),
           ),
           SizedBox(width: 5,),
-          audioUrl.length > 0 ? AudioWidget(audioUrl: audioUrl) : Container(),
-          (photo.length > 0 && photo[0].length > 0 && audioUrl.length == 0) ? ClipRRect(
+          entry.audio.length > 0 ? BlocBuilder(
+            bloc: BlocProvider.of<AudioBloc>(context),
+            builder: (BuildContext context, AudioState state) {
+              if (state is AudioPlaying && state.entry.id == entry.id) {
+                return Container(
+                  width: 80,
+                  height: 80,
+                  child: IconButton(
+                    icon: Icon(Icons.pause_circle_filled) ,
+                    onPressed: () {
+                      BlocProvider.of<AudioBloc>(context).dispatch(PauseAudio(entry: entry));
+                    },
+                  ),
+                );
+              }
+              return Container(
+                width: 80,
+                height: 80,
+                child: IconButton(
+                  icon: Icon(Icons.play_circle_filled) ,
+                  onPressed: () {
+                    BlocProvider.of<AudioBloc>(context).dispatch(PlayAudio(entry: entry));
+                  },
+                ),
+              );
+
+            },
+          ) : Container(),
+          (entry.photo.length > 0 && entry.photo[0].length > 0 && entry.audio.length == 0) ? ClipRRect(
               borderRadius: BorderRadius.circular(5.0),
-              child: Image.network(photo[0], height: 80, width: 80, fit: BoxFit.cover,),
+              child: Image.network(entry.photo[0], height: 80, width: 80, fit: BoxFit.cover,),
             ) : Container(),
 
         ],
