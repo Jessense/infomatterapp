@@ -33,7 +33,8 @@ class Update extends EntryEvent {
 
 class StarEntry extends EntryEvent{
   final int entryId;
-  StarEntry({@required this.entryId}):
+  final int from; //0: from list, 1: from article
+  StarEntry({@required this.entryId, @required this.from}):
         assert(entryId != null),
         super([entryId]);
 
@@ -170,11 +171,11 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
     } else if (event is Fetch && event.sourceId == -2 && !_hasReachedMax(currentState)) {
       try {
         if (currentState is EntryUninitialized) {
-          final entries = await entriesRepository.getBookmarks(1000000, 10);
+          final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
           yield EntryLoaded(entries: entries, hasReachedMax: false);
         }
         if (currentState is EntryLoaded) {
-          final entries = await entriesRepository.getBookmarks((currentState as EntryLoaded).entries.last.starId, 10);
+          final entries = await entriesRepository.getBookmarks((currentState as EntryLoaded).entries.last.starId, 10, event.folder);
           yield entries.isEmpty
               ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
               : EntryLoaded(
@@ -196,7 +197,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       }
     } else if (event is Update && event.sourceId == -2) {
       try {
-          final entries = await entriesRepository.getBookmarks(1000000, 10);
+          final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
           print(entries);
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
@@ -220,10 +221,14 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           final List<Entry> updatedEntries = (currentState as EntryLoaded).entries.map((entry) {
             return entry.id == event.entryId ? entry.copyWith(isStarring: true) : entry;
           }).toList();
+          if (event.from == 0)
+            entriesRepository.showStarred = true;
+          else
+            entriesRepository.showStarred2 = true;
+          entriesRepository.lastStarId = event.entryId;
           yield EntryUpdated();
           yield EntryLoaded(entries: updatedEntries, hasReachedMax: false);
         } else {
-          yield EntryMessageArrived('star failed');
           yield EntryLoaded(entries: (currentState as EntryLoaded).entries, hasReachedMax: false);
         }
       }
@@ -238,7 +243,6 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           yield EntryUpdated();
           yield EntryLoaded(entries: updatedEntries, hasReachedMax: false);
         } else {
-          yield EntryMessageArrived('unstar failed');
           yield EntryLoaded(entries: (currentState as EntryLoaded).entries, hasReachedMax: false);
         }
       }

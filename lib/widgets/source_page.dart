@@ -151,6 +151,25 @@ class SourceFeedState extends State<SourceFeed> {
       body: BlocBuilder(
         bloc: sourceEntryBloc,
         builder: (BuildContext context, SourceEntryState state) {
+          if (sourceEntryBloc.entriesRepository.showStarred == true) {
+            _onWidgetDidBuild(() {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('已收藏'),
+                action: SnackBarAction(
+                  label: '添加到收藏夹',
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddBookmarkDialog(entryId: sourceEntryBloc.entriesRepository.lastStarId);
+                        }
+                    );
+                  },
+                ),
+              ));
+              sourceEntryBloc.entriesRepository.showStarred = false;
+            });
+          }
 
           if (state is SourceEntryUninitialized) {
             return Center(
@@ -218,7 +237,7 @@ class SourceFeedState extends State<SourceFeed> {
                 itemBuilder: (BuildContext context, int index) {
                   return index >= state.entries.length
                       ? BottomLoader()
-                      : EntryWidget(entry: state.entries[index], index: index, type: 3,);
+                      : EntryWidget(entry: state.entries[index], index: index, type: 2,);
                 },
                 itemCount: state.hasReachedMax
                     ? state.entries.length
@@ -261,5 +280,11 @@ class SourceFeedState extends State<SourceFeed> {
 
   void refresh() {
     sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+  }
+
+  void _onWidgetDidBuild(Function callback) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callback();
+    });
   }
 }

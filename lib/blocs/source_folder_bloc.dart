@@ -157,6 +157,7 @@ class SourceFolderBloc extends Bloc<SourceFolderEvent, SourceFolderState> {
         if (result) {
           final sourceFolders = await sourceFoldersRepository.getSourceFolders();
           sourceFoldersRepository.sourceFolders = sourceFolders;
+          yield SourceFolderLoaded(sourceFolders: sourceFolders, hasReachedMax: false);
         }
       }
     } else if (event is RenameSourceFolder) {
@@ -174,7 +175,6 @@ class SourceFolderBloc extends Bloc<SourceFolderEvent, SourceFolderState> {
         if (result) {
           final sourceFolders = await sourceFoldersRepository.getSourceFolders();
           sourceFoldersRepository.sourceFolders = sourceFolders;
-          yield SourceFolderUpdated();
           yield SourceFolderLoaded(sourceFolders: sourceFolders, hasReachedMax: false);
         }
 

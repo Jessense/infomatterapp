@@ -8,3 +8,5 @@ export './source_folder_repository.dart';
 export './source_folder_api_client.dart';
 export './search_api_client.dart';
 export './search_repository.dart';
+export 'bookmark_folder_api_client.dart';
+export 'bookmark_folder_repository.dart';

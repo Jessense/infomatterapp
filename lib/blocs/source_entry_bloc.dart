@@ -33,7 +33,8 @@ class UpdateSourceEntry extends SourceEntryEvent {
 
 class StarSourceEntry extends SourceEntryEvent{
   final int entryId;
-  StarSourceEntry({@required this.entryId}):
+  final int from;
+  StarSourceEntry({@required this.entryId, @required this.from}):
         assert(entryId != null),
         super([entryId]);
 
@@ -107,9 +108,8 @@ class SourceEntryLoaded extends SourceEntryState {
 
 class SourceEntryBloc extends Bloc<SourceEntryEvent, SourceEntryState> {
   final EntriesRepository entriesRepository;
-  final SourceEntryState fromState;
 
-  SourceEntryBloc({@required this.entriesRepository, @required this.fromState});
+  SourceEntryBloc({@required this.entriesRepository});
 
 //  @override
 //  Stream<SourceEntryState> transform(
@@ -125,7 +125,7 @@ class SourceEntryBloc extends Bloc<SourceEntryEvent, SourceEntryState> {
 //  }
 
   @override
-  get initialState => fromState;
+  get initialState => SourceEntryUninitialized();
 
   @override
   Stream<SourceEntryState> mapEventToState(event) async* {
@@ -166,11 +166,11 @@ class SourceEntryBloc extends Bloc<SourceEntryEvent, SourceEntryState> {
     } else if (event is FetchSourceEntry && event.sourceId == -2 && !_hasReachedMax(currentState)) {
       try {
         if (currentState is SourceEntryUninitialized) {
-          final entries = await entriesRepository.getBookmarks(1000000, 10);
+          final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
           yield SourceEntryLoaded(entries: entries, hasReachedMax: false);
         }
         if (currentState is SourceEntryLoaded) {
-          final entries = await entriesRepository.getBookmarks((currentState as SourceEntryLoaded).entries.last.starId, 10);
+          final entries = await entriesRepository.getBookmarks((currentState as SourceEntryLoaded).entries.last.starId, 10, event.folder);
           yield entries.isEmpty
               ? (currentState as SourceEntryLoaded).copyWith(hasReachedMax: true)
               : SourceEntryLoaded(
@@ -192,7 +192,7 @@ class SourceEntryBloc extends Bloc<SourceEntryEvent, SourceEntryState> {
       }
     } else if (event is UpdateSourceEntry && event.sourceId == -2) {
       try {
-        final entries = await entriesRepository.getBookmarks(1000000, 10);
+        final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
         print(entries);
         yield SourceEntryUpdated();
         yield SourceEntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
@@ -216,6 +216,11 @@ class SourceEntryBloc extends Bloc<SourceEntryEvent, SourceEntryState> {
           final List<Entry> updatedEntries = (currentState as SourceEntryLoaded).entries.map((entry) {
             return entry.id == event.entryId ? entry.copyWith(isStarring: true) : entry;
           }).toList();
+          if (event.from == 0)
+            entriesRepository.showStarred = true;
+          else
+            entriesRepository.showStarred2 = true;
+          entriesRepository.lastStarId = event.entryId;
           yield SourceEntryUpdated();
           yield SourceEntryLoaded(entries: updatedEntries, hasReachedMax: false);
         } else {

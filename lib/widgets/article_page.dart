@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/models/entry.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
+import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
@@ -25,6 +26,9 @@ class ArticlePage extends StatefulWidget{
 }
 
 class ArticlePageState extends State<ArticlePage> {
+  final _key = UniqueKey();
+
+
   ArticleBloc articleBloc;
 
   EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
@@ -85,6 +89,7 @@ class ArticlePageState extends State<ArticlePage> {
       return BlocBuilder(
         bloc: articleBloc,
         builder: (BuildContext context, ArticleState state) {
+          int _stackToView = 1;
           return Scaffold(
             appBar: articleAppBar(),
             body: SingleChildScrollView(
@@ -111,10 +116,9 @@ class ArticlePageState extends State<ArticlePage> {
         },
       );
     } else {
-      return WebviewScaffold(
+      return Scaffold(
         appBar: articleAppBar(),
-        url: entry.link,
-        hidden: true,
+        body: WebViewPage(entry.link),
       );
     }
   }
@@ -127,14 +131,34 @@ class ArticlePageState extends State<ArticlePage> {
           BlocBuilder(
             bloc: BlocProvider.of<EntryBloc>(context),
             builder: (BuildContext context, EntryState state) {
+              if (entryBloc.entriesRepository.showStarred2 == true) {
+                _onWidgetDidBuild(() {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('已收藏'),
+                    action: SnackBarAction(
+                      label: '添加到收藏夹',
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AddBookmarkDialog(entryId: entryBloc.entriesRepository.lastStarId);
+                            }
+                        );
+                      },
+                    ),
+                  ));
+                  entryBloc.entriesRepository.showStarred2 = false;
+                });
+              }
+
               if (state is EntryLoaded)
                 return IconButton(
                   icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
                   onPressed: () {
                     if (!state.entries[_index].isStarring) {
-                      BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: state.entries[_index].id));
+                      BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: state.entries[_index].id, from: 1));
                     } else {
-                      BlocProvider.of<EntryBloc>(context).dispatch(UnstarEntry(entryId: state.entries[_index].id));
+                      BlocProvider.of<EntryBloc>(context).dispatch(UnstarEntry(entryId: state.entries[_index].id, ));
                     }
                   },
                 );
@@ -160,12 +184,32 @@ class ArticlePageState extends State<ArticlePage> {
           BlocBuilder(
             bloc: BlocProvider.of<SourceEntryBloc>(context),
             builder: (BuildContext context, SourceEntryState state) {
+              if (BlocProvider.of<SourceEntryBloc>(context).entriesRepository.showStarred2 == true) {
+                _onWidgetDidBuild(() {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('已收藏'),
+                    action: SnackBarAction(
+                      label: '添加到收藏夹',
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AddBookmarkDialog(entryId: BlocProvider.of<SourceEntryBloc>(context).entriesRepository.lastStarId);
+                            }
+                        );
+                      },
+                    ),
+                  ));
+                  BlocProvider.of<SourceEntryBloc>(context).entriesRepository.showStarred2 = false;
+                });
+              }
+
               if (state is SourceEntryLoaded)
                 return IconButton(
                   icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
                   onPressed: () {
                     if (!state.entries[_index].isStarring) {
-                      BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: state.entries[_index].id));
+                      BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: state.entries[_index].id, from: 1),);
                     } else {
                       BlocProvider.of<SourceEntryBloc>(context).dispatch(UnstarSourceEntry(entryId: state.entries[_index].id));
                     }
@@ -193,12 +237,32 @@ class ArticlePageState extends State<ArticlePage> {
           BlocBuilder(
             bloc: BlocProvider.of<BookmarkEntryBloc>(context),
             builder: (BuildContext context, BookmarkEntryState state) {
+              if (BlocProvider.of<BookmarkEntryBloc>(context).entriesRepository.showStarred2 == true) {
+                _onWidgetDidBuild(() {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('已收藏'),
+                    action: SnackBarAction(
+                      label: '添加到收藏夹',
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AddBookmarkDialog(entryId: BlocProvider.of<BookmarkEntryBloc>(context).entriesRepository.lastStarId);
+                            }
+                        );
+                      },
+                    ),
+                  ));
+                  BlocProvider.of<BookmarkEntryBloc>(context).entriesRepository.showStarred2 = false;
+                });
+              }
+
               if (state is BookmarkEntryLoaded)
                 return IconButton(
                   icon: state.entries[_index].isStarring ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
                   onPressed: () {
                     if (!state.entries[_index].isStarring) {
-                      BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: state.entries[_index].id));
+                      BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: state.entries[_index].id, from: 1));
                     } else {
                       BlocProvider.of<BookmarkEntryBloc>(context).dispatch(UnstarBookmarkEntry(entryId: state.entries[_index].id));
                     }
@@ -247,6 +311,12 @@ class ArticlePageState extends State<ArticlePage> {
       timestamp = '${difference.inDays}d';
     }
     return timestamp;
+  }
+
+  void _onWidgetDidBuild(Function callback) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callback();
+    });
   }
 
 }

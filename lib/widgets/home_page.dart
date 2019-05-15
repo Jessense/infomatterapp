@@ -21,6 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   SourceFolderBloc get sourceFolderBloc => BlocProvider.of<SourceFolderBloc>(context);
+  BookmarkFolderBloc get bookmarkFolderBloc => BlocProvider.of<BookmarkFolderBloc>(context);
   EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
   BookmarkEntryBloc get bookmarkEntryBloc => BlocProvider.of<BookmarkEntryBloc>(context);
 
@@ -28,15 +29,18 @@ class _HomeState extends State<Home> {
   final _scrollController2 = ScrollController(); //drawer
   final _scrollController3 = ScrollController(); //bookmark
   Completer<void> _refreshCompleter = Completer<void>(); //home
-  Completer<void> _refreshCompleter2 = Completer<void>(); //drawer
+  Completer<void> _refreshCompleter2 = Completer<void>(); //drawer of home
   Completer<void> _refreshCompleter3 = Completer<void>(); //bookmark
+  Completer<void> _refreshCompleter4 = Completer<void>(); //drawer of bookmark
+
   final _scrollThreshold = 50.0;
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey3 = new GlobalKey<RefreshIndicatorState>(); //bookmark
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int homeSourceId = -1;
   String homeSourceFolder = '';
+  String bookmarkFolder = '';
   
   String appBarText = "全部";
 
@@ -56,9 +60,17 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+
     // TODO: implement build
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
+        leading: _cIndex == 0 || _cIndex == 1 ? IconButton(
+          icon: Icon(Icons.filter_list),
+          onPressed: () {
+            _scaffoldKey.currentState.openDrawer();
+          },
+        ) : Container(),
         title: Text(appBarText),
         actions: <Widget>[
           IconButton(
@@ -136,6 +148,25 @@ class _HomeState extends State<Home> {
         bloc: entryBloc,
         key: PageStorageKey('home'),
         builder: (BuildContext context, EntryState state) {
+          if (entryBloc.entriesRepository.showStarred == true) {
+            _onWidgetDidBuild(() {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('已收藏'),
+                action: SnackBarAction(
+                  label: '添加到收藏夹',
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddBookmarkDialog(entryId: entryBloc.entriesRepository.lastStarId);
+                        }
+                    );
+                  },
+                ),
+              ));
+              entryBloc.entriesRepository.showStarred = false;
+            });
+          }
 
           if (state is EntryUninitialized) {
             fetch();
@@ -224,6 +255,25 @@ class _HomeState extends State<Home> {
         bloc: bookmarkEntryBloc,
         key: PageStorageKey('bookmark'),
         builder: (BuildContext context, BookmarkEntryState state) {
+          if (bookmarkEntryBloc.entriesRepository.showStarred == true) {
+            _onWidgetDidBuild(() {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('已收藏'),
+                action: SnackBarAction(
+                  label: '添加到收藏夹',
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddBookmarkDialog(entryId: bookmarkEntryBloc.entriesRepository.lastStarId);
+                        }
+                    );
+                  },
+                ),
+              ));
+              bookmarkEntryBloc.entriesRepository.showStarred = false;
+            });
+          }
 
           if (state is BookmarkEntryUninitialized) {
             fetch3();
@@ -239,7 +289,7 @@ class _HomeState extends State<Home> {
             return RefreshIndicator(
               key: _refreshIndicatorKey3,
               onRefresh: () {
-                bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: homeSourceFolder));
+                bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
                 return _refreshCompleter3.future;
               },
               child: ListView(
@@ -267,7 +317,7 @@ class _HomeState extends State<Home> {
               return RefreshIndicator(
                 key: _refreshIndicatorKey3,
                 onRefresh: () {
-                  bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: homeSourceFolder));
+                  bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
                   return _refreshCompleter3.future;
                 },
                 child: ListView(
@@ -284,7 +334,7 @@ class _HomeState extends State<Home> {
             return RefreshIndicator(
               key: _refreshIndicatorKey3,
               onRefresh: () {
-                bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: homeSourceFolder));
+                bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
                 return _refreshCompleter3.future;
               },
               child: ListView.builder(
@@ -312,6 +362,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildDrawer() {
+    if (_cIndex == 0)
     return Drawer(
         child: BlocBuilder(
             bloc: sourceFolderBloc,
@@ -431,6 +482,86 @@ class _HomeState extends State<Home> {
             }
         )
     );
+    else if (_cIndex == 1)
+      return Drawer(
+        child: BlocBuilder(
+            bloc: bookmarkFolderBloc,
+            builder: (BuildContext context, BookmarkFolderState state) {
+              if (state is BookmarkFolderUninitialized) {
+                bookmarkFolderBloc.dispatch(FetchBookmarkFolders());
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (state is BookmarkFolderError) {
+                _refreshCompleter4?.complete();
+                _refreshCompleter4 = Completer();
+                return RefreshIndicator(
+                  onRefresh: () {
+                    bookmarkFolderBloc.dispatch(FetchBookmarkFolders());
+                    return _refreshCompleter4.future;
+                  },
+                  child: ListView(
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        child: Text('failed to fetch bookmark folders'),
+                      )
+                    ],
+                  ),
+                );
+              }
+
+              if (state is BookmarkFolderLoaded) {
+                _refreshCompleter4?.complete();
+                _refreshCompleter4 = Completer();
+                return RefreshIndicator(
+                  onRefresh: () {
+                    bookmarkFolderBloc.dispatch(FetchBookmarkFolders());
+                    return _refreshCompleter4.future;
+                  },
+                  child: ListView.builder(
+                      itemBuilder: (BuildContext context, int index) {
+                        if (index == 0) {
+                          return ListTile(
+                            title: Text('收藏夹'),
+                          );
+                        }
+                        index = index - 1;
+                        return ListTile(
+                          leading: Icon(Icons.folder_open),
+                          title: bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index].length > 0 ?
+                            Text(bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index]):
+                            Text('全部'),
+                          onTap: () {
+                            setState(() {
+                              bookmarkFolder = bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index];
+                              Navigator.of(context).pop();
+                              refresh3();
+                              if (bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index].length > 0) {
+                                appBarText = bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index];
+                              } else {
+                                appBarText = '全部';
+                              }
+                            });
+
+                          },
+                          onLongPress: () {
+                            if (bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index] != '') {
+                              showModalBottomSheet(context: context, builder: (BuildContext context) => BookmarkFolderOption(
+                                bookmarkFolderName: bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders[index],));
+                            }
+                          },
+                        );
+                      },
+                      itemCount: bookmarkFolderBloc.bookmarkFoldersRepository.bookmarkFolders.length + 1,
+                  )
+                );
+              }
+
+            }
+        ),
+      );
   }
 
   @override
@@ -485,7 +616,7 @@ class _HomeState extends State<Home> {
   }
 
   void fetch3() {
-    bookmarkEntryBloc.dispatch(FetchBookmarkEntry(sourceId: -2, folder: homeSourceFolder));
+    bookmarkEntryBloc.dispatch(FetchBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
   }
 
   void refresh() {
@@ -497,7 +628,7 @@ class _HomeState extends State<Home> {
   void refresh3() {
     _scrollController3.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
     _refreshIndicatorKey3.currentState.show();
-    bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: homeSourceFolder));
+    bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
   }
 
   void changeBrightness() {
@@ -505,6 +636,12 @@ class _HomeState extends State<Home> {
         Theme.of(context).brightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark);
+  }
+
+  void _onWidgetDidBuild(Function callback) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callback();
+    });
   }
 }
 

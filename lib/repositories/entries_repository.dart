@@ -6,6 +6,10 @@ import 'package:infomatterapp/models/models.dart';
 
 class EntriesRepository {
   final EntriesApiClient entriesApiClient;
+  bool showStarred = false;
+  bool showStarred2 = false;
+  int lastStarId = -1;
+
   EntriesRepository({
     @required this.entriesApiClient,
   }) : assert(entriesApiClient != null);
@@ -18,8 +22,8 @@ class EntriesRepository {
     return await entriesApiClient.fetchTimelineOfSource(lastTime, lastId, limit, sourceId);
   }
 
-  Future<List<Entry>> getBookmarks(int lastId, int limit) async {
-    return await entriesApiClient.fetchBookmark(lastId, limit);
+  Future<List<Entry>> getBookmarks(int lastId, int limit, String folder) async {
+    return await entriesApiClient.fetchBookmark(lastId, limit, folder);
   }
 
   Future<List<Entry>> getFullCoverage(int cluster) async{

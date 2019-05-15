@@ -9,3 +9,4 @@ export './full_coverage_bloc.dart';
 export './audio_bloc.dart';
 export './entry_bloc_bookmark.dart';
 export 'source_entry_bloc.dart';
+export 'bookmark_folder_bloc.dart';

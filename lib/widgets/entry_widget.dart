@@ -100,7 +100,7 @@ class EntryWidgetState extends State<EntryWidget> {
           if (_entry.isStarring == true) {
             BlocProvider.of<EntryBloc>(context).dispatch(UnstarEntry(entryId: _entry.id));
           } else {
-            BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: _entry.id));
+            BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: _entry.id, from: 0));
           }
         },
       );
@@ -111,7 +111,7 @@ class EntryWidgetState extends State<EntryWidget> {
           if (_entry.isStarring == true) {
             BlocProvider.of<SourceEntryBloc>(context).dispatch(UnstarSourceEntry(entryId: _entry.id));
           } else {
-            BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: _entry.id));
+            BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: _entry.id, from: 0));
           }
         },
       );
@@ -122,7 +122,7 @@ class EntryWidgetState extends State<EntryWidget> {
           if (_entry.isStarring == true) {
             BlocProvider.of<BookmarkEntryBloc>(context).dispatch(UnstarBookmarkEntry(entryId: _entry.id));
           } else {
-            BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: _entry.id));
+            BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: _entry.id, from: 0));
           }
         },
       );

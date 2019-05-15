@@ -12,16 +12,9 @@ class _WebViewPageState extends State<WebViewPage> {
   _WebViewPageState(this._url);
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: Column(
-          children: [
-            Expanded(
-                child: WebView(
-                    key: _key,
-                    javascriptMode: JavascriptMode.unrestricted,
-                    initialUrl: _url))
-          ],
-        ));
+    return WebView(
+        key: _key,
+        javascriptMode: JavascriptMode.unrestricted,
+        initialUrl: _url);
   }
 }

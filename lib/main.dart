@@ -37,6 +37,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   AuthenticationBloc authenticationBloc;
+  BookmarkFolderBloc bookmarkFolderBloc;
   EntryBloc entryBloc;
   BookmarkEntryBloc bookmarkEntryBloc;
   SourceEntryBloc sourceEntryBloc;
@@ -50,6 +51,13 @@ class _AppState extends State<App> {
   @override
   void initState() {
     authenticationBloc = AuthenticationBloc(userRepository: userRepository);
+    bookmarkFolderBloc = BookmarkFolderBloc(
+        bookmarkFoldersRepository: BookmarkFolderRepository(
+            bookmarkFolderApiClient: BookmarkFolderApiClient(
+                httpClient: http.Client()
+            )
+        )
+    );
     entryBloc = EntryBloc(
       entriesRepository: EntriesRepository(
         entriesApiClient: EntriesApiClient(httpClient: http.Client()),
@@ -66,7 +74,6 @@ class _AppState extends State<App> {
       entriesRepository: EntriesRepository(
         entriesApiClient: EntriesApiClient(httpClient: http.Client()),
       ),
-      fromState: SourceEntryUninitialized(),
     );
     sourceFolderBloc = SourceFolderBloc(
         sourceFoldersRepository: SourceFolderRepository(
@@ -116,6 +123,7 @@ class _AppState extends State<App> {
           return BlocProviderTree(
               blocProviders: [
                 BlocProvider<AuthenticationBloc>(bloc: authenticationBloc,),
+                BlocProvider<BookmarkFolderBloc>(bloc: bookmarkFolderBloc,),
                 BlocProvider<EntryBloc>(bloc: entryBloc,),
                 BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),
                 BlocProvider<SourceBloc>(bloc: sourceBloc),

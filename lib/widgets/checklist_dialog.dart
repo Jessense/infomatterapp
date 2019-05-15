@@ -117,9 +117,10 @@ class _MyDialogState extends State<MyDialog> {
               children: <Widget>[
                 SizedBox(width: 15,),
                 Expanded(
-                  child: InkWell(
+                  flex: 2,
+                  child: FlatButton(
                     child: Text('新建分组', style: TextStyle(fontSize: 16, color: Theme.of(context).accentColor),textAlign: TextAlign.center,),
-                    onTap: () {
+                    onPressed: () {
                       showDialog(
                           context: context,
                           builder: (context) {
@@ -152,20 +153,17 @@ class _MyDialogState extends State<MyDialog> {
                   ),
                 ),
                 Expanded(
-                  child: Container(width: 0, height: 0,),
-                ),
-                Expanded(
-                  child: InkWell(
+                  child: FlatButton(
                     child: Text('取消', style: TextStyle(fontSize: 16, color: Theme.of(context).accentColor), textAlign: TextAlign.center,),
-                    onTap: () {
+                    onPressed: () {
                       Navigator.of(context).pop();
                     },
                   ),
                 ),
                 Expanded(
-                  child: InkWell(
+                  child: FlatButton(
                     child: Text('确定', style: TextStyle(fontSize: 16, color: Theme.of(context).accentColor), textAlign: TextAlign.center,),
-                    onTap: () {
+                    onPressed: () {
                       if (selectedItems.length > 0) {
                         sourceFolderBloc.dispatch(AssignSourceFolders(sourceId: _sourceId, folders: selectedItems));
                       }

@@ -33,7 +33,8 @@ class UpdateBookmarkEntry extends BookmarkEntryEvent {
 
 class StarBookmarkEntry extends BookmarkEntryEvent{
   final int entryId;
-  StarBookmarkEntry({@required this.entryId}):
+  final int from;
+  StarBookmarkEntry({@required this.entryId, @required this.from}):
         assert(entryId != null),
         super([entryId]);
 
@@ -129,14 +130,14 @@ class BookmarkEntryBloc extends Bloc<BookmarkEntryEvent, BookmarkEntryState> {
 
   @override
   Stream<BookmarkEntryState> mapEventToState(event) async* {
-    if (event is FetchBookmarkEntry && event.sourceId == -1 && !_hasReachedMax(currentState)) {
+    if (event is FetchBookmarkEntry && !_hasReachedMax(currentState)) {
       try {
         if (currentState is BookmarkEntryUninitialized) {
-          final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
+          final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
           yield BookmarkEntryLoaded(entries: entries, hasReachedMax: false);
         }
         if (currentState is BookmarkEntryLoaded) {
-          final entries = await entriesRepository.getTimeline((currentState as BookmarkEntryLoaded).entries.last.pubDate, 1000000, 10, event.folder);
+          final entries = await entriesRepository.getBookmarks((currentState as BookmarkEntryLoaded).entries.last.starId, 10, event.folder);
           yield entries.isEmpty
               ? (currentState as BookmarkEntryLoaded).copyWith(hasReachedMax: true)
               : BookmarkEntryLoaded(
@@ -146,65 +147,12 @@ class BookmarkEntryBloc extends Bloc<BookmarkEntryEvent, BookmarkEntryState> {
         print(_);
         yield BookmarkEntryError();
       }
-    } else if (event is FetchBookmarkEntry && event.sourceId > -1 && !_hasReachedMax(currentState)) {
+    } else if (event is UpdateBookmarkEntry) {
       try {
-        if (currentState is BookmarkEntryUninitialized) {
-          final entries = await entriesRepository.getTimelineOfSource("2049-12-31T23:59:59", 1000000, 10, event.sourceId);
-          yield BookmarkEntryLoaded(entries: entries, hasReachedMax: false);
-        }
-        if (currentState is BookmarkEntryLoaded) {
-          final entries = await entriesRepository.getTimelineOfSource((currentState as BookmarkEntryLoaded).entries.last.pubDate, 1000000, 10, event.sourceId);
-          yield entries.isEmpty
-              ? (currentState as BookmarkEntryLoaded).copyWith(hasReachedMax: true)
-              : BookmarkEntryLoaded(
-              entries: (currentState as BookmarkEntryLoaded).entries + entries, hasReachedMax: false);
-        }
-      } catch (_) {
-        print(_);
-        yield BookmarkEntryError();
-      }
-    } else if (event is FetchBookmarkEntry && event.sourceId == -2 && !_hasReachedMax(currentState)) {
-      try {
-        if (currentState is BookmarkEntryUninitialized) {
-          final entries = await entriesRepository.getBookmarks(1000000, 10);
-          yield BookmarkEntryLoaded(entries: entries, hasReachedMax: false);
-        }
-        if (currentState is BookmarkEntryLoaded) {
-          final entries = await entriesRepository.getBookmarks((currentState as BookmarkEntryLoaded).entries.last.starId, 10);
-          yield entries.isEmpty
-              ? (currentState as BookmarkEntryLoaded).copyWith(hasReachedMax: true)
-              : BookmarkEntryLoaded(
-              entries: (currentState as BookmarkEntryLoaded).entries + entries, hasReachedMax: false);
-        }
-      } catch (_) {
-        print(_);
-        yield BookmarkEntryError();
-      }
-    } else if (event is UpdateBookmarkEntry && event.sourceId == -1) {
-      try {
-        final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
+        final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
         print(entries);
         yield BookmarkEntryUpdated();
         yield BookmarkEntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
-      } catch (_) {
-        print(_);
-        yield BookmarkEntryError();
-      }
-    } else if (event is UpdateBookmarkEntry && event.sourceId == -2) {
-      try {
-        final entries = await entriesRepository.getBookmarks(1000000, 10);
-        print(entries);
-        yield BookmarkEntryUpdated();
-        yield BookmarkEntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
-      } catch (_) {
-        print(_);
-        yield BookmarkEntryError();
-      }
-    } else if (event is UpdateBookmarkEntry && event.sourceId > -1 && !_hasReachedMax(currentState)) {
-      try {
-        final entries = await entriesRepository.getTimelineOfSource("2049-12-31T23:59:59", 1000000, 10, event.sourceId);
-        yield BookmarkEntryUpdated();
-        yield BookmarkEntryLoaded(entries: entries, hasReachedMax: false);
       } catch (_) {
         print(_);
         yield BookmarkEntryError();
@@ -216,6 +164,11 @@ class BookmarkEntryBloc extends Bloc<BookmarkEntryEvent, BookmarkEntryState> {
           final List<Entry> updatedEntries = (currentState as BookmarkEntryLoaded).entries.map((entry) {
             return entry.id == event.entryId ? entry.copyWith(isStarring: true) : entry;
           }).toList();
+          if (event.from == 0)
+            entriesRepository.showStarred = true;
+          else
+            entriesRepository.showStarred2 = true;
+          entriesRepository.lastStarId = event.entryId;
           yield BookmarkEntryUpdated();
           yield BookmarkEntryLoaded(entries: updatedEntries, hasReachedMax: false);
         } else {

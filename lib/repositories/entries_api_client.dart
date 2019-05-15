@@ -145,9 +145,13 @@ class EntriesApiClient {
   }
 
 
-  Future<List<Entry>> fetchBookmark(int lastId, int limit) async {
+  Future<List<Entry>> fetchBookmark(int lastId, int limit, String folder) async {
+    String url = "$baseUrl/users/starring?last_id=$lastId&batch_size=$limit";
+    if (folder.length > 0) {
+      url = "$baseUrl/users/starring?last_id=$lastId&batch_size=$limit&tag=$folder";
+    }
     final response = await httpClient.get(
-        '$baseUrl/users/starring?last_id=$lastId&batch_size=$limit',
+        url,
         headers: {HttpHeaders.authorizationHeader: await getToken()});
     print(response.statusCode.toString() + ": " + response.body);
     if (response.statusCode == 200) {
