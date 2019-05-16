@@ -22,3 +22,4 @@ export './full_coverage.dart';
 export './audio_widget.dart';
 export 'add_bookmark_dialog.dart';
 export 'bookmark_folder_option.dart';
+export 'entry_option.dart';

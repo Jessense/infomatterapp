@@ -36,6 +36,13 @@ class EntryWidgetState extends State<EntryWidget> {
   Entry get _entry => widget.entry;
   int get _index => widget.index;
   int get _type => widget.type;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -50,10 +57,10 @@ class EntryWidgetState extends State<EntryWidget> {
                 ),
                 Expanded(
                   flex: 8,
-                  child: Text(_entry.sourceName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),),
+                  child: Text(_entry.sourceName + _index.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: _entry.isReaded ? Colors.grey : Colors.black),),
                 ),
                 Expanded(
-                  child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),),
+                  child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: Colors.grey),),
                 )
               ],
             ),
@@ -61,14 +68,17 @@ class EntryWidgetState extends State<EntryWidget> {
             GestureDetector(
               onTap: (){
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ArticlePage(entry: _entry, index: _index, type: _type,),
+                  builder: (context) {
+                    BlocProvider.of<EntryBloc>(context).entriesRepository.click(_index);
+                    return ArticlePage(entry: _entry, index: _index, type: _type,);
+                  },
                 )
                 );
               },
-              child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo,)
+              child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo, isReaded: _entry.isReaded,)
                   : ArticleEntry(entry: _entry,),
             ),
-            _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame) : Container(),
+            _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame, ) : Container(),
             SizedBox(height: 10,),
             Row(
               children: <Widget>[
@@ -83,6 +93,14 @@ class EntryWidgetState extends State<EntryWidget> {
                 ),
                 Expanded(
                   child: _buildFavbtn(),
+                ),
+                Expanded(
+                  child: IconButton(
+                      icon: Icon(Icons.more_vert),
+                      onPressed: () {
+                        showModalBottomSheet(context: context, builder: (BuildContext context) => EntryOption(entry: _entry, index: _index,));
+                      }
+                  ),
                 )
               ],
             ),
@@ -161,6 +179,7 @@ class EntryWidgetState extends State<EntryWidget> {
     }
     return timestamp;
   }
+
 }
 
 
@@ -181,7 +200,7 @@ class ArticleEntry extends StatelessWidget{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(entry.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), maxLines: 2,),
+                Text(entry.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: entry.isReaded ? Colors.grey : Colors.black), maxLines: 2,),
                 SizedBox(height: 5,),
                 Text(entry.digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
               ],
@@ -307,7 +326,8 @@ class VideoFrameWidgetState extends State<VideoFrameWidget>{
 class WeiboEntry extends StatelessWidget{
   final String content;
   final List<String> photo;
-  WeiboEntry({Key key, this.content, this.photo}):
+  final bool isReaded;
+  WeiboEntry({Key key, this.content, this.photo, this.isReaded}):
       super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -317,7 +337,7 @@ class WeiboEntry extends StatelessWidget{
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(content, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400), maxLines: 7),
+          Text(content, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: isReaded ? Colors.grey : Colors.black), maxLines: 7),
           (photo.length > 0 && photo[0].length > 0) ? SizedBox(height: 10,) : Container(),
           (photo.length > 0 && photo[0].length > 0) ? layoutImages(context) : Container()
         ],
@@ -515,6 +535,8 @@ class WeiboEntry extends StatelessWidget{
 
 
   }
+
+
 
 }
 

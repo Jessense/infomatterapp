@@ -138,10 +138,12 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       try {
         if (currentState is EntryUninitialized) {
           final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
+          entriesRepository.entries = entries;
           yield EntryLoaded(entries: entries, hasReachedMax: false);
         }
         if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getTimeline((currentState as EntryLoaded).entries.last.pubDate, 1000000, 10, event.folder);
+          entriesRepository.entries = (currentState as EntryLoaded).entries + entries;
           yield entries.isEmpty
               ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
               : EntryLoaded(
@@ -155,27 +157,12 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       try {
         if (currentState is EntryUninitialized) {
           final entries = await entriesRepository.getTimelineOfSource("2049-12-31T23:59:59", 1000000, 10, event.sourceId);
+          entriesRepository.entries = entries;
           yield EntryLoaded(entries: entries, hasReachedMax: false);
         }
         if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getTimelineOfSource((currentState as EntryLoaded).entries.last.pubDate, 1000000, 10, event.sourceId);
-          yield entries.isEmpty
-              ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
-              : EntryLoaded(
-              entries: (currentState as EntryLoaded).entries + entries, hasReachedMax: false);
-        }
-      } catch (_) {
-        print(_);
-        yield EntryError();
-      }
-    } else if (event is Fetch && event.sourceId == -2 && !_hasReachedMax(currentState)) {
-      try {
-        if (currentState is EntryUninitialized) {
-          final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
-          yield EntryLoaded(entries: entries, hasReachedMax: false);
-        }
-        if (currentState is EntryLoaded) {
-          final entries = await entriesRepository.getBookmarks((currentState as EntryLoaded).entries.last.starId, 10, event.folder);
+          entriesRepository.entries = (currentState as EntryLoaded).entries + entries;
           yield entries.isEmpty
               ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
               : EntryLoaded(
@@ -189,16 +176,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       try {
           final entries = await entriesRepository.getTimeline("2049-12-31T23:59:59", 1000000, 10, event.folder);
           print(entries);
-          yield EntryUpdated();
-          yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
-      } catch (_) {
-        print(_);
-        yield EntryError();
-      }
-    } else if (event is Update && event.sourceId == -2) {
-      try {
-          final entries = await entriesRepository.getBookmarks(1000000, 10, event.folder);
-          print(entries);
+          entriesRepository.entries = entries;
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false, timenow: DateTime.now());
       } catch (_) {
@@ -208,6 +186,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
     } else if (event is Update && event.sourceId > -1 && !_hasReachedMax(currentState)) {
       try {
           final entries = await entriesRepository.getTimelineOfSource("2049-12-31T23:59:59", 1000000, 10, event.sourceId);
+          entriesRepository.entries = entries;
           yield EntryUpdated();
           yield EntryLoaded(entries: entries, hasReachedMax: false);
       } catch (_) {
@@ -226,6 +205,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           else
             entriesRepository.showStarred2 = true;
           entriesRepository.lastStarId = event.entryId;
+          entriesRepository.entries = updatedEntries;
           yield EntryUpdated();
           yield EntryLoaded(entries: updatedEntries, hasReachedMax: false);
         } else {
@@ -240,6 +220,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           (currentState as EntryLoaded).entries.map((entry) {
             return entry.id == event.entryId ? entry.copyWith(isStarring: false) : entry;
           }).toList();
+          entriesRepository.entries = updatedEntries;
           yield EntryUpdated();
           yield EntryLoaded(entries: updatedEntries, hasReachedMax: false);
         } else {

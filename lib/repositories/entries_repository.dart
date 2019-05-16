@@ -10,6 +10,8 @@ class EntriesRepository {
   bool showStarred2 = false;
   int lastStarId = -1;
 
+  List<Entry> entries = [];
+
   EntriesRepository({
     @required this.entriesApiClient,
   }) : assert(entriesApiClient != null);
@@ -32,6 +34,20 @@ class EntriesRepository {
 
   Future<String> getArticle(int entryId) async{
     return await entriesApiClient.fetchArticleContent(entryId);
+  }
+
+  Future<bool> click(int index) async{
+    entries[index].isReaded = true;
+    return await entriesApiClient.click(entries[index].id);
+  }
+
+  Future<bool> markAsRead(int index) async{
+    List<int> entryIds = [];
+    for (int i = 0; i < index; i ++ ) {
+      entries[i].isReaded = true;
+      entryIds.add(entries[i].id);
+    }
+    return await entriesApiClient.markAsRead(entryIds);
   }
 
   Future<bool> starEntry(int entryId) async {

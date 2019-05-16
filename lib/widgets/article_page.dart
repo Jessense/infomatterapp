@@ -9,8 +9,9 @@ import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/models/entry.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 class ArticlePage extends StatefulWidget{
   final int type;
@@ -108,7 +109,7 @@ class ArticlePageState extends State<ArticlePage> {
                     height: 1.3,
                   ),
                 )
-                    : Container(padding: EdgeInsets.all(15), child: CircularProgressIndicator()),
+                    : Container(),
               ),
             ),
           );
@@ -173,7 +174,7 @@ class ArticlePageState extends State<ArticlePage> {
           IconButton(
             icon: Icon(Icons.open_in_browser),
             onPressed: () {
-              _launchURL(entry.link);
+              _launchURL(context, entry.link);
             },
           )
         ],
@@ -226,7 +227,7 @@ class ArticlePageState extends State<ArticlePage> {
           IconButton(
             icon: Icon(Icons.open_in_browser),
             onPressed: () {
-              _launchURL(entry.link);
+              _launchURL(context, entry.link);
             },
           )
         ],
@@ -279,7 +280,7 @@ class ArticlePageState extends State<ArticlePage> {
           IconButton(
             icon: Icon(Icons.open_in_browser),
             onPressed: () {
-              _launchURL(entry.link);
+              _launchURL(context, entry.link);
             },
           )
         ],
@@ -288,12 +289,27 @@ class ArticlePageState extends State<ArticlePage> {
 
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  _launchURL(BuildContext context, String url) async {
+    try {
+      await launch(
+        url,
+        option: new CustomTabsOption(
+          toolbarColor: Theme.of(context).primaryColor,
+          enableDefaultShare: true,
+          enableUrlBarHiding: true,
+          showPageTitle: true,
+          animation: CustomTabsAnimation(
+            startEnter: 'slide_up',
+            startExit: 'android:anim/fade_out',
+            endEnter: 'android:anim/fade_in',
+            endExit: 'slide_down',
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
     }
+
   }
 
   static String _timestamp(String timeUtcStr) {

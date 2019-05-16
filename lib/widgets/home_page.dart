@@ -10,6 +10,7 @@ import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 
 class Home extends StatefulWidget {
@@ -171,7 +172,10 @@ class _HomeState extends State<Home> {
           if (state is EntryUninitialized) {
             fetch();
             return Center(
-              child: CircularProgressIndicator(),
+              child: SpinKitThreeBounce(
+                color: Colors.grey,
+                size: 30.0,
+              ),
             );
           }
 
@@ -233,13 +237,13 @@ class _HomeState extends State<Home> {
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics (),
                 itemBuilder: (BuildContext context, int index) {
-                  return index >= state.entries.length
+                  return index >= entryBloc.entriesRepository.entries.length
                       ? BottomLoader()
-                      : EntryWidget(entry: state.entries[index], index: index, type: 1,);
+                      : EntryWidget(entry: entryBloc.entriesRepository.entries[index], index: index, type: 1,);
                 },
                 itemCount: state.hasReachedMax
-                    ? state.entries.length
-                    : state.entries.length + 1,
+                    ? entryBloc.entriesRepository.entries.length
+                    : entryBloc.entriesRepository.entries.length + 1,
                 controller: _scrollController,
               ),
             );
@@ -278,7 +282,10 @@ class _HomeState extends State<Home> {
           if (state is BookmarkEntryUninitialized) {
             fetch3();
             return Center(
-              child: CircularProgressIndicator(),
+              child: SpinKitThreeBounce(
+                color: Colors.grey,
+                size: 30.0,
+              ),
             );
           }
 
@@ -370,7 +377,10 @@ class _HomeState extends State<Home> {
               if (state is SourceFolderUninitialized) {
                 sourceFolderBloc.dispatch(FetchSourceFolders());
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: SpinKitThreeBounce(
+                    color: Colors.grey,
+                    size: 30.0,
+                  ),
                 );
               }
               if (state is SourceFolderError) {
@@ -490,7 +500,10 @@ class _HomeState extends State<Home> {
               if (state is BookmarkFolderUninitialized) {
                 bookmarkFolderBloc.dispatch(FetchBookmarkFolders());
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: SpinKitThreeBounce(
+                    color: Colors.grey,
+                    size: 30.0,
+                  ),
                 );
               }
               if (state is BookmarkFolderError) {

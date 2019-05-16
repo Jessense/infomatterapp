@@ -18,7 +18,7 @@ class EntriesApiClient {
 
 
   Future<List<Entry>> fetchTimeline(String lastTime, int lastId, int limit, String tag) async {
-    String url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit';
+    String url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&&unread';
     if (tag.length > 0) {
       url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&tag=$tag';
     }
@@ -268,6 +268,37 @@ class EntriesApiClient {
     } else {
       print('error fetching entries');
       return null;
+    }
+  }
+
+  Future<bool> markAsRead(List<int> entries) async{
+    final entriesStr = '[' + entries.join(',') + ']';
+    print(entriesStr);
+    final response = await httpClient.post(
+        "$baseUrl/users/read",
+        body: {
+          "entries": entriesStr
+        },
+        headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(response.statusCode.toString() + ": " + response.body);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> click(int entryId) async{
+    final response = await httpClient.get(
+        "$baseUrl/users/read?entry_id=$entryId",
+        headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(response.statusCode.toString() + ": " + response.body);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 
