@@ -11,6 +11,7 @@ import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:preferences/preferences.dart';
 
 
 class Home extends StatefulWidget {
@@ -42,6 +43,7 @@ class _HomeState extends State<Home> {
   int homeSourceId = -1;
   String homeSourceFolder = '';
   String bookmarkFolder = '';
+  String homeSourceName = '';
   
   String appBarText = "全部";
 
@@ -66,6 +68,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        elevation: 2,
         leading: _cIndex == 0 || _cIndex == 1 ? IconButton(
           icon: Icon(Icons.filter_list),
           onPressed: () {
@@ -74,6 +77,28 @@ class _HomeState extends State<Home> {
         ) : Container(),
         title: Text(appBarText),
         actions: <Widget>[
+          BlocBuilder(
+              bloc: BlocProvider.of<AudioBloc>(context), 
+              builder: (BuildContext context, AudioState state) {
+                if (state is AudioPlaying) {
+                  return IconButton(
+                      icon: Icon(Icons.pause_circle_outline), 
+                      onPressed: () {
+                        BlocProvider.of<AudioBloc>(context).dispatch(PauseAudio());
+                      },
+                  );
+                } else if (state is AudioPaused) {
+                  return IconButton(
+                      icon: Icon(Icons.play_circle_outline),
+                      onPressed: () {
+                        BlocProvider.of<AudioBloc>(context).dispatch(PlayAudio(entry: BlocProvider.of<AudioBloc>(context).audioRepository.entryPlaying));
+                      }
+                  );
+                } else {
+                  return Container();
+                }
+              }
+          ),
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
@@ -92,6 +117,7 @@ class _HomeState extends State<Home> {
           child: hideNav == false ? BottomNavigationBar(
             currentIndex: _cIndex,
             type: BottomNavigationBarType.fixed,
+            fixedColor: Theme.of(context).accentColor,
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
@@ -121,10 +147,13 @@ class _HomeState extends State<Home> {
                   }
                 }
                 if (index == 0) {
-                  if (homeSourceFolder == '')
-                    appBarText = '全部';
-                  else
-                    appBarText = homeSourceFolder;
+                  if (homeSourceId == -1)
+                    if (homeSourceFolder == '')
+                      appBarText = '全部';
+                    else
+                      appBarText = homeSourceFolder;
+                  else if (homeSourceId > 0)
+                    appBarText = homeSourceName;
                 } else if (index == 1) {
                   appBarText = '收藏';
                 } else if (index == 2) {
@@ -415,6 +444,19 @@ class _HomeState extends State<Home> {
                     key: PageStorageKey('SourceFolders'),
                     itemBuilder: (BuildContext context, int index) {
                        if (index == 0) {
+                         return SwitchPreference(
+                           '仅看未读',
+                           'unread_only',
+                            defaultVal: true,
+//                           onEnable: () {
+//                             entryBloc.entriesRepository.unreadOnly = true;
+//                           },
+//                           onDisable: () {
+//                             entryBloc.entriesRepository.unreadOnly = false;
+//                           },
+                         );
+
+                       } else if (index == 1) {
                         return ListTile(
                           title: Text("订阅"),
                           trailing: IconButton(
@@ -429,7 +471,7 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       }
-                      index = index - 1;
+                      index = index - 2;
                       return GestureDetector(
                         child: ExpansionTile(
                             key: PageStorageKey(sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName),
@@ -447,6 +489,7 @@ class _HomeState extends State<Home> {
                                     Navigator.of(context).pop();
                                     refresh();
                                     setState(() {
+                                      homeSourceName = source.name;
                                       appBarText = source.name;
                                     });
                                   },
@@ -481,7 +524,7 @@ class _HomeState extends State<Home> {
                         },
                       );
                     },
-                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 1,
+                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 2,
                   ),
                 );
               }

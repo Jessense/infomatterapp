@@ -17,10 +17,16 @@ class EntriesApiClient {
 
 
 
-  Future<List<Entry>> fetchTimeline(String lastTime, int lastId, int limit, String tag) async {
-    String url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&&unread';
+  Future<List<Entry>> fetchTimeline(String lastTime, int lastId, int limit, String tag, bool unreadOnly) async {
+    String url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit';
+    if (unreadOnly) {
+      url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&&unread';
+    }
     if (tag.length > 0) {
       url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&tag=$tag';
+      if (unreadOnly) {
+        url = '$baseUrl/users/timeline?last_time=$lastTime&last_id=$lastId&batch_size=$limit&tag=$tag&&unread';
+      }
     }
     final response = await httpClient.get(
         url,
@@ -83,9 +89,13 @@ class EntriesApiClient {
     }
   }
 
-  Future<List<Entry>> fetchTimelineOfSource(String lastTime, int lastId, int limit, int sourceId) async {
+  Future<List<Entry>> fetchTimelineOfSource(String lastTime, int lastId, int limit, int sourceId, bool unreadOnly) async {
+    String url = '$baseUrl/sources/timeline?source_id=$sourceId&last_time=$lastTime&last_id=$lastId&batch_size=$limit';
+    if (unreadOnly) {
+      url = '$baseUrl/sources/timeline?source_id=$sourceId&last_time=$lastTime&last_id=$lastId&batch_size=$limit&&unread';
+    }
     final response = await httpClient.get(
-        '$baseUrl/sources/timeline?source_id=$sourceId&last_time=$lastTime&last_id=$lastId&batch_size=$limit',
+        url,
         headers: {HttpHeaders.authorizationHeader: await getToken()});
     print(response.statusCode.toString() + ": " + response.body);
     if (response.statusCode == 200) {
@@ -150,6 +160,7 @@ class EntriesApiClient {
     if (folder.length > 0) {
       url = "$baseUrl/users/starring?last_id=$lastId&batch_size=$limit&tag=$folder";
     }
+    print(url);
     final response = await httpClient.get(
         url,
         headers: {HttpHeaders.authorizationHeader: await getToken()});
@@ -180,6 +191,7 @@ class EntriesApiClient {
             videoFrame: rawEntry['video_frame'],
             audio: rawEntry['audio'],
             audioFrame: rawEntry['audio_frame'],
+            starId: rawEntry['star_id'],
           );
         }
         return Entry(
@@ -202,6 +214,7 @@ class EntriesApiClient {
           videoFrame: rawEntry['video_frame'],
           audio: rawEntry['audio'],
           audioFrame: rawEntry['audio_frame'],
+          starId: rawEntry['star_id'],
         );
       }).toList();
     } else {

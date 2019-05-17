@@ -128,6 +128,7 @@ class ArticlePageState extends State<ArticlePage> {
   Widget articleAppBar() {
     if (_type == 1) {
       return AppBar(
+        elevation: 0,
         actions: <Widget>[
           BlocBuilder(
             bloc: BlocProvider.of<EntryBloc>(context),
@@ -181,6 +182,7 @@ class ArticlePageState extends State<ArticlePage> {
       );
     } else if (_type == 2) {
       return AppBar(
+        elevation: 0,
         actions: <Widget>[
           BlocBuilder(
             bloc: BlocProvider.of<SourceEntryBloc>(context),
@@ -234,6 +236,7 @@ class ArticlePageState extends State<ArticlePage> {
       );
     } else if (_type == 3) {
       return AppBar(
+        elevation: 0,
         actions: <Widget>[
           BlocBuilder(
             bloc: BlocProvider.of<BookmarkEntryBloc>(context),

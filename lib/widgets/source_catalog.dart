@@ -61,7 +61,7 @@ class SourceCatalogState extends State<SourceCatalog>{
                             catalogName[index],
                             style: TextStyle(
                               color: currentIndex == index
-                                  ? Theme.of(context).accentColor : Colors.black
+                                  ? Theme.of(context).accentColor : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                             ),
                           ),
                           onTap: () {

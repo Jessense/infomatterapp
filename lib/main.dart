@@ -8,6 +8,7 @@ import 'package:infomatterapp/blocs/source_folder_bloc.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:preferences/preferences.dart';
 
 class SimpleBlocDelegate extends BlocDelegate {
   @override
@@ -17,7 +18,8 @@ class SimpleBlocDelegate extends BlocDelegate {
   }
 }
 
-void main() {
+void main() async {
+  await PrefService.init(prefix: 'pref_');
   BlocSupervisor().delegate = SimpleBlocDelegate();
   runApp(App(userRepository: UserRepository(
     userApiClient: UserApiClient(
@@ -98,7 +100,7 @@ class _AppState extends State<App> {
         ),
         sourceBloc: sourceBloc
     );
-    audioBloc = AudioBloc();
+    audioBloc = AudioBloc(audioRepository: AudioRepository());
 
     authenticationBloc.dispatch(AppStarted());
     super.initState();
@@ -115,8 +117,11 @@ class _AppState extends State<App> {
     return new DynamicTheme(
         defaultBrightness: Brightness.light,
         data: (brightness) => new ThemeData(
-          primarySwatch: Colors.red,
-          primaryColor: Colors.black,
+          primarySwatch: Colors.blue,
+          accentColor: Colors.blue,
+          toggleableActiveColor: Colors.blue,
+          canvasColor: brightness == Brightness.light ? Colors.white : Colors.black,
+          primaryColor: brightness == Brightness.light ? Colors.white : Colors.black,
           brightness: brightness,
         ),
         themedWidgetBuilder: (context, theme) {

@@ -11,6 +11,7 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:infomatterapp/models/models.dart';
+import 'package:infomatterapp/repositories/repositories.dart';
 
 typedef void OnError(Exception exception);
 
@@ -32,9 +33,6 @@ class PlayAudio extends AudioEvent{
 }
 
 class PauseAudio extends AudioEvent{
-  final Entry entry;
-  PauseAudio({@required this.entry}):
-        super([entry]);
   @override
   String toString() {
     // TODO: implement toString
@@ -86,15 +84,20 @@ class AudioPaused extends AudioState{
 
 class AudioBloc extends Bloc<AudioEvent, AudioState>{
   AudioPlayer audioPlayer = new AudioPlayer();
+  AudioRepository audioRepository = new AudioRepository();
+
+  AudioBloc({@required this.audioRepository});
 
   @override
   // TODO: implement initialState
-  AudioState get initialState => AudioPaused();
+  AudioState get initialState => AudioStopped();
 
   @override
   Stream<AudioState> mapEventToState(AudioEvent event) async* {
     // TODO: implement mapEventToState
     if (event is PlayAudio) {
+      audioRepository.entryPlaying = event.entry;
+      audioRepository.entries.add(event.entry);
       if (currentState is AudioPlaying) {
         await audioPlayer.stop();
         await audioPlayer.play(event.entry.audio);

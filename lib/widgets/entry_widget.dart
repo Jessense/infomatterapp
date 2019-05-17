@@ -57,10 +57,17 @@ class EntryWidgetState extends State<EntryWidget> {
                 ),
                 Expanded(
                   flex: 8,
-                  child: Text(_entry.sourceName + _index.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: _entry.isReaded ? Colors.grey : Colors.black),),
+                  child: Text(
+                    _entry.sourceName,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: _entry.isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
+                    ),
+                  ),
                 ),
                 Expanded(
-                  child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: Colors.grey),),
+                  child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),),
                 )
               ],
             ),
@@ -104,7 +111,7 @@ class EntryWidgetState extends State<EntryWidget> {
                 )
               ],
             ),
-            Divider()
+            Divider(height: 5, )
           ],
         )
     );
@@ -200,7 +207,7 @@ class ArticleEntry extends StatelessWidget{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(entry.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: entry.isReaded ? Colors.grey : Colors.black), maxLines: 2,),
+                Text(entry.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: entry.isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white), maxLines: 2,),
                 SizedBox(height: 5,),
                 Text(entry.digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
               ],
@@ -217,7 +224,7 @@ class ArticleEntry extends StatelessWidget{
                   child: IconButton(
                     icon: Icon(Icons.pause_circle_filled) ,
                     onPressed: () {
-                      BlocProvider.of<AudioBloc>(context).dispatch(PauseAudio(entry: entry));
+                      BlocProvider.of<AudioBloc>(context).dispatch(PauseAudio());
                     },
                   ),
                 );

@@ -235,6 +235,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.1"
+  preferences:
+    dependency: "direct main"
+    description:
+      name: preferences
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   quiver:
     dependency: transitive
     description:

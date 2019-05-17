@@ -9,7 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 
 class MySearchDelegate extends SearchDelegate{
-
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    assert(context != null);
+    final ThemeData theme = Theme.of(context);
+    assert(theme != null);
+    return theme;
+  }
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -132,8 +138,8 @@ class SearchSelectorState extends State<SearchSelector>{
                 },
                 child: Text('RSS', style: TextStyle(
                     color: searchBloc.searchRepository.type == 'RSS'
-                        ? Colors.red
-                        : Colors.black
+                        ? Theme.of(context).accentColor
+                        : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                 ),),
               ),
             ),
@@ -147,8 +153,8 @@ class SearchSelectorState extends State<SearchSelector>{
                   },
                   child: Text('微博用户', style: TextStyle(
                       color: searchBloc.searchRepository.type == 'weiboUser'
-                          ? Colors.red
-                          : Colors.black
+                          ? Theme.of(context).accentColor
+                          : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                   ))
               ),
             )
@@ -166,8 +172,8 @@ class SearchSelectorState extends State<SearchSelector>{
                 },
                 child: Text('微信公众号', style: TextStyle(
                     color: searchBloc.searchRepository.type == 'wechat'
-                        ? Colors.red
-                        : Colors.black
+                        ? Theme.of(context).accentColor
+                        : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                 ),),
               ),
             ),
@@ -181,8 +187,8 @@ class SearchSelectorState extends State<SearchSelector>{
                   },
                   child: Text('知乎用户', style: TextStyle(
                       color: searchBloc.searchRepository.type == 'zhihuUser'
-                          ? Colors.red
-                          : Colors.black
+                          ? Theme.of(context).accentColor
+                          : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                   ))
               ),
             )
@@ -200,8 +206,8 @@ class SearchSelectorState extends State<SearchSelector>{
                 },
                 child: Text('Bilibili Up主', style: TextStyle(
                     color: searchBloc.searchRepository.type == 'Bilibili'
-                        ? Colors.red
-                        : Colors.black
+                        ? Theme.of(context).accentColor
+                        : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                 ),),
               ),
             ),
@@ -215,8 +221,8 @@ class SearchSelectorState extends State<SearchSelector>{
                   },
                   child: Text('更多', style: TextStyle(
                       color: searchBloc.searchRepository.type == 'any'
-                          ? Colors.red
-                          : Colors.black
+                          ? Theme.of(context).accentColor
+                          : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                   ))
               ),
             )
