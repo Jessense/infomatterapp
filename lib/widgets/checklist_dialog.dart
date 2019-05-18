@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:infomatterapp/models/models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
@@ -64,7 +65,12 @@ class _MyDialogState extends State<MyDialog> {
                 bloc: sourceFolderBloc,
                 builder: (BuildContext context, SourceFolderState state) {
                   if (state is SourceFolderUninitialized) {
-                    return CircularProgressIndicator();
+                    return Center(
+                      child: SpinKitThreeBounce(
+                        color: Colors.grey,
+                        size: 30.0,
+                      ),
+                    );
                   }
                   if (state is SourceFolderError) {
                     return Center(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:infomatterapp/models/models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
@@ -54,7 +55,12 @@ class _AddBookmarkDialogState extends State<AddBookmarkDialog> {
                   bloc: bookmarkFolderBloc,
                   builder: (BuildContext context, BookmarkFolderState state) {
                     if (state is BookmarkFolderUninitialized) {
-                      return CircularProgressIndicator();
+                      return Center(
+                        child: SpinKitThreeBounce(
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                      );
                     }
                     if (state is BookmarkFolderError) {
                       return Center(

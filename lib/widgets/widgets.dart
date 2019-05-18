@@ -23,3 +23,5 @@ export './audio_widget.dart';
 export 'add_bookmark_dialog.dart';
 export 'bookmark_folder_option.dart';
 export 'entry_option.dart';
+export 'reset_password_page.dart';
+export 'login_form_code.dart';

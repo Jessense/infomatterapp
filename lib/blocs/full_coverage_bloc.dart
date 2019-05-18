@@ -70,7 +70,8 @@ class FullCoverageBloc extends Bloc<FullCoverageEvent, FullCoverageState>{
     if (event is FetchFullCoverage) {
       yield FullCoverageLoading();
       final result = await entriesRepository.getFullCoverage(event.cluster);
-      if (result != null) {
+      print(result);
+      if (result.length > 0) {
         yield FullCoverageLoaded(entries: result);
       } else {
         yield FullCoverageError();

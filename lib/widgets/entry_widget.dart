@@ -94,7 +94,7 @@ class EntryWidgetState extends State<EntryWidget> {
                   child: Container(),
                 ),
                 Expanded(
-                  child: _entry.sim_count != null && _entry.sim_count > 1 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
+                  child: _entry.sim_count != null && _entry.sim_count > 1 && _type != 4 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
                   }) : Container(),
                 ),
@@ -152,6 +152,7 @@ class EntryWidgetState extends State<EntryWidget> {
         },
       );
     }
+    return Container();
   }
 
   void openWebView(BuildContext context, String url, String sourceName, int id) {
@@ -344,7 +345,7 @@ class WeiboEntry extends StatelessWidget{
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(content, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: isReaded ? Colors.grey : Colors.black), maxLines: 7),
+          Text(content, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white), maxLines: 7),
           (photo.length > 0 && photo[0].length > 0) ? SizedBox(height: 10,) : Container(),
           (photo.length > 0 && photo[0].length > 0) ? layoutImages(context) : Container()
         ],

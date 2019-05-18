@@ -11,8 +11,8 @@ class UserRepository {
     return await userApiClient.postForCode(email);
   }
 
-  Future<String> signup(String email, String code, String password) async {
-    return await userApiClient.postForSignup(email, code, password);
+  Future<String> signup(String email, String password) async {
+    return await userApiClient.postForSignup(email, password);
   }
 
   Future<String> login(String email, String password) async {

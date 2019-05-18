@@ -53,18 +53,16 @@ class LoginButtonPressed extends LoginEvent {
 
 class SignupButtonPressed extends LoginEvent {
   final String username;
-  final String code;
   final String password;
 
   SignupButtonPressed({
     @required this.username,
-    @required this.code,
     @required this.password,
-  }) : super([username, code, password]);
+  }) : super([username, password]);
 
   @override
   String toString() =>
-      'LoginButtonPressed { username: $username, code: $code, password: $password }';
+      'LoginButtonPressed { username: $username, password: $password }';
 }
 
 class CodeRequested extends LoginEvent {
@@ -144,7 +142,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       try {
         final token = await userRepository.signup(
           event.username,
-          event.code,
           event.password,
         );
         if (token.startsWith("failed:")) {

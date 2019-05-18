@@ -32,8 +32,6 @@ class MySearchDelegate extends SearchDelegate{
 
   @override
   Widget buildLeading(BuildContext context) {
-    SourceBloc sourceBloc = BlocProvider.of<SourceBloc>(context);
-    SearchBloc searchBloc = BlocProvider.of<SearchBloc>(context);
     // TODO: implement buildLeading
     return IconButton(
       icon: Icon(Icons.arrow_back),
@@ -45,7 +43,6 @@ class MySearchDelegate extends SearchDelegate{
 
   @override
   Widget buildResults(BuildContext context) {
-    SourceBloc sourceBloc = BlocProvider.of<SourceBloc>(context);
     SearchBloc searchBloc = BlocProvider.of<SearchBloc>(context);
     if (query.length > 0) {
       if (query.startsWith('http://') || query.startsWith('https://'))
@@ -59,7 +56,7 @@ class MySearchDelegate extends SearchDelegate{
       bloc: searchBloc,
       builder: (BuildContext context, SearchState searchState) {
         return BlocBuilder(
-          bloc: sourceBloc,
+          bloc: searchBloc.sourceBloc,
           builder: (BuildContext context, SourceState sourceState) {
             if (sourceState is SourceUninitialized) {
               return Center(
@@ -112,7 +109,6 @@ class SearchSelectorState extends State<SearchSelector>{
   String hint = '请输入内容源关键词';
   @override
   Widget build(BuildContext context) {
-    SourceBloc sourceBloc = BlocProvider.of<SourceBloc>(context);
     SearchBloc searchBloc = BlocProvider.of<SearchBloc>(context);
     // TODO: implement build
     return Column(

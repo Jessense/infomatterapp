@@ -59,11 +59,12 @@ class FullCoveragePageState extends State<FullCoveragePage>{
             }
             return ListView.builder(
               itemBuilder:(BuildContext context, int index) {
-                return EntryWidget(entry: state.entries[index]);
+                return EntryWidget(entry: state.entries[index], index: index, type: 4,);
               },
               itemCount: state.entries.length,
             );
           }
+          return Container();
         },
       ),
     );

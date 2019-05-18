@@ -38,6 +38,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  LoginBloc loginBloc;
   AuthenticationBloc authenticationBloc;
   BookmarkFolderBloc bookmarkFolderBloc;
   EntryBloc entryBloc;
@@ -53,6 +54,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     authenticationBloc = AuthenticationBloc(userRepository: userRepository);
+    loginBloc = LoginBloc(userRepository: userRepository, authenticationBloc: authenticationBloc);
     bookmarkFolderBloc = BookmarkFolderBloc(
         bookmarkFoldersRepository: BookmarkFolderRepository(
             bookmarkFolderApiClient: BookmarkFolderApiClient(
@@ -98,7 +100,14 @@ class _AppState extends State<App> {
                 httpClient: http.Client()
             )
         ),
-        sourceBloc: sourceBloc
+        sourceBloc: SourceBloc(
+            sourcesRepository: SourceRepository(
+                sourceApiClient: SourceApiClient(
+                    httpClient: http.Client()
+                )
+            ),
+            sourceFolderBloc: sourceFolderBloc
+        )
     );
     audioBloc = AudioBloc(audioRepository: AudioRepository());
 
@@ -120,14 +129,22 @@ class _AppState extends State<App> {
           primarySwatch: Colors.blue,
           accentColor: Colors.blue,
           toggleableActiveColor: Colors.blue,
+          buttonColor: Colors.blue,
           canvasColor: brightness == Brightness.light ? Colors.white : Colors.black,
           primaryColor: brightness == Brightness.light ? Colors.white : Colors.black,
           brightness: brightness,
+          hintColor: brightness == Brightness.light ? Colors.black : Colors.white,
+          inputDecorationTheme: InputDecorationTheme(
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: brightness == Brightness.light ? Colors.black : Colors.white)
+            )
+          )
         ),
         themedWidgetBuilder: (context, theme) {
           return BlocProviderTree(
               blocProviders: [
                 BlocProvider<AuthenticationBloc>(bloc: authenticationBloc,),
+                BlocProvider<LoginBloc>(bloc: loginBloc,),
                 BlocProvider<BookmarkFolderBloc>(bloc: bookmarkFolderBloc,),
                 BlocProvider<EntryBloc>(bloc: entryBloc,),
                 BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),

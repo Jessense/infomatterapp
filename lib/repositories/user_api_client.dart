@@ -27,12 +27,10 @@ class UserApiClient {
     }
   }
 
-  Future<String> postForSignup(String email, String code, String password) async {
-    final url = "$baseUrl/users/signup";
-    print(email + ',' + password + ',' + code);
+  Future<String> postForSignup(String email, String password) async {
+    final url = "$baseUrl/users/register";
     final response = await this.httpClient.post(url, body: {
       "email": email,
-      "code": code,
       "password": password
     });
     if (response.statusCode == 200) {
@@ -52,7 +50,7 @@ class UserApiClient {
       "email": email,
       "password": password
     });
-
+    print(response.statusCode.toString() + ':' + response.body);
     if (response.statusCode == 200) {
       Map data = json.decode(response.body);
       print(data['token']);
@@ -76,7 +74,7 @@ class UserApiClient {
     }
   }
 
-  Future<bool> resetPassword(String email, String password, String code) async{
+  Future<bool> resetPassword(String email, String code, String password) async{
     final url = "$baseUrl/users/reset_password";
     print(email + ',' + password + ',' + code);
     final response = await this.httpClient.post(url, body: {
@@ -84,6 +82,7 @@ class UserApiClient {
       "code": code,
       "password": password
     });
+    print(response.statusCode.toString() + ':' + response.body);
     if (response.statusCode == 200) {
       return true;
     } else {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:async';
 
 import 'package:infomatterapp/blocs/blocs.dart';
@@ -64,7 +65,10 @@ class SourceListState extends State<SourceList>{
         }
         if (state is SourceUninitialized) {
           return Center(
-            child: CircularProgressIndicator(),
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30.0,
+            ),
           );
         }
 

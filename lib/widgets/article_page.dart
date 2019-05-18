@@ -289,6 +289,7 @@ class ArticlePageState extends State<ArticlePage> {
         ],
       );
     }
+    return AppBar(elevation: 0,);
 
   }
 

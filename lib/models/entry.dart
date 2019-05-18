@@ -56,6 +56,6 @@ class Entry extends Equatable {
   }
 
   @override
-  String toString() => 'Entry { id: $id, tile: $title, link: $link, digest: $digest, pubDate: $pubDate, form: $form, sourcePhoto: $sourcePhoto,'
+  String toString() => 'Entry { id: $id, title: $title, link: $link, digest: $digest, pubDate: $pubDate, form: $form, sourcePhoto: $sourcePhoto,'
       'sourceName: $sourceName, starId: $starId, isStarring: $isStarring, isReaded: $isReaded, loadChoice: $loadChoice }';
 }

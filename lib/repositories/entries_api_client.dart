@@ -280,7 +280,7 @@ class EntriesApiClient {
       }).toList();
     } else {
       print('error fetching entries');
-      return null;
+      return [];
     }
   }
 

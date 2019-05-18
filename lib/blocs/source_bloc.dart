@@ -22,6 +22,14 @@ class FetchSources extends SourceEvent {
   String toString() => 'FetchSources';
 }
 
+class ResetSources extends SourceEvent{
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'ResetSources';
+  }
+}
+
 class UpdateSources extends SourceEvent {
   final String target;
   UpdateSources({@required this.target}):

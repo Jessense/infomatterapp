@@ -23,6 +23,7 @@ class SourceCatalogState extends State<SourceCatalog>{
   @override
   void initState() {
     // TODO: implement initState
+    sourceBloc.dispatch(UpdateSources(target: catalogCode[currentIndex]));
     super.initState();
   }
 

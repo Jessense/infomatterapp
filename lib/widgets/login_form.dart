@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:infomatterapp/blocs/blocs.dart';
+import 'package:infomatterapp/widgets/widgets.dart';
 
 class LoginForm extends StatefulWidget {
   final LoginBloc loginBloc;
@@ -76,396 +77,115 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
   void dispose() {
     _controller.dispose();
     _emailFocus.dispose();
-
+    _passwordFocus.dispose();
+    _codeFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (type == 2) {
-      return BlocBuilder<LoginEvent, LoginState>(
-        bloc: _loginBloc,
-        builder: (
-            BuildContext context,
-            LoginState state,
-            ) {
-
-
-          if (state is MessageArrived) {
-            _onWidgetDidBuild(() {
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
+    return BlocBuilder<LoginEvent, LoginState>(
+      bloc: _loginBloc,
+      builder: (
+          BuildContext context,
+          LoginState state,
+          ) {
+        if (state is MessageArrived) {
+          _onWidgetDidBuild(() {
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
                   content: Text('${state.message}'),
                   backgroundColor: state.isGood ? Colors.green : Colors.red
-                ),
-              );
-            });
-          }
-
-          return Container(
-            child: ListView(
-              padding: EdgeInsets.only(left: 24.0, right: 24.0),
-              children: [
-                SizedBox(height: _animation.value,),
-                Text("注册",  style: TextStyle(
-                  fontSize: 20.0,)),
-                SizedBox(height: 20,),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'email'),
-                  controller: _usernameController,
-                  textInputAction: TextInputAction.next,
-                  focusNode: _emailFocus,
-                  onFieldSubmitted: (term) {
-                    _fieldFocusChange(context, _emailFocus, _codeFocus);
-                  },
-                ),
-                SizedBox(height: 15,),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: "邮箱验证码"),
-                        controller: _codeController,
-                        keyboardType: TextInputType.number,
-                        textInputAction: TextInputAction.next,
-                        focusNode: _codeFocus,
-                        onFieldSubmitted: (term) {
-                          _fieldFocusChange(context, _codeFocus, _passwordFocus);
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 15,),
-                    RaisedButton(
-                      color: Colors.black,
-                      child: Text("验证码", style: TextStyle(color: Colors.white),),
-                      onPressed: () {
-                        _onCodeRequested();
-                      },
-                    )
-                  ],
-                ),
-                SizedBox(height: 15,),
-                TextFormField(
-                  decoration: InputDecoration(labelText: '密码'),
-                  controller: _passwordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  focusNode: _passwordFocus,
-                  onFieldSubmitted: (term) => state is! LoginLoading ? _onSignupButtonPressed : null,
-                ),
-                SizedBox(height: 20,),
-
-                Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: RaisedButton(
-                      color: Colors.black,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)
-                      ),
-                      onPressed:
-                      state is! LoginLoading ? _onSignupButtonPressed : null,
-                      child: Text('创建账号', style: TextStyle(color: Colors.white, fontSize: 17),),
-                    )
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: FlatButton(
-                        child: Text("已有账号登录"),
-                        onPressed: () {
-                          setState(() {
-                            type = 1;
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(),
-                    )
-                  ],
-                ),
-
-                Container(
-                  child:
-                  state is LoginLoading ? CircularProgressIndicator() : null,
-                ),
-              ],
-            ),
-          );
-
-          return Container(
-            padding: EdgeInsets.only(top: 35.0, left: 20.0, right: 20.0),
-            child: Column(
-              children: [
-                Text("Signup",  style: TextStyle(
-                  fontSize: 20.0,)),
-                SizedBox(height: 20,),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'email'),
-                  controller: _usernameController,
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: "vertification code"),
-                        controller: _codeController,
-                      ),
-                    ),
-                    SizedBox(width: 20,),
-                    RaisedButton(
-                      child: Text("Get code"),
-                      onPressed: () {
-                        _onCodeRequested();
-                      },
-                    )
-                  ],
-                ),
-
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'password'),
-                  controller: _passwordController,
-                  obscureText: true,
-                ),
-                SizedBox(height: 20,),
-                RaisedButton(
-                  color: Theme.of(context).accentColor,
-                  onPressed:
-                  state is! LoginLoading ? _onSignupButtonPressed : null,
-                  child: Text('Signup'),
-                ),
-                InkWell(
-                  child: Text("login"),
-                  onTap: () {
-                    setState(() {
-                      isSignup = false;
-                    });
-                  },
-                ),
-                Container(
-                  child:
-                  state is LoginLoading ? CircularProgressIndicator() : null,
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    } else if (type == 3) {
-      return BlocBuilder<LoginEvent, LoginState>(
-          bloc: _loginBloc,
-          builder: (
-              BuildContext context,
-              LoginState state,
-              ) {
-
-            if (state is MessageArrived) {
-              _onWidgetDidBuild(() {
-                Scaffold.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('${state.message}'),
-                      backgroundColor: state.isGood ? Colors.green : Colors.red
-                  ),
-                );
-              });
-              if (state.message == 'password reset') {
-                setState(() {
-                  type = 1;
-                });
-              }
-            }
-
-            return Container(
-              child: ListView(
-                padding: EdgeInsets.only(left: 24.0, right: 24.0),
-                children: [
-                  SizedBox(height: _animation.value,),
-                  Text("重置密码",  style: TextStyle(
-                    fontSize: 20.0,)),
-                  SizedBox(height: 20,),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'email'),
-                    controller: _usernameController,
-                    textInputAction: TextInputAction.next,
-                    focusNode: _emailFocus,
-                    onFieldSubmitted: (term) {
-                      _fieldFocusChange(context, _emailFocus, _codeFocus);
-                    },
-                  ),
-                  SizedBox(height: 15,),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 3,
-                        child: TextFormField(
-                          decoration: InputDecoration(labelText: "邮箱验证码"),
-                          controller: _codeController,
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.next,
-                          focusNode: _codeFocus,
-                          onFieldSubmitted: (term) {
-                            _fieldFocusChange(context, _codeFocus, _passwordFocus);
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 15,),
-                      RaisedButton(
-                        color: Colors.black,
-                        child: Text("验证码", style: TextStyle(color: Colors.white),),
-                        onPressed: () {
-                          _onResetPasswordVerify();
-                        },
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 15,),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: '新密码'),
-                    controller: _passwordController,
-                    obscureText: true,
-                    textInputAction: TextInputAction.done,
-                    focusNode: _passwordFocus,
-                    onFieldSubmitted: (term) => state is! LoginLoading ? _onResetPassword() : null,
-                  ),
-                  SizedBox(height: 20,),
-
-                  Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: RaisedButton(
-                        color: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)
-                        ),
-                        onPressed:
-                        state is! LoginLoading ? _onResetPassword() : null,
-                        child: Text('重置密码', style: TextStyle(color: Colors.white, fontSize: 17),),
-                      )
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: FlatButton(
-                          child: Text("已有账号登录"),
-                          onPressed: () {
-                            setState(() {
-                              type = 1;
-                            });
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(),
-                      )
-                    ],
-                  ),
-
-                  Container(
-                    child:
-                    state is LoginLoading ? CircularProgressIndicator() : null,
-                  ),
-                ],
               ),
             );
-          },
-      );
-    } else if (type == 1){
-      return BlocBuilder<LoginEvent, LoginState>(
-        bloc: _loginBloc,
-        builder: (
-            BuildContext context,
-            LoginState state,
-            ) {
+          });
+        }
 
-          if (state is MessageArrived) {
-            _onWidgetDidBuild(() {
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                    content: Text('${state.message}'),
-                    backgroundColor: state.isGood ? Colors.green : Colors.red
+        return Container(
+          child: ListView(
+            padding: EdgeInsets.only(left: 24.0, right: 24.0),
+            children: [
+              SizedBox(height: _animation.value,),
+              Text(type == 1 ? "登录" : "注册",  style: TextStyle(
+                fontSize: 20.0,)),
+              SizedBox(height: 20,),
+              TextFormField(
+                decoration: InputDecoration(
+                    labelText: 'email',
                 ),
-              );
-            });
-          }
+                controller: _usernameController,
+                textInputAction: TextInputAction.next,
+                focusNode: _emailFocus,
+                onFieldSubmitted: (term) {
+                  _fieldFocusChange(context, _emailFocus, _passwordFocus);
+                },
+              ),
+              SizedBox(height: 15,),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: '密码',
+                ),
+                controller: _passwordController,
+                obscureText: true,
+                textInputAction: TextInputAction.done,
+                focusNode: _passwordFocus,
+                onFieldSubmitted: (term) => state is! LoginLoading ? _onSignupButtonPressed : null,
+              ),
+              SizedBox(height: 20,),
 
-          return Container(
-            padding: EdgeInsets.only(top: 35.0, left: 20.0, right: 20.0),
-            child: ListView(
-              padding: EdgeInsets.only(left: 24.0, right: 24.0),
-              children: [
-                SizedBox(height: _animation.value,),
-                Text("登录",  style: TextStyle(
-                  fontSize: 20.0,)),
-                SizedBox(height: 20,),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'email'),
-                  controller: _usernameController,
-                  textInputAction: TextInputAction.next,
-                  focusNode: _emailFocus,
-                  onFieldSubmitted: (term) {
-                    _fieldFocusChange(context, _emailFocus, _passwordFocus);
-                  },
-                ),
-                SizedBox(height: 15,),
-                TextFormField(
-                  decoration: InputDecoration(labelText: '密码'),
-                  controller: _passwordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  focusNode: _passwordFocus,
-                  onFieldSubmitted: (term) => state is! LoginLoading ? _onLoginButtonPressed : null,
-                ),
-                SizedBox(height: 20,),
-
-                Padding(
+              Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: RaisedButton(
-                    color: Colors.black,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)
+                        borderRadius: BorderRadius.circular(5)
                     ),
-                    onPressed:
-                    state is! LoginLoading ? _onLoginButtonPressed : null,
-                    child: Text('登录', style: TextStyle(color: Colors.white, fontSize: 17),),
+                    onPressed: () {
+                      if (state is !LoginLoading) {
+                        if (type == 1) {
+                          _onLoginButtonPressed();
+                        } else {
+                          _onSignupButtonPressed();
+                        }
+                      }
+                    },
+                    child: Text(type == 1 ? '登录' : "注册", style: TextStyle(color: Colors.white, fontSize: 17),),
                   )
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: FlatButton(
-                        child: Text("创建账号"),
-                        onPressed: () {
-                          setState(() {
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: FlatButton(
+                      child: Text(type == 1 ? "创建账号" : "已有账号登录", style: TextStyle(color: Theme.of(context).accentColor),),
+                      onPressed: () {
+                        setState(() {
+                          if (type == 1)
                             type = 2;
-                          });
-                        },
-                      ),
+                          else
+                            type = 1;
+                        });
+                      },
                     ),
-                    Expanded(
-                      child: Container(),
-//                      child: FlatButton(
-//                        child: Text("忘记密码"),
-//                        onPressed: () {
-//                          setState(() {
-//                            type = 3;
-//                          });
-//                        },
-//                      ),
-                    )
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    child: type == 1 ? FlatButton(
+                      child: Text("忘记密码", style: TextStyle(color: Theme.of(context).accentColor)),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ResetPasswordPage()));
+                      },
+                    ) : Container(),
+                  )
+                ],
+              ),
 
-                Container(
-                  child:
-                  state is LoginLoading ? CircularProgressIndicator() : null,
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
+              Container(
+                child:
+                state is LoginLoading ?  Center(child: CircularProgressIndicator(),) : null,
+              ),
+            ],
+          ),
+        );
+      },
+    );
 
   }
 
@@ -485,7 +205,6 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
   _onSignupButtonPressed() {
     _loginBloc.dispatch(SignupButtonPressed(
       username: _usernameController.text,
-      code: _codeController.text,
       password: _passwordController.text,
     ));
   }
