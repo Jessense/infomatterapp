@@ -134,9 +134,9 @@ class EntryWidgetState extends State<EntryWidget> {
         icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
         onPressed: () {
           if (_entry.isStarring == true) {
-            BlocProvider.of<SourceEntryBloc>(context).dispatch(UnstarSourceEntry(entryId: _entry.id));
+            BlocProvider.of<SourceEntryBloc>(context).entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
           } else {
-            BlocProvider.of<SourceEntryBloc>(context).dispatch(StarSourceEntry(entryId: _entry.id, from: 0));
+            BlocProvider.of<SourceEntryBloc>(context).entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
           }
         },
       );
@@ -145,9 +145,20 @@ class EntryWidgetState extends State<EntryWidget> {
         icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
         onPressed: () {
           if (_entry.isStarring == true) {
-            BlocProvider.of<BookmarkEntryBloc>(context).dispatch(UnstarBookmarkEntry(entryId: _entry.id));
+            BlocProvider.of<BookmarkEntryBloc>(context).entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
           } else {
-            BlocProvider.of<BookmarkEntryBloc>(context).dispatch(StarBookmarkEntry(entryId: _entry.id, from: 0));
+            BlocProvider.of<BookmarkEntryBloc>(context).entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
+          }
+        },
+      );
+    } else if (_type == 4) {
+      return IconButton(
+        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+        onPressed: () {
+          if (_entry.isStarring == true) {
+            BlocProvider.of<FullCoverageBloc>(context).entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
+          } else {
+            BlocProvider.of<FullCoverageBloc>(context).entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
           }
         },
       );

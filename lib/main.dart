@@ -44,6 +44,7 @@ class _AppState extends State<App> {
   EntryBloc entryBloc;
   BookmarkEntryBloc bookmarkEntryBloc;
   SourceEntryBloc sourceEntryBloc;
+  FullCoverageBloc fullCoverageBloc;
   SourceFolderBloc sourceFolderBloc;
   SourceBloc sourceBloc;
   UserRepository get userRepository => widget.userRepository;
@@ -69,15 +70,28 @@ class _AppState extends State<App> {
       fromState: EntryUninitialized(),
     );
     bookmarkEntryBloc = BookmarkEntryBloc(
-      entriesRepository: EntriesRepository(
-        entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-      ),
-      fromState: BookmarkEntryUninitialized(),
+      entryBloc: EntryBloc(
+        entriesRepository: EntriesRepository(
+          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+        ),
+        fromState: EntryUninitialized(),
+      )
     );
     sourceEntryBloc = SourceEntryBloc(
-      entriesRepository: EntriesRepository(
-        entriesApiClient: EntriesApiClient(httpClient: http.Client()),
-      ),
+      entryBloc: EntryBloc(
+        entriesRepository: EntriesRepository(
+          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+        ),
+        fromState: EntryUninitialized(),
+      )
+    );
+    fullCoverageBloc = FullCoverageBloc(
+        entryBloc: EntryBloc(
+          entriesRepository: EntriesRepository(
+            entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+          ),
+          fromState: EntryUninitialized(),
+        )
     );
     sourceFolderBloc = SourceFolderBloc(
         sourceFoldersRepository: SourceFolderRepository(
@@ -149,6 +163,7 @@ class _AppState extends State<App> {
                 BlocProvider<EntryBloc>(bloc: entryBloc,),
                 BlocProvider<SourceFolderBloc>(bloc: sourceFolderBloc,),
                 BlocProvider<SourceBloc>(bloc: sourceBloc),
+                BlocProvider<FullCoverageBloc>(bloc: fullCoverageBloc,),
                 BlocProvider<SearchBloc>(bloc: searchBloc,),
                 BlocProvider<AudioBloc>(bloc: audioBloc,),
                 BlocProvider<BookmarkEntryBloc>(bloc: bookmarkEntryBloc,),

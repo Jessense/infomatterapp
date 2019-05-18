@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
   SourceFolderBloc get sourceFolderBloc => BlocProvider.of<SourceFolderBloc>(context);
   BookmarkFolderBloc get bookmarkFolderBloc => BlocProvider.of<BookmarkFolderBloc>(context);
   EntryBloc get entryBloc => BlocProvider.of<EntryBloc>(context);
-  BookmarkEntryBloc get bookmarkEntryBloc => BlocProvider.of<BookmarkEntryBloc>(context);
+  EntryBloc get bookmarkEntryBloc => BlocProvider.of<BookmarkEntryBloc>(context).entryBloc;
 
   final _scrollController = ScrollController(); //home
   final _scrollController2 = ScrollController(); //drawer
@@ -287,7 +287,7 @@ class _HomeState extends State<Home> {
       return BlocBuilder(
         bloc: bookmarkEntryBloc,
         key: PageStorageKey('bookmark'),
-        builder: (BuildContext context, BookmarkEntryState state) {
+        builder: (BuildContext context, EntryState state) {
           if (bookmarkEntryBloc.entriesRepository.showStarred == true) {
             _onWidgetDidBuild(() {
               Scaffold.of(context).showSnackBar(SnackBar(
@@ -308,7 +308,7 @@ class _HomeState extends State<Home> {
             });
           }
 
-          if (state is BookmarkEntryUninitialized) {
+          if (state is EntryUninitialized) {
             fetch3();
             return Center(
               child: SpinKitThreeBounce(
@@ -318,14 +318,14 @@ class _HomeState extends State<Home> {
             );
           }
 
-          if (state is BookmarkEntryError) {
+          if (state is EntryError) {
             _refreshCompleter3?.complete();
             _refreshCompleter3 = Completer();
 
             return RefreshIndicator(
               key: _refreshIndicatorKey3,
               onRefresh: () {
-                bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
+                bookmarkEntryBloc.dispatch(Update(sourceId: -2, folder: bookmarkFolder));
                 return _refreshCompleter3.future;
               },
               child: ListView(
@@ -345,7 +345,7 @@ class _HomeState extends State<Home> {
 //            _refreshCompleter3 = Completer();
 //          }
 
-          if (state is BookmarkEntryLoaded) {
+          if (state is EntryLoaded) {
             _refreshCompleter3?.complete();
             _refreshCompleter3 = Completer();
 
@@ -353,7 +353,7 @@ class _HomeState extends State<Home> {
               return RefreshIndicator(
                 key: _refreshIndicatorKey3,
                 onRefresh: () {
-                  bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
+                  bookmarkEntryBloc.dispatch(Update(sourceId: -2, folder: bookmarkFolder));
                   return _refreshCompleter3.future;
                 },
                 child: ListView(
@@ -370,7 +370,7 @@ class _HomeState extends State<Home> {
             return RefreshIndicator(
               key: _refreshIndicatorKey3,
               onRefresh: () {
-                bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
+                bookmarkEntryBloc.dispatch(Update(sourceId: -2, folder: bookmarkFolder));
                 return _refreshCompleter3.future;
               },
               child: ListView.builder(
@@ -672,7 +672,7 @@ class _HomeState extends State<Home> {
   }
 
   void fetch3() {
-    bookmarkEntryBloc.dispatch(FetchBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
+    bookmarkEntryBloc.dispatch(Fetch(sourceId: -2, folder: bookmarkFolder));
   }
 
   void refresh() {
@@ -684,7 +684,7 @@ class _HomeState extends State<Home> {
   void refresh3() {
     _scrollController3.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
     _refreshIndicatorKey3.currentState.show();
-    bookmarkEntryBloc.dispatch(UpdateBookmarkEntry(sourceId: -2, folder: bookmarkFolder));
+    bookmarkEntryBloc.dispatch(Update(sourceId: -2, folder: bookmarkFolder));
   }
 
   void changeBrightness() {

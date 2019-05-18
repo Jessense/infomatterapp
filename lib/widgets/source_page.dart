@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
@@ -123,7 +124,7 @@ class SourceFeed extends StatefulWidget{
 }
 
 class SourceFeedState extends State<SourceFeed> {
-  SourceEntryBloc get sourceEntryBloc => BlocProvider.of<SourceEntryBloc>(context);
+  EntryBloc get entryBloc => BlocProvider.of<SourceEntryBloc>(context).entryBloc;
 
   final _scrollController = ScrollController();
   Completer<void> _refreshCompleter = Completer<void>();
@@ -149,9 +150,10 @@ class SourceFeedState extends State<SourceFeed> {
     return Scaffold(
       appBar: AppBar(title: Text(_sourceName),),
       body: BlocBuilder(
-        bloc: sourceEntryBloc,
-        builder: (BuildContext context, SourceEntryState state) {
-          if (sourceEntryBloc.entriesRepository.showStarred == true) {
+      bloc: entryBloc,
+      key: PageStorageKey('home'),
+        builder: (BuildContext context, EntryState state) {
+          if (entryBloc.entriesRepository.showStarred == true) {
             _onWidgetDidBuild(() {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text('已收藏'),
@@ -161,30 +163,34 @@ class SourceFeedState extends State<SourceFeed> {
                     showDialog(
                         context: context,
                         builder: (context) {
-                          return AddBookmarkDialog(entryId: sourceEntryBloc.entriesRepository.lastStarId);
+                          return AddBookmarkDialog(entryId: entryBloc.entriesRepository.lastStarId);
                         }
                     );
                   },
                 ),
               ));
-              sourceEntryBloc.entriesRepository.showStarred = false;
+              entryBloc.entriesRepository.showStarred = false;
             });
           }
 
-          if (state is SourceEntryUninitialized) {
+          if (state is EntryUninitialized) {
+            fetch();
             return Center(
-              child: CircularProgressIndicator(),
+              child: SpinKitThreeBounce(
+                color: Colors.grey,
+                size: 30.0,
+              ),
             );
           }
 
-          if (state is SourceEntryError) {
+          if (state is EntryError) {
             _refreshCompleter?.complete();
             _refreshCompleter = Completer();
 
             return RefreshIndicator(
               key: _refreshIndicatorKey,
               onRefresh: () {
-                sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+                entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
                 return _refreshCompleter.future;
               },
               child: ListView(
@@ -198,13 +204,13 @@ class SourceFeedState extends State<SourceFeed> {
             );
           }
 
-//          if (state is EntryUpdated) {
-//            _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
-//            _refreshCompleter3?.complete();
-//            _refreshCompleter3 = Completer();
-//          }
+  //          if (state is EntryUpdated) {
+  //            _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
+  //            _refreshCompleter?.complete();
+  //            _refreshCompleter = Completer();
+  //          }
 
-          if (state is SourceEntryLoaded) {
+          if (state is EntryLoaded) {
             _refreshCompleter?.complete();
             _refreshCompleter = Completer();
 
@@ -212,7 +218,7 @@ class SourceFeedState extends State<SourceFeed> {
               return RefreshIndicator(
                 key: _refreshIndicatorKey,
                 onRefresh: () {
-                  sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+                  entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
                   return _refreshCompleter.future;
                 },
                 child: ListView(
@@ -229,26 +235,29 @@ class SourceFeedState extends State<SourceFeed> {
             return RefreshIndicator(
               key: _refreshIndicatorKey,
               onRefresh: () {
-                sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+                entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
                 return _refreshCompleter.future;
               },
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics (),
                 itemBuilder: (BuildContext context, int index) {
-                  return index >= state.entries.length
+                  return index >= entryBloc.entriesRepository.entries.length
                       ? BottomLoader()
-                      : EntryWidget(entry: state.entries[index], index: index, type: 2,);
+                      : EntryWidget(entry: entryBloc.entriesRepository.entries[index], index: index, type: 2,);
                 },
                 itemCount: state.hasReachedMax
-                    ? state.entries.length
-                    : state.entries.length + 1,
+                    ? entryBloc.entriesRepository.entries.length
+                    : entryBloc.entriesRepository.entries.length + 1,
                 controller: _scrollController,
               ),
             );
           }
-          return Container();
+          return Container(
+            color: Colors.white,
+            width: MediaQuery.of(context).size.width,
+          );
         },
-      ),
+      )
     );
   }
 
@@ -262,24 +271,18 @@ class SourceFeedState extends State<SourceFeed> {
   }
 
   @override
-  void deactivate() {
-    // TODO: implement deactivate
-    sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
-    super.deactivate();
-  }
-
-
-  @override
   void dispose() {
     super.dispose();
   }
 
   void fetch() {
-    sourceEntryBloc.dispatch(FetchSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+    entryBloc.dispatch(Fetch(sourceId: homeSourceId, folder: homeSourceFolder));
   }
 
   void refresh() {
-    sourceEntryBloc.dispatch(UpdateSourceEntry(sourceId: _sourceId, folder: homeSourceFolder));
+    _scrollController.animateTo(0.0, duration: Duration(milliseconds: 100), curve: Curves.easeOut);
+    _refreshIndicatorKey.currentState.show();
+    entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
   }
 
   void _onWidgetDidBuild(Function callback) {

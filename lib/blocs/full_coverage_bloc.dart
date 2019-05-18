@@ -13,69 +13,31 @@ abstract class FullCoverageEvent extends Equatable {
   FullCoverageEvent([List props = const []]) : super(props);
 }
 
-class FetchFullCoverage extends FullCoverageEvent{
-  final int cluster;
-  FetchFullCoverage({@required this.cluster}):
-      super([cluster]);
-  @override
-  String toString() {
-    // TODO: implement toString
-    return 'FetchFullCoverage';
-  }
-}
-
 abstract class FullCoverageState extends Equatable {
   FullCoverageState([List props = const []]) : super(props);
 }
 
-class FullCoverageLoading extends FullCoverageState{
+class FullCoverageUninit extends FullCoverageState{
   @override
   String toString() {
     // TODO: implement toString
-    return 'FullCoverageLoading';
-  }
-}
-class FullCoverageLoaded extends FullCoverageState{
-  final List<Entry> entries;
-  FullCoverageLoaded({@required this.entries}):
-      super([entries]);
-  @override
-  String toString() {
-    // TODO: implement toString
-    return 'FullCoverageLoaded';
+    return 'FullCoverageUninit';
   }
 }
 
-class FullCoverageError extends FullCoverageState{
-  @override
-  String toString() {
-    // TODO: implement toString
-    return 'FullCoverageError';
-  }
-}
 
 class FullCoverageBloc extends Bloc<FullCoverageEvent, FullCoverageState>{
-  EntriesRepository entriesRepository;
-
-  FullCoverageBloc({@required this.entriesRepository});
+  EntryBloc entryBloc;
+  FullCoverageBloc({@required this.entryBloc});
 
   @override
   // TODO: implement initialState
-  FullCoverageState get initialState => FullCoverageLoading();
+  FullCoverageState get initialState => FullCoverageUninit();
 
 
   @override
   Stream<FullCoverageState> mapEventToState(FullCoverageEvent event) async* {
     // TODO: implement mapEventToState
-    if (event is FetchFullCoverage) {
-      yield FullCoverageLoading();
-      final result = await entriesRepository.getFullCoverage(event.cluster);
-      print(result);
-      if (result.length > 0) {
-        yield FullCoverageLoaded(entries: result);
-      } else {
-        yield FullCoverageError();
-      }
-    }
+
   }
 }

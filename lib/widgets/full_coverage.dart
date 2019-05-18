@@ -23,13 +23,13 @@ class FullCoveragePage extends StatefulWidget{
 
 class FullCoveragePageState extends State<FullCoveragePage>{
   int get _cluster => widget.cluster;
-  FullCoverageBloc fullCoverageBloc;
+  EntryBloc entryBloc;
 
   @override
   void initState() {
     // TODO: implement initState
-    fullCoverageBloc = FullCoverageBloc(entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())));
-    fullCoverageBloc.dispatch(FetchFullCoverage(cluster: _cluster));
+    entryBloc = BlocProvider.of<FullCoverageBloc>(context).entryBloc;
+    entryBloc.dispatch(FetchFullCoverage(cluster: _cluster));
     super.initState();
   }
 
@@ -39,19 +39,19 @@ class FullCoveragePageState extends State<FullCoveragePage>{
     return Scaffold(
       appBar: AppBar(title: Text('全面报道'),),
       body: BlocBuilder(
-        bloc: fullCoverageBloc,
-        builder: (BuildContext context, FullCoverageState state) {
-          if (state is FullCoverageError) {
+        bloc: entryBloc,
+        builder: (BuildContext context, EntryState state) {
+          if (state is EntryError) {
             return Center(
               child: Text('failed to fetch entries'),
             );
           }
-          if (state is FullCoverageLoading) {
+          if (state is EntryUninitialized) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
-          if (state is FullCoverageLoaded) {
+          if (state is EntryLoaded) {
             if (state.entries.length == 0) {
               return Center(
                 child: Text('empty'),
