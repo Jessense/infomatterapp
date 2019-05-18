@@ -42,6 +42,28 @@ class Update extends EntryEvent {
   String toString() => 'Update';
 }
 
+class SearchEntry extends EntryEvent{
+  final String target;
+  SearchEntry({@required this.target}):
+      super([target]);
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'SearchEntry';
+  }
+}
+
+class SearchEntryUpdate extends EntryEvent{
+  final String target;
+  SearchEntryUpdate({@required this.target}):
+        super([target]);
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'SearchEntryUpdate';
+  }
+}
+
 class StarEntry extends EntryEvent{
   final int entryId;
   final int from; //0: from list, 1: from article
@@ -61,6 +83,25 @@ class UnstarEntry extends EntryEvent{
 
   @override
   String toString() => 'UnstarEntry { entry: $entryId }';
+}
+
+class PassEntryLoading extends EntryEvent{
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'PassEntryLoading';
+  }
+}
+
+class PassEntries extends EntryEvent{
+  final List<Entry> entries;
+  PassEntries({@required this.entries}):
+      super([entries]);
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'PassEntries';
+  }
 }
 
 abstract class EntryState extends Equatable {
@@ -183,6 +224,25 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
         print(_);
         yield EntryError();
       }
+    } else if (event is Fetch && event.sourceId == -3 && !_hasReachedMax(currentState)) {
+        try {
+          if (currentState is EntryUninitialized) {
+            final entries = await entriesRepository.getRecommends("2049-12-31T23:59:59", 1000000, 10);
+            entriesRepository.entries = entries;
+            yield EntryLoaded(entries: entries, hasReachedMax: false);
+          }
+          if (currentState is EntryLoaded) {
+            final entries = await entriesRepository.getRecommends((currentState as EntryLoaded).entries.last.pubDate, 1000000, 10);
+            entriesRepository.entries = (currentState as EntryLoaded).entries + entries;
+            yield entries.isEmpty
+                ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
+                : EntryLoaded(
+                entries: (currentState as EntryLoaded).entries + entries, hasReachedMax: false);
+          }
+        } catch (_) {
+          print(_);
+          yield EntryError();
+        }
     } else if (event is Fetch && event.sourceId == -2) {
       try {
         if (currentState is EntryUninitialized) {
@@ -191,6 +251,25 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
         }
         if (currentState is EntryLoaded) {
           final entries = await entriesRepository.getBookmarks((currentState as EntryLoaded).entries.last.starId, 10, event.folder);
+          yield entries.isEmpty
+              ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
+              : EntryLoaded(
+              entries: (currentState as EntryLoaded).entries + entries, hasReachedMax: false);
+        }
+      } catch (_) {
+        print(_);
+        yield EntryError();
+      }
+    } else if (event is SearchEntry) {
+      try {
+        if (currentState is EntryUninitialized) {
+          final entries = await entriesRepository.searchEntry("2049-12-31T23:59:59", 1000000, 10, event.target);
+          entriesRepository.entries = entries;
+          yield EntryLoaded(entries: entries, hasReachedMax: false);
+        }
+        if (currentState is EntryLoaded) {
+          final entries = await entriesRepository.searchEntry((currentState as EntryLoaded).entries.last.pubDate, 1000000, 10, event.target);
+          entriesRepository.entries = (currentState as EntryLoaded).entries + entries;
           yield entries.isEmpty
               ? (currentState as EntryLoaded).copyWith(hasReachedMax: true)
               : EntryLoaded(
@@ -239,6 +318,10 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
         print(_);
         yield EntryError();
       }
+    } else if (event is SearchEntryUpdate) {
+      final entries = await entriesRepository.searchEntry("2049-12-31T23:59:59", 1000000, 10, event.target);
+      entriesRepository.entries = entries;
+      yield EntryLoaded(entries: entries, hasReachedMax: false);
     } else if (event is StarEntry) {
       if (currentState is EntryLoaded) {
         final response = await entriesRepository.starEntry(event.entryId);
@@ -258,6 +341,10 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           yield EntryLoaded(entries: (currentState as EntryLoaded).entries, hasReachedMax: false);
         }
       }
+    } else if (event is Update && event.sourceId == -3) {
+      final entries = await entriesRepository.getRecommends("2049-12-31T23:59:59", 1000000, 10);
+      entriesRepository.entries = entries;
+      yield EntryLoaded(entries: entries, hasReachedMax: false);
     } else if (event is UnstarEntry) {
       if (currentState is EntryLoaded) {
         final response = await entriesRepository.unstarEntry(event.entryId);
@@ -273,6 +360,10 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
           yield EntryLoaded(entries: (currentState as EntryLoaded).entries, hasReachedMax: false);
         }
       }
+    } else if (event is PassEntryLoading) {
+      yield EntryUninitialized();
+    } else if (event is PassEntries) {
+      yield EntryLoaded(entries: event.entries, hasReachedMax: false);
     }
   }
 

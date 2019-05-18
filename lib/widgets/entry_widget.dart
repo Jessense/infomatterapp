@@ -9,7 +9,6 @@ import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
@@ -118,69 +117,45 @@ class EntryWidgetState extends State<EntryWidget> {
   }
 
   Widget _buildFavbtn() {
-    if (_type == 1) {
-      return IconButton(
-        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
-        onPressed: () {
-          if (_entry.isStarring == true) {
-            BlocProvider.of<EntryBloc>(context).dispatch(UnstarEntry(entryId: _entry.id));
-          } else {
-            BlocProvider.of<EntryBloc>(context).dispatch(StarEntry(entryId: _entry.id, from: 0));
-          }
-        },
-      );
-    } else if (_type == 2) {
-      return IconButton(
-        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
-        onPressed: () {
-          if (_entry.isStarring == true) {
-            BlocProvider.of<SourceEntryBloc>(context).entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
-          } else {
-            BlocProvider.of<SourceEntryBloc>(context).entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
-          }
-        },
-      );
-    } else if (_type == 3) {
-      return IconButton(
-        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
-        onPressed: () {
-          if (_entry.isStarring == true) {
-            BlocProvider.of<BookmarkEntryBloc>(context).entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
-          } else {
-            BlocProvider.of<BookmarkEntryBloc>(context).entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
-          }
-        },
-      );
-    } else if (_type == 4) {
-      return IconButton(
-        icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
-        onPressed: () {
-          if (_entry.isStarring == true) {
-            BlocProvider.of<FullCoverageBloc>(context).entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
-          } else {
-            BlocProvider.of<FullCoverageBloc>(context).entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
-          }
-        },
-      );
-    }
-    return Container();
+    return IconButton(
+      icon: _entry.isStarring == true ? Icon(Icons.bookmark, color: Theme.of(context).accentColor,) : Icon(Icons.bookmark_border),
+      onPressed: () {
+        EntryBloc entryBloc;
+        if (_type == 1) {
+          entryBloc = BlocProvider.of<EntryBloc>(context);
+        } else if (_type == 2) {
+          entryBloc = BlocProvider.of<SourceEntryBloc>(context).entryBloc;
+        } else if (_type == 3) {
+          entryBloc = BlocProvider.of<BookmarkEntryBloc>(context).entryBloc;
+        } else if (_type == 4) {
+          entryBloc = BlocProvider.of<FullCoverageBloc>(context).entryBloc;
+        } else if (_type == 5) {
+          entryBloc = BlocProvider.of<SearchBloc>(context).entryBloc;
+        }
+        if (_entry.isStarring == true) {
+          entryBloc.dispatch(UnstarEntry(entryId: _entry.id));
+        } else {
+          entryBloc.dispatch(StarEntry(entryId: _entry.id, from: 0));
+        }
+      },
+    );
   }
 
-  void openWebView(BuildContext context, String url, String sourceName, int id) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WebviewScaffold(
-          hidden: true,
-          url: url,
-          appBar: AppBar(
-            title: Text(sourceName),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.bookmark_border),
-              ),
-            ],
-          ),
-        )));
-  }
+//  void openWebView(BuildContext context, String url, String sourceName, int id) {
+//    Navigator.push(context,
+//        MaterialPageRoute(builder: (context) => WebviewScaffold(
+//          hidden: true,
+//          url: url,
+//          appBar: AppBar(
+//            title: Text(sourceName),
+//            actions: <Widget>[
+//              IconButton(
+//                icon: Icon(Icons.bookmark_border),
+//              ),
+//            ],
+//          ),
+//        )));
+//  }
 
   static String _timestamp(String timeUtcStr) {
     DateTime oldDate = DateTime.parse(timeUtcStr);

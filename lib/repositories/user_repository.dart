@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserRepository {
   final UserApiClient userApiClient;
+  String email;
   UserRepository({@required this.userApiClient}): assert(userApiClient != null);
 
   Future<bool> getVertificationCode (String email) async {
@@ -33,9 +34,10 @@ class UserRepository {
     return;
   }
 
-  Future<void> persistToken(String token) async {
+  Future<void> persistToken(String token, String email) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString("token", token);
+    prefs.setString('email', email);
     return;
   }
 
@@ -43,6 +45,12 @@ class UserRepository {
     final prefs = await SharedPreferences.getInstance();
     final String token =  prefs.getString("token");
     return token;
+  }
+
+  Future<String> getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String email =  prefs.getString("email");
+    return email;
   }
 
   Future<bool> hasToken() async {

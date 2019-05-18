@@ -144,13 +144,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_webview_plugin:
-    dependency: "direct main"
-    description:
-      name: flutter_webview_plugin
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.4"
   flutter_widget_from_html:
     dependency: "direct main"
     description:
@@ -366,13 +359,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.8"
-  vertical_tabs:
-    dependency: "direct main"
-    description:
-      name: vertical_tabs
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.4"
   video_player:
     dependency: "direct main"
     description:

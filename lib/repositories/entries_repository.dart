@@ -26,8 +26,16 @@ class EntriesRepository {
     return await entriesApiClient.fetchTimelineOfSource(lastTime, lastId, limit, sourceId, PrefService.getBool('unread_only')??true);
   }
 
+  Future<List<Entry>> getRecommends(String lastTime, int lastId, int limit) async {
+    return await entriesApiClient.fetchRecommends(lastTime, lastId, limit, PrefService.getBool('unread_only')??true);
+  }
+
   Future<List<Entry>> getBookmarks(int lastId, int limit, String folder) async {
     return await entriesApiClient.fetchBookmark(lastId, limit, folder);
+  }
+
+  Future<List<Entry>> searchEntry(String lastTime, int lastId, int limit, String target) async {
+    return await entriesApiClient.searchEntry(lastTime, lastId, limit, target);
   }
 
   Future<List<Entry>> getFullCoverage(int cluster) async{

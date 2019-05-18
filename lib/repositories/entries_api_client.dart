@@ -85,7 +85,7 @@ class EntriesApiClient {
       }).toList();
     } else {
       print('error fetching entries');
-      return null;
+      return [];
     }
   }
 
@@ -150,7 +150,73 @@ class EntriesApiClient {
       }).toList();
     } else {
       print('error fetching entries');
-      return null;
+      return [];
+    }
+  }
+
+  Future<List<Entry>> fetchRecommends(String lastTime, int lastId, int limit, bool unreadOnly) async {
+    String url = '$baseUrl/users/recommendation?last_time=$lastTime&last_id=$lastId&batch_size=$limit';
+    if (unreadOnly) {
+      url = '$baseUrl/users/recommendation?last_time=$lastTime&last_id=$lastId&batch_size=$limit&&unread';
+    }
+    final response = await httpClient.get(
+        url,
+        headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(url);
+    print(response.statusCode.toString() + ": " + response.body);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as List;
+      return data.map((rawEntry) {
+        if (rawEntry['form'] == 2) {
+          return Entry(
+            id: rawEntry['id'],
+            title: rawEntry['title'],
+            link: rawEntry['link'],
+            digest: rawEntry['digest'],
+            pubDate: rawEntry['time'],
+            form: rawEntry['form'],
+            sourcePhoto: rawEntry['source_photo'],
+            photo:  (json.decode(rawEntry['photo']) as List).map((img) {
+              return img.toString();
+            }).toList(),
+            sourceId: rawEntry['source_id'],
+            sourceName: rawEntry['source_name'],
+            isStarring: _isNumeric(rawEntry['star_user'].toString()),
+            isReaded: _isNumeric(rawEntry['readed_user'].toString()),
+            loadChoice: rawEntry['content_rss'],
+            cluster: rawEntry['cluster'],
+            sim_count: rawEntry['sim_count'],
+            video: rawEntry['video'],
+            videoFrame: rawEntry['video_frame'],
+            audio: rawEntry['audio'],
+            audioFrame: rawEntry['audio_frame'],
+          );
+        }
+        return Entry(
+          id: rawEntry['id'],
+          title: rawEntry['title'],
+          link: rawEntry['link'],
+          digest: rawEntry['digest'],
+          pubDate: rawEntry['time'],
+          form: rawEntry['form'],
+          sourcePhoto: rawEntry['source_photo'],
+          photo: [rawEntry['photo']],
+          sourceId: rawEntry['source_id'],
+          sourceName: rawEntry['source_name'],
+          isStarring: _isNumeric(rawEntry['star_user'].toString()),
+          isReaded: _isNumeric(rawEntry['readed_user'].toString()),
+          loadChoice: rawEntry['content_rss'],
+          cluster: rawEntry['cluster'],
+          sim_count: rawEntry['sim_count'],
+          video: rawEntry['video'],
+          videoFrame: rawEntry['video_frame'],
+          audio: rawEntry['audio'],
+          audioFrame: rawEntry['audio_frame'],
+        );
+      }).toList();
+    } else {
+      print('error fetching entries');
+      return [];
     }
   }
 
@@ -219,7 +285,70 @@ class EntriesApiClient {
       }).toList();
     } else {
       print('error fetching entries');
-      return null;
+      return [];
+    }
+  }
+
+  Future<List<Entry>> searchEntry(String lastTime, int lastId, int limit, String target) async {
+    String url = '$baseUrl/entries/search?keyword=$target&last_time=$lastTime&last_id=$lastId&batch_size=$limit';
+    final response = await httpClient.get(
+        url,
+        headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(url);
+    print(response.statusCode.toString() + ": " + response.body);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as List;
+      return data.map((rawEntry) {
+        if (rawEntry['form'] == 2) {
+          return Entry(
+            id: rawEntry['id'],
+            title: rawEntry['title'],
+            link: rawEntry['link'],
+            digest: rawEntry['digest'],
+            pubDate: rawEntry['time'],
+            form: rawEntry['form'],
+            sourcePhoto: rawEntry['source_photo'],
+            photo:  (json.decode(rawEntry['photo']) as List).map((img) {
+              return img.toString();
+            }).toList(),
+            sourceId: rawEntry['source_id'],
+            sourceName: rawEntry['source_name'],
+            isStarring: _isNumeric(rawEntry['star_user'].toString()),
+            isReaded: _isNumeric(rawEntry['readed_user'].toString()),
+            loadChoice: rawEntry['content_rss'],
+            cluster: rawEntry['cluster'],
+            sim_count: rawEntry['sim_count'],
+            video: rawEntry['video'],
+            videoFrame: rawEntry['video_frame'],
+            audio: rawEntry['audio'],
+            audioFrame: rawEntry['audio_frame'],
+          );
+        }
+        return Entry(
+          id: rawEntry['id'],
+          title: rawEntry['title'],
+          link: rawEntry['link'],
+          digest: rawEntry['digest'],
+          pubDate: rawEntry['time'],
+          form: rawEntry['form'],
+          sourcePhoto: rawEntry['source_photo'],
+          photo: [rawEntry['photo']],
+          sourceId: rawEntry['source_id'],
+          sourceName: rawEntry['source_name'],
+          isStarring: _isNumeric(rawEntry['star_user'].toString()),
+          isReaded: _isNumeric(rawEntry['readed_user'].toString()),
+          loadChoice: rawEntry['content_rss'],
+          cluster: rawEntry['cluster'],
+          sim_count: rawEntry['sim_count'],
+          video: rawEntry['video'],
+          videoFrame: rawEntry['video_frame'],
+          audio: rawEntry['audio'],
+          audioFrame: rawEntry['audio_frame'],
+        );
+      }).toList();
+    } else {
+      print('error fetching entries');
+      return [];
     }
   }
 

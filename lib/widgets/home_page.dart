@@ -147,13 +147,16 @@ class _HomeState extends State<Home> {
                   }
                 }
                 if (index == 0) {
-                  if (homeSourceId == -1)
+                  if (homeSourceId == -1) {
                     if (homeSourceFolder == '')
                       appBarText = '全部';
                     else
                       appBarText = homeSourceFolder;
-                  else if (homeSourceId > 0)
+                  } else if (homeSourceId == -3) {
+                    appBarText = '推荐';
+                  } else if (homeSourceId > 0) {
                     appBarText = homeSourceName;
+                  }
                 } else if (index == 1) {
                   appBarText = '收藏';
                 } else if (index == 2) {
@@ -201,10 +204,7 @@ class _HomeState extends State<Home> {
           if (state is EntryUninitialized) {
             fetch();
             return Center(
-              child: SpinKitThreeBounce(
-                color: Colors.grey,
-                size: 30.0,
-              ),
+              child: SpinKitThreeBounce(size: 30, color: Colors.grey,),
             );
           }
 
@@ -311,10 +311,7 @@ class _HomeState extends State<Home> {
           if (state is EntryUninitialized) {
             fetch3();
             return Center(
-              child: SpinKitThreeBounce(
-                color: Colors.grey,
-                size: 30.0,
-              ),
+              child: SpinKitThreeBounce(size: 30, color: Colors.grey,),
             );
           }
 
@@ -457,6 +454,18 @@ class _HomeState extends State<Home> {
                          );
 
                        } else if (index == 1) {
+                         return ListTile(
+                           title: Text('推荐'),
+                           onTap: () {
+                             homeSourceId = -3;
+                             Navigator.of(context).pop();
+                             refresh();
+                             setState(() {
+                               appBarText = '推荐';
+                             });
+                           },
+                         );
+                       } else if (index == 2) {
                         return ListTile(
                           title: Text("订阅"),
                           trailing: IconButton(
@@ -464,14 +473,14 @@ class _HomeState extends State<Home> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => Scaffold(
-                                  appBar: AppBar(title: Text('发现'),),
+                                  appBar: AppBar(title: Text('发现'), elevation: 2,),
                                   body: SourceCatalog(),
                                 )));
                               }
                           ),
                         );
                       }
-                      index = index - 2;
+                      index = index - 3;
                       return GestureDetector(
                         child: ExpansionTile(
                             key: PageStorageKey(sourceFolderBloc.sourceFoldersRepository.sourceFolders[index].sourceFolderName),
@@ -524,7 +533,7 @@ class _HomeState extends State<Home> {
                         },
                       );
                     },
-                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 2,
+                    itemCount: sourceFolderBloc.sourceFoldersRepository.sourceFolders.length + 3,
                   ),
                 );
               }
@@ -543,10 +552,7 @@ class _HomeState extends State<Home> {
               if (state is BookmarkFolderUninitialized) {
                 bookmarkFolderBloc.dispatch(FetchBookmarkFolders());
                 return Center(
-                  child: SpinKitThreeBounce(
-                    color: Colors.grey,
-                    size: 30.0,
-                  ),
+                  child: SpinKitThreeBounce(size: 30, color: Colors.grey,),
                 );
               }
               if (state is BookmarkFolderError) {

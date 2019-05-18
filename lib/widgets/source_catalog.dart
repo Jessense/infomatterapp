@@ -16,7 +16,7 @@ class SourceCatalog extends StatefulWidget{
 
 class SourceCatalogState extends State<SourceCatalog>{
   List<String> catalogName = ['推荐', '科技', '技术', '大学', '财经', '教科文', '公众号', '社交媒体', '设计', '生活', '娱乐', '体育', '搞笑', '其他', '全部'];
-  List<String> catalogCode = ['all', '1', '2', '9', '3', '5', '4', 'E', '6', 'C', '7', 'A', 'B', 'Z', 'all'];
+  List<String> catalogCode = ['0', '1', '2', '9', '3', '5', '4', 'E', '6', 'C', '7', 'A', 'B', 'Z', 'all'];
   int currentIndex = 0;
   SourceBloc get sourceBloc => BlocProvider.of<SourceBloc>(context);
 

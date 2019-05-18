@@ -121,7 +121,13 @@ class _AppState extends State<App> {
                 )
             ),
             sourceFolderBloc: sourceFolderBloc
-        )
+        ),
+      entryBloc: EntryBloc(
+        entriesRepository: EntriesRepository(
+          entriesApiClient: EntriesApiClient(httpClient: http.Client()),
+        ),
+        fromState: EntryUninitialized(),
+      )
     );
     audioBloc = AudioBloc(audioRepository: AudioRepository());
 
@@ -147,7 +153,7 @@ class _AppState extends State<App> {
           canvasColor: brightness == Brightness.light ? Colors.white : Colors.black,
           primaryColor: brightness == Brightness.light ? Colors.white : Colors.black,
           brightness: brightness,
-          hintColor: brightness == Brightness.light ? Colors.black : Colors.white,
+          hintColor: Colors.grey,
           inputDecorationTheme: InputDecorationTheme(
             focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: brightness == Brightness.light ? Colors.black : Colors.white)

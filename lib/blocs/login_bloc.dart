@@ -132,7 +132,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (token.startsWith("failed:")) {
           yield MessageArrived(isGood: false, message: token);
         } else {
-          authenticationBloc.dispatch(LoggedIn(token: token));
+          authenticationBloc.dispatch(LoggedIn(token: token, email: event.username));
         }
       } catch (error) {
         yield MessageArrived(isGood: false, message: error.toString());
@@ -147,7 +147,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (token.startsWith("failed:")) {
           yield MessageArrived(isGood: false, message: token);
         } else {
-          authenticationBloc.dispatch(LoggedIn(token: token));
+          authenticationBloc.dispatch(LoggedIn(token: token, email: event.username));
         }
         yield LoginInitial();
       } catch (error) {

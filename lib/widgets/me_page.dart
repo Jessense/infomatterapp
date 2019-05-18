@@ -26,10 +26,13 @@ class MePageState extends State<MePage>{
             }));
           },
         ),
-        ListTile(
-          title: Text("白天/夜间"),
-          onTap: (){
-            changeBrightness();
+        SwitchListTile(
+          title: Text("夜间模式"),
+          value: Theme.of(context).brightness == Brightness.dark,
+          onChanged: (v) {
+            setState(() {
+              changeBrightness();
+            });
           },
         ),
       ],

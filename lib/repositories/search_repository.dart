@@ -7,7 +7,8 @@ class SearchRepository{
 
   final SearchApiClient searchApiClient;
   SearchRepository(this.searchApiClient);
-  String type = 'sourceKeyword';
+  String type = 'entry';
+  String hint = '请输入内容关键词';
 
   Future<List<Source>> searchSource(String target) async{
     return await searchApiClient.searchSources(type: this.type, target: target);

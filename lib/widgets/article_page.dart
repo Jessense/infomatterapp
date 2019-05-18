@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:infomatterapp/repositories/repositories.dart';
@@ -49,7 +48,7 @@ class ArticlePageState extends State<ArticlePage> {
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
     articleBloc.dispatch(FetchArticle(entryId: entry.id));
-    header = "<div style=\'font-size:18px;\'>" + "<h2>" +  entry.title + "</h2>" + "</div>" + "<div style=\'font-size:16px;\'>" + "<i>" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</i></div><br>";
+    header = "<p style=\'font-size:22px;font-weight:500;\'>" +  entry.title + "</p>" + "<p style=\"font-size:16px;color:grey;\">" + entry.sourceName + " / " + entry.pubDate.substring(0, 10) + ' ' + entry.pubDate.substring(11, 16) + "</p>";
 
   }
     super.initState();
@@ -100,7 +99,13 @@ class ArticlePageState extends State<ArticlePage> {
                   header + state.content,
                   webView: true,
                   webViewJs: true,
-                  hyperlinkColor: Colors.blue,
+                  hyperlinkColor: Theme.of(context).accentColor,
+                  onTapUrl: (str) {
+                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => Scaffold(
+                      appBar: articleAppBar(),
+                      body: WebViewPage(str),
+                    )));
+                  },
                   textPadding: EdgeInsets.fromLTRB(15, 5, 15, 5),
 //                  bodyPadding: EdgeInsets.all(15.0),
                   textStyle: TextStyle(
@@ -133,6 +138,10 @@ class ArticlePageState extends State<ArticlePage> {
       entryBloc = BlocProvider.of<SourceEntryBloc>(context).entryBloc;
     } else if (_type == 3){
       entryBloc = BlocProvider.of<BookmarkEntryBloc>(context).entryBloc;
+    } else if (_type == 4) {
+      entryBloc = BlocProvider.of<FullCoverageBloc>(context).entryBloc;
+    } else if (_type == 5) {
+      entryBloc = BlocProvider.of<SearchBloc>(context).entryBloc;
     }
 
     return AppBar(

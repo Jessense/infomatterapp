@@ -141,14 +141,14 @@ class SourceFeedState extends State<SourceFeed> {
   void initState() {
     // TODO: implement initState
     _scrollController.addListener(_onScroll);
-    fetch();
+    entryBloc.dispatch(Update(sourceId: _sourceId, folder: homeSourceFolder));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_sourceName),),
+      appBar: AppBar(title: Text(_sourceName), elevation: 2,),
       body: BlocBuilder(
       bloc: entryBloc,
       key: PageStorageKey('home'),
@@ -176,10 +176,7 @@ class SourceFeedState extends State<SourceFeed> {
           if (state is EntryUninitialized) {
             fetch();
             return Center(
-              child: SpinKitThreeBounce(
-                color: Colors.grey,
-                size: 30.0,
-              ),
+              child: SpinKitThreeBounce(size: 30, color: Colors.grey,),
             );
           }
 

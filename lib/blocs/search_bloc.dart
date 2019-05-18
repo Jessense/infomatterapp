@@ -61,7 +61,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   SearchRepository searchRepository;
   SourceBloc sourceBloc;
-  SearchBloc({@required this.searchRepository, @required this.sourceBloc});
+  EntryBloc entryBloc;
+  SearchBloc({@required this.searchRepository, @required this.sourceBloc, @required this.entryBloc});
 
   @override
   // TODO: implement initialState
@@ -71,6 +72,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   Stream<SearchState> mapEventToState(SearchEvent event) async* {
     // TODO: implement mapEventToState
     if (event is GoSearch) {
+      if (searchRepository.type == 'entry') {
+        entryBloc.dispatch(SearchEntry(target: event.target));
+      }
       sourceBloc.dispatch(PassLoading());
       final result = await searchRepository.searchSource(event.target);
       print('searchBloc: ' + result.toString());

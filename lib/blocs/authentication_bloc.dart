@@ -40,8 +40,9 @@ class AppStarted extends AuthenticationEvent {
 
 class LoggedIn extends AuthenticationEvent {
   final String token;
+  final String email;
 
-  LoggedIn({@required this.token}) : super([token]);
+  LoggedIn({@required this.token, @required this.email}) : super([token]);
 
   @override
   String toString() => 'LoggedIn { token: $token }';
@@ -80,7 +81,7 @@ class AuthenticationBloc
 
     if (event is LoggedIn) {
       yield AuthenticationLoading();
-      await userRepository.persistToken(event.token);
+      await userRepository.persistToken(event.token, event.email);
       yield AuthenticationAuthenticated();
     }
 

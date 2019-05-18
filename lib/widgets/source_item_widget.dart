@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vertical_tabs/vertical_tabs.dart';
 import 'package:bloc/bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,7 +69,7 @@ class SourceItemWidgetState extends State<SourceItemWidget>{
                         if (_source.isFollowing)
                           sourceBloc.dispatch(UnfollowSource(sourceId: _source.id, sourceName: _source.name));
                         else {
-                          if (BlocProvider.of<SearchBloc>(context).searchRepository.type == 'sourceKeyword')
+                          if (BlocProvider.of<SearchBloc>(context).searchRepository.type == 'source')
                             sourceBloc.dispatch(FollowSource(sourceId: _source.id, sourceName: _source.name));
                           else {
                             print('hihihihi');

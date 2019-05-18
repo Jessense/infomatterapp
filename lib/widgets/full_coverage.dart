@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:dynamic_theme/dynamic_theme.dart';
@@ -37,7 +38,7 @@ class FullCoveragePageState extends State<FullCoveragePage>{
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(title: Text('全面报道'),),
+      appBar: AppBar(title: Text('全面报道'), elevation: 2,),
       body: BlocBuilder(
         bloc: entryBloc,
         builder: (BuildContext context, EntryState state) {
@@ -48,7 +49,7 @@ class FullCoveragePageState extends State<FullCoveragePage>{
           }
           if (state is EntryUninitialized) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: SpinKitThreeBounce(size: 30, color: Colors.grey,),
             );
           }
           if (state is EntryLoaded) {

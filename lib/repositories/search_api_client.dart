@@ -17,18 +17,18 @@ class SearchApiClient {
 
   Future<List<Source>> searchSources({String type, String target}) async {
     String url = '';
-    if (type == 'sourceKeyword') {
+    if (type == 'source') {
       if (target.startsWith('http://') || target.startsWith('https://')) {
         url = url = '$baseUrl/sources/search?feedUrl=$target';
       } else {
         url = '$baseUrl/sources/search?name=$target';
       }
-    } else if (type == 'RSS') {
+    } else if (type == 'rss') {
       url = '$baseUrl/sources/search?feedUrl=$target';
-    } else if (type == 'weiboUser') {
-      url = 'http://apisearch.infomatter.cn/weibo?keyword==$target';
     } else if (type == 'any') {
       url = '$baseUrl/sources/search?feedUrl=http://127.0.0.1:1200$target';
+    } else {
+      url = 'http://apisearch.infomatter.cn/$type?keyword==$target';
     }
     print(url);
     final response = await httpClient.get(url,
