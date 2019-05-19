@@ -5,6 +5,7 @@ import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:preferences/preferences.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
+import 'package:flutter/services.dart';
 
 class SettingPage extends StatelessWidget{
   @override
@@ -26,6 +27,14 @@ class SettingPage extends StatelessWidget{
           onTap: () {
             authenticationBloc.dispatch(LoggedOut());
             Navigator.of(context).pop();
+          },
+        ),
+        PreferenceTitle('缓存'),
+        ListTile(
+          title: Text('清除图片缓存'),
+          subtitle: Text( '当前缓存 '+ ((imageCache.currentSizeBytes)/(1024*1024)).toStringAsFixed(2) + ' MB'),
+          onTap: () {
+            imageCache.clear();
           },
         ),
         PreferenceTitle('更多'),

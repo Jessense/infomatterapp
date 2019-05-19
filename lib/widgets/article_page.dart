@@ -8,10 +8,10 @@ import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:infomatterapp/models/entry.dart';
 import 'package:infomatterapp/blocs/blocs.dart';
 import 'package:infomatterapp/widgets/widgets.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+//import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
-
+import 'package:webview_flutter/webview_flutter.dart';
 class ArticlePage extends StatefulWidget{
   final int type;
   final int index;
@@ -39,6 +39,15 @@ class ArticlePageState extends State<ArticlePage> {
 
   String header;
   String colorCSS;
+  String styleCSS = '<style>'
+      'body {margin: 0; padding: 15; line-height: 25px;}'
+      'a    {color:#2196F3; text-decoration: none;}'
+      'iframe {width:\"640\"; height:\"480\";}'
+      'img  {max-width: 100%; width:auto; height: auto;}'
+      'blockquote {background: #f9f9f9;border-left: 10px solid #ccc;margin: 1.5em 10px;padding: 0.5em 10px;}'
+      'blockquote:before {color: #ccc;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
+      'blockquote p {display: inline;}'
+      '</style>';
 
   @override
   void initState() {
@@ -56,35 +65,7 @@ class ArticlePageState extends State<ArticlePage> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroudColor;
-    Color fontColor;
-    if (Theme.of(context).brightness == Brightness.light) {
-      backgroudColor = Colors.white;
-      fontColor = Colors.black;
-      colorCSS = '<style>'
-          'body {background-color: white; margin: 0; padding: 20;}'
-          'h1   {color: black;}'
-          'h2   {color: black;}'
-          'h3   {color: black;}'
-          'p    {color: black; font-size :18px; line-height:30px}'
-          'a    {color:#F44336; text-decoration: none;}'
-          'img  {max-width: 100%; width:auto; height: auto;}'
-          'iframe {width:\"640\"; height:\"480\";}'
-          '</style>';
-    } else {
-      backgroudColor = Colors.black;
-      fontColor = Colors.white;
-      colorCSS = '<style>'
-          'body {background-color: black; margin: 0; padding: 20;}'
-          'h1   {color: white;}'
-          'h2   {color: white;}'
-          'h3   {color: white;}'
-          'p    {color: white; font-size :18px; line-height:30px}'
-          'a    {color:#F44336; text-decoration: none;}'
-          'img  {max-width: 100%; width:auto; height: auto;}'
-          'iframe {width:\"640\"; height:\"480\";}'
-          '</style>';
-    }
+
     if (entry.loadChoice == 1 && entry.form == 1) {
       return BlocBuilder(
         bloc: articleBloc,
@@ -92,33 +73,16 @@ class ArticlePageState extends State<ArticlePage> {
           int _stackToView = 1;
           return Scaffold(
             appBar: articleAppBar(),
-            body: SingleChildScrollView(
+            body: state is ArticleLoaded ? WebView(
+              initialUrl: Uri.dataFromString(
+                  styleCSS + header + state.content,
+                  mimeType: 'text/html',
+                  encoding: Encoding.getByName('utf-8')
+              ).toString(),
+              javascriptMode: JavascriptMode.unrestricted,
               key: PageStorageKey(entry.id),
-              child: Center(
-                child: state is ArticleLoaded ? HtmlWidget(
-                  header + state.content,
-                  webView: true,
-                  webViewJs: true,
-                  hyperlinkColor: Theme.of(context).accentColor,
-                  onTapUrl: (str) {
-                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => Scaffold(
-                      appBar: articleAppBar(),
-                      body: WebViewPage(str),
-                    )));
-                  },
-                  textPadding: EdgeInsets.fromLTRB(15, 5, 15, 5),
-//                  bodyPadding: EdgeInsets.all(15.0),
-                  textStyle: TextStyle(
-                    fontSize: 16.0,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                    height: 1.3,
-                  ),
-                )
-                    : Container(),
-              ),
-            ),
+            ) : Container(),
           );
-
         },
       );
     } else {

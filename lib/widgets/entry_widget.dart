@@ -12,6 +12,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 
@@ -52,7 +53,7 @@ class EntryWidgetState extends State<EntryWidget> {
             Row(
               children: <Widget>[
                 Expanded(
-                  child: _entry.sourcePhoto != null ? Image.network(_entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
+                  child: _entry.sourcePhoto != null ? CachedNetworkImage(imageUrl: _entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
                 ),
                 Expanded(
                   flex: 8,
@@ -231,7 +232,7 @@ class ArticleEntry extends StatelessWidget{
           ) : Container(),
           (entry.photo.length > 0 && entry.photo[0].length > 0 && entry.audio.length == 0) ? ClipRRect(
               borderRadius: BorderRadius.circular(5.0),
-              child: Image.network(entry.photo[0], height: 80, width: 80, fit: BoxFit.cover,),
+              child: CachedNetworkImage(imageUrl: entry.photo[0], height: 80, width: 80, fit: BoxFit.cover,),
             ) : Container(),
 
         ],
@@ -331,7 +332,7 @@ class WeiboEntry extends StatelessWidget{
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(content, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white), maxLines: 7),
+          Text(content, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white), maxLines: 7),
           (photo.length > 0 && photo[0].length > 0) ? SizedBox(height: 10,) : Container(),
           (photo.length > 0 && photo[0].length > 0) ? layoutImages(context) : Container()
         ],
@@ -343,11 +344,24 @@ class WeiboEntry extends StatelessWidget{
     final width1 = MediaQuery.of(context).size.width*2/3;
     final width2 = MediaQuery.of(context).size.width/2 - 20;
     final width3 = MediaQuery.of(context).size.width/3 - 20;
-    final height = 100.0;
 
-    Widget imageWrapper(int index, double width) {
+    Widget imageWrapper(int index, double height, double width) {
       return GestureDetector(
-        child: Image.network(photo[index], width: width, height: height, fit: BoxFit.cover,),
+        child: CachedNetworkImage(
+          alignment: Alignment(-1.0, -1.0),
+          imageUrl: photo[index],
+          width: width,
+          height: height,
+          fit: photo.length == 1 ? BoxFit.fitHeight : BoxFit.cover,
+          placeholder:(BuildContext context, String str) => Image.asset(
+            'images/placeholder.png',
+            alignment: Alignment(-1.0, -1.0),
+            width: width,
+            height: height,
+            fit: photo.length == 1 ? BoxFit.fitHeight : BoxFit.cover,
+          ),
+        ),
+//        child: Image.network(photo[index], width: width, height: height, fit: BoxFit.cover,),
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => Container(
             child: GestureDetector(
@@ -356,7 +370,7 @@ class WeiboEntry extends StatelessWidget{
                 itemCount: photo.length,
                 builder: (BuildContext context, int index2) {
                   return PhotoViewGalleryPageOptions(
-                    imageProvider: NetworkImage(photo[index2]),
+                    imageProvider: CachedNetworkImageProvider(photo[index2]),
                     heroTag: index2.toString() + '/' + photo.length.toString(),
                   );
                 },
@@ -370,22 +384,22 @@ class WeiboEntry extends StatelessWidget{
 
     switch(photo.length) {
       case 1:
-        return imageWrapper(0, width1);
+        return imageWrapper(0, 200, width1);
       case 2:
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            imageWrapper(0, width2),
-            imageWrapper(1, width2),
+            imageWrapper(0, 150, width2),
+            imageWrapper(1, 150, width2),
           ],
         );
       case 3:
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            imageWrapper(0, width3),
-            imageWrapper(1, width3),
-            imageWrapper(2, width3),
+            imageWrapper(0, 100, width3),
+            imageWrapper(1, 100, width3),
+            imageWrapper(2, 100, width3),
           ],
         );
       case 4:
@@ -394,14 +408,14 @@ class WeiboEntry extends StatelessWidget{
           children: <Widget>[
             Row(
               children: <Widget>[
-                imageWrapper(0, width2),
-                imageWrapper(1, width2),
+                imageWrapper(0, 150, width2),
+                imageWrapper(1, 150, width2),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(2, width2),
-                imageWrapper(3, width2),
+                imageWrapper(2, 150, width2),
+                imageWrapper(3, 150, width2),
               ],
             )
           ],
@@ -412,15 +426,15 @@ class WeiboEntry extends StatelessWidget{
           children: <Widget>[
             Row(
               children: <Widget>[
-                imageWrapper(0, width2),
-                imageWrapper(1, width2),
+                imageWrapper(0, 150, width2),
+                imageWrapper(1, 150, width2),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(2, width3),
-                imageWrapper(3, width3),
-                imageWrapper(4, width3),
+                imageWrapper(2, 100, width3),
+                imageWrapper(3, 100, width3),
+                imageWrapper(4, 100, width3),
               ],
             )
           ],
@@ -431,16 +445,16 @@ class WeiboEntry extends StatelessWidget{
           children: <Widget>[
             Row(
               children: <Widget>[
-                imageWrapper(0, width3),
-                imageWrapper(1, width3),
-                imageWrapper(2, width3),
+                imageWrapper(0, 100, width3),
+                imageWrapper(1, 100, width3),
+                imageWrapper(2, 100, width3),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(3, width3),
-                imageWrapper(4, width3),
-                imageWrapper(5, width3),
+                imageWrapper(3, 100, width3),
+                imageWrapper(4, 100, width3),
+                imageWrapper(5, 100, width3),
               ],
             )
           ],
@@ -451,21 +465,21 @@ class WeiboEntry extends StatelessWidget{
           children: <Widget>[
             Row(
               children: <Widget>[
-                imageWrapper(0, width2),
-                imageWrapper(1, width2),
+                imageWrapper(0, 150, width2),
+                imageWrapper(1, 150, width2),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(2, width2),
-                imageWrapper(3, width2),
+                imageWrapper(2, 150, width2),
+                imageWrapper(3, 150, width2),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(4, width3),
-                imageWrapper(5, width3),
-                imageWrapper(6, width3),
+                imageWrapper(4, 100, width3),
+                imageWrapper(5, 100, width3),
+                imageWrapper(6, 100, width3),
               ],
             )
           ],
@@ -476,22 +490,22 @@ class WeiboEntry extends StatelessWidget{
           children: <Widget>[
             Row(
               children: <Widget>[
-                imageWrapper(0, width2),
-                imageWrapper(1, width2),
+                imageWrapper(0, 100, width2),
+                imageWrapper(1, 100, width2),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(2, width3),
-                imageWrapper(3, width3),
-                imageWrapper(4, width3),
+                imageWrapper(2, 100, width3),
+                imageWrapper(3, 100, width3),
+                imageWrapper(4, 100, width3),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(5, width3),
-                imageWrapper(6, width3),
-                imageWrapper(7, width3),
+                imageWrapper(5, 100, width3),
+                imageWrapper(6, 100, width3),
+                imageWrapper(7, 100, width3),
               ],
             )
           ],
@@ -502,23 +516,23 @@ class WeiboEntry extends StatelessWidget{
           children: <Widget>[
             Row(
               children: <Widget>[
-                imageWrapper(0, width3),
-                imageWrapper(1, width3),
-                imageWrapper(2, width3),
+                imageWrapper(0, 100, width3),
+                imageWrapper(1, 100, width3),
+                imageWrapper(2, 100, width3),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(3, width3),
-                imageWrapper(4, width3),
-                imageWrapper(5, width3),
+                imageWrapper(3, 100, width3),
+                imageWrapper(4, 100, width3),
+                imageWrapper(5, 100, width3),
               ],
             ),
             Row(
               children: <Widget>[
-                imageWrapper(6, width3),
-                imageWrapper(7, width3),
-                imageWrapper(8, width3),
+                imageWrapper(6, 100, width3),
+                imageWrapper(7, 100, width3),
+                imageWrapper(8, 100, width3),
               ],
             )
           ],

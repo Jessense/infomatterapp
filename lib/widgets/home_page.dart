@@ -12,6 +12,7 @@ import 'package:infomatterapp/repositories/repositories.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:preferences/preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class Home extends StatefulWidget {
@@ -491,7 +492,7 @@ class _HomeState extends State<Home> {
                               return Container(
                                 padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                 child: ListTile(
-                                  leading: source.photo !=null ? Image.network(source.photo, width: 20, height: 20,) : Container(width: 20, height: 20,),
+                                  leading: source.photo !=null ? CachedNetworkImage(imageUrl: source.photo, width: 20, height: 20,) : Container(width: 20, height: 20,),
                                   title: Text(source.name),
                                   onTap: () {
                                     homeSourceId = source.id;
