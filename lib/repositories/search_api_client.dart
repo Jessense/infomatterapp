@@ -28,7 +28,7 @@ class SearchApiClient {
     } else if (type == 'any') {
       url = '$baseUrl/sources/search?feedUrl=http://127.0.0.1:1200$target';
     } else {
-      url = 'http://apisearch.infomatter.cn/$type?keyword==$target';
+      url = 'http://apisearch.infomatter.cn/$type?keyword=$target';
     }
     print(url);
     final response = await httpClient.get(url,
