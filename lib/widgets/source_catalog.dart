@@ -34,11 +34,13 @@ class SourceCatalogState extends State<SourceCatalog>{
           bloc: sourceBloc,
           builder: (BuildContext context, SourceState state) {
             if (sourceBloc.sourcesRepository.showSnackbar == true) {
+              sourceBloc.sourcesRepository.showSnackbar = false;
               _onWidgetDidBuild(() {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('Followed'),
+                  content: Text('已关注'),
+                  duration: Duration(milliseconds: 1000),
                   action: SnackBarAction(
-                    label: 'Assign Folder',
+                    label: '设置分组',
                     onPressed: () {
                       showDialog(
                           context: context,
@@ -49,7 +51,7 @@ class SourceCatalogState extends State<SourceCatalog>{
                     },
                   ),
                 ));
-                sourceBloc.sourcesRepository.showSnackbar = false;
+
               });
             }
             return Row(

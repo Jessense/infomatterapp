@@ -148,15 +148,19 @@ class SourceFeedState extends State<SourceFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_sourceName), elevation: 2,),
+      appBar: AppBar(
+        title: Text(_sourceName),
+        elevation: 2,
+      ),
       body: BlocBuilder(
       bloc: entryBloc,
-      key: PageStorageKey('home'),
         builder: (BuildContext context, EntryState state) {
           if (entryBloc.entriesRepository.showStarred == true) {
+            entryBloc.entriesRepository.showStarred = false;
             _onWidgetDidBuild(() {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text('已收藏'),
+                duration: Duration(milliseconds: 1000),
                 action: SnackBarAction(
                   label: '添加到收藏夹',
                   onPressed: () {
@@ -169,12 +173,11 @@ class SourceFeedState extends State<SourceFeed> {
                   },
                 ),
               ));
-              entryBloc.entriesRepository.showStarred = false;
+
             });
           }
 
           if (state is EntryUninitialized) {
-            fetch();
             return Center(
               child: SpinKitThreeBounce(size: 30, color: Colors.grey,),
             );
@@ -265,6 +268,11 @@ class SourceFeedState extends State<SourceFeed> {
     if (maxScroll - currentScroll <= _scrollThreshold) {
       fetch();
     }
+  }
+
+  @override deactivate() {
+    entryBloc.dispatch(PassEntryLoading());
+    super.deactivate();
   }
 
   @override

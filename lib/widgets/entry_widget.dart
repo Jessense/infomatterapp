@@ -45,76 +45,171 @@ class EntryWidgetState extends State<EntryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+      onTap: (){
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) {
+            BlocProvider.of<EntryBloc>(context).entriesRepository.click(_index);
+            return ArticlePage(entry: _entry, index: _index, type: _type,);
+          },
+        )
+        );
+      },
+      child: Container(
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _entry.sourcePhoto != null ? CachedNetworkImage(imageUrl: _entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
-                ),
-                Expanded(
-                  flex: 8,
-                  child: Text(
-                    _entry.sourceName,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: _entry.isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (BuildContext context) => SourceFeed(
+                        sourceId: _entry.sourceId, sourceName: _entry.sourceName)));
+              },
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _entry.sourcePhoto != null ? CachedNetworkImage(imageUrl: _entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
+                  ),
+                  Expanded(
+                    flex: 8,
+                    child: Text(
+                      _entry.sourceName,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: _entry.isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),),
-                )
-              ],
+                  Expanded(
+                    child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),),
+                  )
+                ],
+              ),
             ),
-            SizedBox(height: 8,),
-            GestureDetector(
-              onTap: (){
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) {
-                    BlocProvider.of<EntryBloc>(context).entriesRepository.click(_index);
-                    return ArticlePage(entry: _entry, index: _index, type: _type,);
-                  },
-                )
-                );
-              },
-              child: _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo, isReaded: _entry.isReaded,)
-                  : ArticleEntry(entry: _entry,),
-            ),
-            _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame, ) : Container(),
-            SizedBox(height: 10,),
-            Row(
+            Column(
               children: <Widget>[
-                Expanded(
-                  flex: 6,
-                  child: Container(),
+                SizedBox(height: 8,),
+                _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo, isReaded: _entry.isReaded,)
+                    : ArticleEntry(entry: _entry,),
+                _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame, ) : Container(),
+                SizedBox(height: 10,),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 6,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      child: _entry.sim_count != null && _entry.sim_count > 1 && _type != 4 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
+                      }) : Container(),
+                    ),
+                    Expanded(
+                      child: _buildFavbtn(),
+                    ),
+                    Expanded(
+                      child: IconButton(
+                          icon: Icon(Icons.more_vert),
+                          onPressed: () {
+                            showModalBottomSheet(context: context, builder: (BuildContext context) => EntryOption(entry: _entry, index: _index,));
+                          }
+                      ),
+                    )
+                  ],
                 ),
-                Expanded(
-                  child: _entry.sim_count != null && _entry.sim_count > 1 && _type != 4 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
-                  }) : Container(),
-                ),
-                Expanded(
-                  child: _buildFavbtn(),
-                ),
-                Expanded(
-                  child: IconButton(
-                      icon: Icon(Icons.more_vert),
-                      onPressed: () {
-                        showModalBottomSheet(context: context, builder: (BuildContext context) => EntryOption(entry: _entry, index: _index,));
-                      }
-                  ),
-                )
+                Divider(height: 5, )
               ],
             ),
-            Divider(height: 5, )
+
           ],
         )
+      )
     );
+//    return Container(
+//        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+//        child: Column(
+//          crossAxisAlignment: CrossAxisAlignment.start,
+//          children: <Widget>[
+//            GestureDetector(
+//              onTap: () {
+//                Navigator.push(context, MaterialPageRoute(
+//                    builder: (BuildContext context) => SourceFeed(
+//                        sourceId: _entry.sourceId, sourceName: _entry.sourceName)));
+//              },
+//              child: Row(
+//                children: <Widget>[
+//                  Expanded(
+//                    child: _entry.sourcePhoto != null ? CachedNetworkImage(imageUrl: _entry.sourcePhoto, width: 20, height: 20) : Container(width: 20, height: 20,),
+//                  ),
+//                  Expanded(
+//                    flex: 8,
+//                    child: Text(
+//                      _entry.sourceName,
+//                      style: TextStyle(
+//                          fontSize: 14,
+//                          fontWeight: FontWeight.w400,
+//                          color: _entry.isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
+//                      ),
+//                    ),
+//                  ),
+//                  Expanded(
+//                    child: Text(_timestamp(_entry.pubDate), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),),
+//                  )
+//                ],
+//              ),
+//            ),
+//            GestureDetector(
+//              onTap: (){
+//                Navigator.of(context).push(MaterialPageRoute(
+//                  builder: (context) {
+//                    BlocProvider.of<EntryBloc>(context).entriesRepository.click(_index);
+//                    return ArticlePage(entry: _entry, index: _index, type: _type,);
+//                  },
+//                )
+//                );
+//              },
+//              child: Column(
+//                children: <Widget>[
+//                  SizedBox(height: 8,),
+//                  _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo, isReaded: _entry.isReaded,)
+//                      : ArticleEntry(entry: _entry,),
+//                  _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame, ) : Container(),
+//                  SizedBox(height: 10,),
+//                  Row(
+//                    children: <Widget>[
+//                      Expanded(
+//                        flex: 6,
+//                        child: Container(),
+//                      ),
+//                      Expanded(
+//                        child: _entry.sim_count != null && _entry.sim_count > 1 && _type != 4 ? IconButton(icon: Icon(Icons.unfold_more), onPressed: (){
+//                          Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FullCoveragePage(cluster: _entry.cluster)));
+//                        }) : Container(),
+//                      ),
+//                      Expanded(
+//                        child: _buildFavbtn(),
+//                      ),
+//                      Expanded(
+//                        child: IconButton(
+//                            icon: Icon(Icons.more_vert),
+//                            onPressed: () {
+//                              showModalBottomSheet(context: context, builder: (BuildContext context) => EntryOption(entry: _entry, index: _index,));
+//                            }
+//                        ),
+//                      )
+//                    ],
+//                  ),
+//                  Divider(height: 5, )
+//                ],
+//              ),
+//            ),
+//
+//          ],
+//        )
+//    );
   }
 
   Widget _buildFavbtn() {
@@ -318,12 +413,25 @@ class VideoFrameWidgetState extends State<VideoFrameWidget>{
   }
 }
 
-class WeiboEntry extends StatelessWidget{
+class WeiboEntry extends StatefulWidget{
   final String content;
   final List<String> photo;
   final bool isReaded;
   WeiboEntry({Key key, this.content, this.photo, this.isReaded}):
-      super(key: key);
+        super(key: key);
+  @override
+  State<WeiboEntry> createState() {
+    // TODO: implement createState
+    return WeiboEntryState();
+  }
+}
+
+class WeiboEntryState extends State<WeiboEntry>{
+
+  get content => widget.content;
+  get photo => widget.photo;
+  get isReaded => widget.isReaded;
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -344,6 +452,7 @@ class WeiboEntry extends StatelessWidget{
     final width1 = MediaQuery.of(context).size.width*2/3;
     final width2 = MediaQuery.of(context).size.width/2 - 20;
     final width3 = MediaQuery.of(context).size.width/3 - 20;
+    PhotoViewScaleStateController _scaleStateController = new PhotoViewScaleStateController();
 
     Widget imageWrapper(int index, double height, double width) {
       return GestureDetector(
@@ -365,13 +474,17 @@ class WeiboEntry extends StatelessWidget{
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => Container(
             child: GestureDetector(
-              onTap: () {Navigator.of(context).pop();},
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Navigator.of(context).pop();
+              },
               child: PhotoViewGallery.builder(
                 itemCount: photo.length,
                 builder: (BuildContext context, int index2) {
                   return PhotoViewGalleryPageOptions(
                     imageProvider: CachedNetworkImageProvider(photo[index2]),
                     heroTag: index2.toString() + '/' + photo.length.toString(),
+                    scaleStateController: _scaleStateController,
                   );
                 },
                 pageController: PageController(initialPage: index),

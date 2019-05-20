@@ -10,6 +10,7 @@ import 'package:infomatterapp/widgets/widgets.dart';
 
 class SourceItemWidget extends StatefulWidget{
   final Source source;
+  bool toAdd;
   SourceItemWidget({
     Key key, @required this.source
   }) : super(key: key);
@@ -69,13 +70,7 @@ class SourceItemWidgetState extends State<SourceItemWidget>{
                         if (_source.isFollowing)
                           sourceBloc.dispatch(UnfollowSource(sourceId: _source.id, sourceName: _source.name));
                         else {
-                          if (BlocProvider.of<SearchBloc>(context).searchRepository.type == 'source')
                             sourceBloc.dispatch(FollowSource(sourceId: _source.id, sourceName: _source.name));
-                          else {
-                            print('hihihihi');
-                            sourceBloc.dispatch(AddSource(source: _source));
-                          }
-
                         }
 
                       }

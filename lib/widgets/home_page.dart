@@ -70,12 +70,7 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       appBar: AppBar(
         elevation: 2,
-        leading: _cIndex == 0 || _cIndex == 1 ? IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: () {
-            _scaffoldKey.currentState.openDrawer();
-          },
-        ) : Container(),
+        automaticallyImplyLeading: _cIndex == 2 || _cIndex == 3 ? false : true,
         title: Text(appBarText),
         actions: <Widget>[
           BlocBuilder(
@@ -183,9 +178,11 @@ class _HomeState extends State<Home> {
         key: PageStorageKey('home'),
         builder: (BuildContext context, EntryState state) {
           if (entryBloc.entriesRepository.showStarred == true) {
+            entryBloc.entriesRepository.showStarred = false;
             _onWidgetDidBuild(() {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text('已收藏'),
+                duration: Duration(milliseconds: 1000),
                 action: SnackBarAction(
                   label: '添加到收藏夹',
                   onPressed: () {
@@ -198,7 +195,7 @@ class _HomeState extends State<Home> {
                   },
                 ),
               ));
-              entryBloc.entriesRepository.showStarred = false;
+
             });
           }
 
@@ -290,9 +287,11 @@ class _HomeState extends State<Home> {
         key: PageStorageKey('bookmark'),
         builder: (BuildContext context, EntryState state) {
           if (bookmarkEntryBloc.entriesRepository.showStarred == true) {
+            bookmarkEntryBloc.entriesRepository.showStarred = false;
             _onWidgetDidBuild(() {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text('已收藏'),
+                duration: Duration(milliseconds: 1000),
                 action: SnackBarAction(
                   label: '添加到收藏夹',
                   onPressed: () {
@@ -305,7 +304,6 @@ class _HomeState extends State<Home> {
                   },
                 ),
               ));
-              bookmarkEntryBloc.entriesRepository.showStarred = false;
             });
           }
 

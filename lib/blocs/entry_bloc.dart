@@ -362,6 +362,7 @@ class EntryBloc extends Bloc<EntryEvent, EntryState> {
       }
     } else if (event is PassEntryLoading) {
       yield EntryUninitialized();
+      print(currentState);
     } else if (event is PassEntries) {
       yield EntryLoaded(entries: event.entries, hasReachedMax: false);
     }

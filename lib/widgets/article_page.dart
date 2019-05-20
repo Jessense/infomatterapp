@@ -38,7 +38,7 @@ class ArticlePageState extends State<ArticlePage> {
 
 
   String header;
-  String colorCSS;
+  String colorCSS = '';
   String styleCSS = '<style>'
       'body {margin: 0; padding: 15; line-height: 25px;}'
       'a    {color:#2196F3; text-decoration: none;}'
@@ -67,6 +67,37 @@ class ArticlePageState extends State<ArticlePage> {
   Widget build(BuildContext context) {
 
     if (entry.loadChoice == 1 && entry.form == 1) {
+      if (Theme.of(context).brightness == Brightness.light) {
+
+        colorCSS = '<style>'
+            'body {background-color: white; margin: 0; padding: 15; line-height: 25px;}'
+            'h1   {color: black;}'
+            'h2   {color: black;}'
+            'h3   {color: black;}'
+            'p    {color: black;}'
+            'a    {color:#2196F3; text-decoration: none;}'
+            'img  {max-width: 100%; width:auto; height: auto;}'
+            'iframe {width:\"640\"; height:\"480\";}'
+            'blockquote {background: #f9f9f9;border-left: 10px solid #ccc;margin: 1.5em 10px;padding: 0.5em 10px;}'
+            'blockquote:before {color: #ccc;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
+            'blockquote p {display: inline;}'
+            '</style>';
+      } else {
+
+        colorCSS = '<style>'
+            'body {background-color: black; margin: 0; padding: 15; line-height: 25px;}'
+            'h1   {color: white;}'
+            'h2   {color: white;}'
+            'h3   {color: white;}'
+            'p    {color: white;}'
+            'a    {color:#2196F3; text-decoration: none;}'
+            'img  {max-width: 100%; width:auto; height: auto;}'
+            'iframe {width:\"640\"; height:\"480\";}'
+            'blockquote {background: #f9f9f9;border-left: 10px solid #ccc;margin: 1.5em 10px;padding: 0.5em 10px;}'
+            'blockquote:before {color: #ccc;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
+            'blockquote p {display: inline;}'
+            '</style>';
+      }
       return BlocBuilder(
         bloc: articleBloc,
         builder: (BuildContext context, ArticleState state) {
@@ -75,7 +106,7 @@ class ArticlePageState extends State<ArticlePage> {
             appBar: articleAppBar(),
             body: state is ArticleLoaded ? WebView(
               initialUrl: Uri.dataFromString(
-                  styleCSS + header + state.content,
+                  colorCSS + header + state.content,
                   mimeType: 'text/html',
                   encoding: Encoding.getByName('utf-8')
               ).toString(),
@@ -115,9 +146,11 @@ class ArticlePageState extends State<ArticlePage> {
           bloc: entryBloc,
           builder: (BuildContext context, EntryState state) {
             if (entryBloc.entriesRepository.showStarred2 == true) {
+              entryBloc.entriesRepository.showStarred2 = false;
               _onWidgetDidBuild(() {
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text('已收藏'),
+                  duration: Duration(milliseconds: 1000),
                   action: SnackBarAction(
                     label: '添加到收藏夹',
                     onPressed: () {
@@ -130,7 +163,6 @@ class ArticlePageState extends State<ArticlePage> {
                     },
                   ),
                 ));
-                entryBloc.entriesRepository.showStarred2 = false;
               });
             }
 

@@ -86,7 +86,7 @@ class SourceListState extends State<SourceList>{
                 itemBuilder: (BuildContext context, int index) {
                   return index >= state.sources.length
                       ? BottomLoader()
-                      : SourceItemWidget(source: state.sources[index], );
+                      : SourceItemWidget(source: state.sources[index],);
                 },
                 itemCount: state.hasReachedMax == true
                     ? state.sources.length
