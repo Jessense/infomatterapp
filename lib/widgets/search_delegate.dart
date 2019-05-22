@@ -397,11 +397,11 @@ class SearchSelectorState extends State<SearchSelector>{
                   onPressed: () {
                     setState(() {
                       searchBloc.searchRepository.hint = '请输入知乎用户名';
-                      searchBloc.searchRepository.type = 'zhihu_answer';
+                      searchBloc.searchRepository.type = 'zhihu';
                     });
                   },
                   child: Text('知乎用户', style: TextStyle(
-                      color: searchBloc.searchRepository.type == 'zhihu_answer'
+                      color: searchBloc.searchRepository.type == 'zhihu'
                           ? Theme.of(context).accentColor
                           : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white
                   ))

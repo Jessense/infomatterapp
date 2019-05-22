@@ -50,7 +50,7 @@ class SettingPage extends StatelessWidget{
         ),
         ListTile(
           title: Text('关于'),
-          subtitle: Text('当前版本 1.0.0'),
+          subtitle: Text('当前版本 1.0.6'),
           onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => WebViewPageFull('http://about.infomatter.cn')));
           },
