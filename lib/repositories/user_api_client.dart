@@ -13,6 +13,10 @@ class UserApiClient {
 
   UserApiClient({@required this.httpClient}) : assert(httpClient != null);
 
+  bool showSnackBar = false;
+  bool isFine = false;
+  String msg = '';
+
   Future<bool> postForCode(String email) async {
     final url = "$baseUrl/users/signup_verify";
     final response = await this.httpClient.post(url, body: {
@@ -36,8 +40,13 @@ class UserApiClient {
     if (response.statusCode == 200) {
       Map data = json.decode(response.body);
       print(data['token']);
+      isFine = true;
       return data['token'];
     } else {
+      showSnackBar = true;
+      msg = response.body;
+      isFine = false;
+
       print(response.body);
       return 'failed: ' + response.body;
     }
@@ -54,8 +63,12 @@ class UserApiClient {
     if (response.statusCode == 200) {
       Map data = json.decode(response.body);
       print(data['token']);
+      isFine = true;
       return data['token'];
     } else {
+      showSnackBar = true;
+      msg = response.body;
+      isFine = false;
       print(response.body);
       return 'failed: ' + response.body;
     }
@@ -68,8 +81,14 @@ class UserApiClient {
       "email": email
     });
     if (response.statusCode == 200) {
+      showSnackBar = true;
+      msg = response.body;
+      isFine = true;
       return true;
     } else {
+      showSnackBar = true;
+      msg = response.body;
+      isFine = false;
       return false;
     }
   }
@@ -84,10 +103,34 @@ class UserApiClient {
     });
     print(response.statusCode.toString() + ':' + response.body);
     if (response.statusCode == 200) {
+      showSnackBar = true;
+      msg = response.body;
+      isFine = true;
       return true;
     } else {
+      showSnackBar = true;
+      msg = response.body;
+      isFine = false;
       return false;
     }
+  }
+
+  void reset() {
+    showSnackBar = false;
+    msg = '';
+    isFine = false;
+  }
+
+  void setBadMsg(String str) {
+    showSnackBar = true;
+    msg = str;
+    isFine = false;
+  }
+
+  void setGoodMsg(String str) {
+    showSnackBar = true;
+    msg = str;
+    isFine = true;
   }
 
 }

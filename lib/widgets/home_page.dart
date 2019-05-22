@@ -220,7 +220,7 @@ class _HomeState extends State<Home> {
                 children: <Widget>[
                   Container(
                     padding: EdgeInsets.all(20),
-                    child: Text('failed to fetch entries'),
+                    child: CenterTextPage(msg: '无法获取内容'),
                   )
                 ],
               ),
@@ -248,7 +248,7 @@ class _HomeState extends State<Home> {
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.all(20),
-                      child: Text('no entries'),
+                      child: CenterTextPage(msg: '暂无内容，请关注些内容或稍后再试'),
                     )
                   ],
                 ),
@@ -328,7 +328,7 @@ class _HomeState extends State<Home> {
                 children: <Widget>[
                   Container(
                     padding: EdgeInsets.all(20),
-                    child: Text('failed to fetch entries'),
+                    child: CenterTextPage(msg: '获取内容失败'),
                   )
                 ],
               ),
@@ -356,7 +356,7 @@ class _HomeState extends State<Home> {
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.all(20),
-                      child: Text('no entries'),
+                      child: CenterTextPage(msg: '暂无收藏'),
                     )
                   ],
                 ),
@@ -420,7 +420,7 @@ class _HomeState extends State<Home> {
                     children: <Widget>[
                       Container(
                         padding: EdgeInsets.all(20),
-                        child: Text('failed to fetch source folders'),
+                        child: CenterTextPage(msg: '无法获取分组'),
                       )
                     ],
                   ),
@@ -566,7 +566,7 @@ class _HomeState extends State<Home> {
                     children: <Widget>[
                       Container(
                         padding: EdgeInsets.all(20),
-                        child: Text('failed to fetch bookmark folders'),
+                        child: CenterTextPage(msg: '无法获取收藏夹'),
                       )
                     ],
                   ),

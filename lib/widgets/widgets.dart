@@ -25,3 +25,4 @@ export 'entry_option.dart';
 export 'reset_password_page.dart';
 export 'login_form_code.dart';
 export 'webview_page_full.dart';
+export 'hint_pages.dart';

@@ -23,13 +23,9 @@ class LoginLoading extends LoginState {
 
 
 class MessageArrived extends LoginState {
-  final bool isGood;
-  final String message;
-
-  MessageArrived({@required this.isGood, this.message}) : super([isGood, message]);
 
   @override
-  String toString() => 'LoginFailure { error: $isGood }';
+  String toString() => 'MessageArrived}';
 }
 
 
@@ -129,13 +125,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           event.password,
         );
 
-        if (token.startsWith("failed:")) {
-          yield MessageArrived(isGood: false, message: token);
-        } else {
+        if (userRepository.userApiClient.isFine) {
           authenticationBloc.dispatch(LoggedIn(token: token, email: event.username));
+        } else {
+          yield MessageArrived();
         }
       } catch (error) {
-        yield MessageArrived(isGood: false, message: error.toString());
+        userRepository.userApiClient.isFine = false;
+        userRepository.userApiClient.msg = error;
+        userRepository.userApiClient.showSnackBar = true;
       }
     } else if (event is SignupButtonPressed) {
       yield LoginLoading();
@@ -144,40 +142,37 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           event.username,
           event.password,
         );
-        if (token.startsWith("failed:")) {
-          yield MessageArrived(isGood: false, message: token);
-        } else {
+        if (userRepository.userApiClient.isFine) {
           authenticationBloc.dispatch(LoggedIn(token: token, email: event.username));
+        } else {
+          yield MessageArrived();
         }
         yield LoginInitial();
       } catch (error) {
-        yield MessageArrived(isGood: false, message: error.toString());
+        userRepository.userApiClient.isFine = false;
+        userRepository.userApiClient.msg = error;
+        userRepository.userApiClient.showSnackBar = true;
       }
     } else if (event is CodeRequested) {
       try {
         final sent = await userRepository.getVertificationCode(
           event.email
         );
-        if (sent) {
-          yield MessageArrived(isGood: true, message :"vertification code sent to your email");
-        } else {
-          yield MessageArrived(isGood: false, message: "vertification code not sent");
-        }
       } catch (error) {
-        yield MessageArrived(isGood: false, message: error.toString());
+        userRepository.userApiClient.isFine = false;
+        userRepository.userApiClient.msg = error;
+        userRepository.userApiClient.showSnackBar = true;
       }
     } else if (event is ResetPasswordVerify) {
       try {
         final sent = await userRepository.resetPasswordVerify(
             event.email
         );
-        if (sent) {
-          yield MessageArrived(isGood: true, message :"vertification code sent to your email");
-        } else {
-          yield MessageArrived(isGood: false, message: "vertification code not sent");
-        }
+        yield MessageArrived();
       } catch (error) {
-        yield MessageArrived(isGood: false, message: error.toString());
+        userRepository.userApiClient.isFine = false;
+        userRepository.userApiClient.msg = error;
+        userRepository.userApiClient.showSnackBar = true;
       }
     } else if (event is ResetPassword) {
       yield LoginLoading();
@@ -187,13 +182,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           event.code,
           event.password,
         );
-        if (result) {
-          yield MessageArrived(isGood: true, message :"password reset");
-        } else {
-          yield MessageArrived(isGood: false, message :"failed to reset password");
-        }
+        yield MessageArrived();
       } catch (error) {
-        yield MessageArrived(isGood: false, message: error.toString());
+        userRepository.userApiClient.isFine = false;
+        userRepository.userApiClient.msg = error;
+        userRepository.userApiClient.showSnackBar = true;
       }
     }
   }

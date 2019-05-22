@@ -44,6 +44,7 @@ class SourceOptionState extends State<SourceOption> {
           title: Text('退订'),
           onTap: () {
             sourceBloc.dispatch(UnfollowSource(sourceId: _sourceId));
+            Navigator.of(context).pop();
           },
         ),
       ],

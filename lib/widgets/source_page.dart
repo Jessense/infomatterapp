@@ -141,6 +141,7 @@ class SourceFeedState extends State<SourceFeed> {
   void initState() {
     // TODO: implement initState
     _scrollController.addListener(_onScroll);
+    entryBloc.dispatch(PassEntryLoading());
     entryBloc.dispatch(Update(sourceId: _sourceId, folder: homeSourceFolder));
     super.initState();
   }
@@ -193,14 +194,7 @@ class SourceFeedState extends State<SourceFeed> {
                 entryBloc.dispatch(Update(sourceId: homeSourceId, folder: homeSourceFolder));
                 return _refreshCompleter.future;
               },
-              child: ListView(
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    child: Text('failed to fetch entries'),
-                  )
-                ],
-              ),
+              child: CenterTextPage(msg: '无法获取内容'),
             );
           }
 
@@ -225,7 +219,7 @@ class SourceFeedState extends State<SourceFeed> {
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.all(20),
-                      child: Text('no entries'),
+                      child: CenterTextPage(msg: '暂无内容，请稍后再试'),
                     )
                   ],
                 ),
@@ -268,11 +262,6 @@ class SourceFeedState extends State<SourceFeed> {
     if (maxScroll - currentScroll <= _scrollThreshold) {
       fetch();
     }
-  }
-
-  @override deactivate() {
-    entryBloc.dispatch(PassEntryLoading());
-    super.deactivate();
   }
 
   @override

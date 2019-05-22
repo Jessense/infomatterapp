@@ -57,7 +57,7 @@ class ArticlePageState extends State<ArticlePage> {
       entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
     );
     articleBloc.dispatch(FetchArticle(entryId: entry.id));
-    header = "<p style=\'font-size:22px;font-weight:500;\'>" +  entry.title + "</p>" + "<p style=\"font-size:16px;color:grey;\">" + entry.sourceName + " / " + entry.pubDate.substring(0, 10) + ' ' + entry.pubDate.substring(11, 16) + "</p>";
+    header = "<p style=\'font-size:22px;font-weight:500;\'>" +  entry.title + "</p>" + "<p style=\"font-size:16px;color:grey;\">" + entry.sourceName + " / " + _timestamp(entry.pubDate) + ' ' + entry.pubDate.substring(11, 16) + "</p>";
 
   }
     super.initState();
@@ -78,8 +78,7 @@ class ArticlePageState extends State<ArticlePage> {
             'a    {color:#2196F3; text-decoration: none;}'
             'img  {max-width: 100%; width:auto; height: auto;}'
             'iframe {width:\"640\"; height:\"480\";}'
-            'blockquote {background: #f9f9f9;border-left: 10px solid #ccc;margin: 1.5em 10px;padding: 0.5em 10px;}'
-            'blockquote:before {color: #ccc;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
+            'blockquote:before {color: #2196F3;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
             'blockquote p {display: inline;}'
             '</style>';
       } else {
@@ -93,8 +92,7 @@ class ArticlePageState extends State<ArticlePage> {
             'a    {color:#2196F3; text-decoration: none;}'
             'img  {max-width: 100%; width:auto; height: auto;}'
             'iframe {width:\"640\"; height:\"480\";}'
-            'blockquote {background: #f9f9f9;border-left: 10px solid #ccc;margin: 1.5em 10px;padding: 0.5em 10px;}'
-            'blockquote:before {color: #ccc;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
+            'blockquote:before {color: #2196F3;content: open-quote;font-size: 4em;line-height: 0.1em;margin-right: 0.25em;vertical-align: -0.4em;}'
             'blockquote p {display: inline;}'
             '</style>';
       }
@@ -112,7 +110,9 @@ class ArticlePageState extends State<ArticlePage> {
               ).toString(),
               javascriptMode: JavascriptMode.unrestricted,
               key: PageStorageKey(entry.id),
-            ) : Container(),
+            ) : Container(
+              color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+            ),
           );
         },
       );

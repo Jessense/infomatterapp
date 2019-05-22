@@ -57,7 +57,7 @@ class SourceListState extends State<SourceList>{
               children: <Widget>[
                 Container(
                   padding: EdgeInsets.all(20),
-                  child: Text('failed to fetch sources'),
+                  child: CenterTextPage(msg: '无法获取内容源列表'),
                 )
               ],
             ),

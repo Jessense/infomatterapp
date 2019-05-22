@@ -90,14 +90,15 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
           BuildContext context,
           LoginState state,
           ) {
-        if (state is MessageArrived) {
+        if (_loginBloc.userRepository.userApiClient.showSnackBar) {
           _onWidgetDidBuild(() {
             Scaffold.of(context).showSnackBar(
               SnackBar(
-                  content: Text('${state.message}'),
-                  backgroundColor: state.isGood ? Colors.green : Colors.red
+                  content: Text('${_loginBloc.userRepository.userApiClient.msg}'),
+                  backgroundColor: _loginBloc.userRepository.userApiClient.isFine ? Colors.green : Colors.red
               ),
             );
+            _loginBloc.userRepository.userApiClient.reset();
           });
         }
 
