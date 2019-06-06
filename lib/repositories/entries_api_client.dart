@@ -492,6 +492,18 @@ class EntriesApiClient {
     }
   }
 
+  Future<String> readability(String link) async {
+    final url = '$baseUrl/entries/readability?link=$link';
+    final response = await httpClient.get(url,
+        headers: {HttpHeaders.authorizationHeader: await getToken()});
+    print(response.statusCode.toString() + ': ' + response.body);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      return '';
+    }
+  }
+
 
   Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();

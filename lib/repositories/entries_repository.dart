@@ -46,6 +46,10 @@ class EntriesRepository {
     return await entriesApiClient.fetchArticleContent(entryId);
   }
 
+  Future<String> readability(String link) async {
+    return await entriesApiClient.readability(link);
+  }
+
   Future<bool> click(int index) async{
     entries[index].isReaded = true;
     return await entriesApiClient.click(entries[index].id);

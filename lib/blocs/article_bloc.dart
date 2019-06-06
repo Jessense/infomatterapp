@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:infomatterapp/repositories/repositories.dart';
+import 'package:shimmer/shimmer.dart';
 
 abstract class ArticleEvent extends Equatable {
   ArticleEvent([List props = const []]) : super(props);
@@ -71,8 +72,13 @@ class ArticleBloc extends Bloc<ArticleEvent, ArticleState> {
   Stream<ArticleState> mapEventToState(ArticleEvent event) async* {
     // TODO: implement mapEventToState
     if (event is FetchArticle) {
+      yield ArticleUninitialized();
       final content = await entriesRepository.getArticle(event.entryId);
       yield ArticleLoaded(content: content);
+    } else if (event is FetchReadability) {
+      yield ArticleUninitialized();
+      final content = await entriesRepository.readability(event.link);
+      yield ArticleLoaded(content: content);      
     }
   }
 }

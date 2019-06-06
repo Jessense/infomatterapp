@@ -109,7 +109,7 @@ class _HomeState extends State<Home> {
 
       bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 200),
-          height: hideNav == false ? 60.0 : 0.0,
+          height: hideNav == false ? 61.0 : 0.0,
           child: hideNav == false ? BottomNavigationBar(
             currentIndex: _cIndex,
             type: BottomNavigationBarType.fixed,
