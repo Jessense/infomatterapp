@@ -38,7 +38,7 @@ class ArticlePageState extends State<ArticlePage> {
 
   String currentUrl = '';
 
-  String header;
+  String header = '';
   String colorCSS = '';
   String styleCSS = '<style>'
       'body {margin: 0; padding: 15; line-height: 25px;}'
@@ -53,115 +53,119 @@ class ArticlePageState extends State<ArticlePage> {
   @override
   void initState() {
     // TODO: implement initState
-    if ((entry.loadChoice == 1 && entry.form == 1) || readabilityOn) {
-      articleBloc = ArticleBloc(
-        entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
-      );
-      if (entry.loadChoice == 1 && entry.form == 1)
-        articleBloc.dispatch(FetchArticle(entryId: entry.id));
-      header = "<p style=\'font-size:22px;font-weight:500;\'>" +  entry.title + "</p>" + "<p style=\"font-size:16px;color:grey;\">" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</p>";
-
-    }
+//    if ((entry.form == 1) || readabilityOn) {
+//      articleBloc = ArticleBloc(
+//        entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
+//      );
+//      if (entry.form == 1)
+//        articleBloc.dispatch(FetchArticle(entryId: entry.id));
+//      header = "<p style=\'font-size:22px;font-weight:500;\'>" +  entry.title + "</p>" + "<p style=\"font-size:16px;color:grey;\">" + entry.sourceName + " / " + _timestamp(entry.pubDate) + "</p>";
+//
+//    }
       super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: articleAppBar(),
+      body: WebViewPage(entry.link),
+    );
 
-    if ((entry.loadChoice == 1 && entry.form == 1) || readabilityOn) {
-
-      return BlocBuilder(
-        bloc: articleBloc,
-        builder: (BuildContext context, ArticleState state) {
-          return Scaffold(
-            appBar: articleAppBar(),
-            body: state is ArticleLoaded ? SingleChildScrollView(
-              child: HtmlWidget(
-                header + "<div style=\"font-size:16px; text-decoration:none;\">" +  state.content + "</div>",
-                webViewJs: true,
-                webView: true,
-                hyperlinkColor: Colors.blue,
-                textPadding: EdgeInsets.fromLTRB(15, 5, 15, 5),
-//                  bodyPadding: EdgeInsets.all(15.0),
-                textStyle: TextStyle(
-                  fontSize: 16.0,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                  height: 1.3,
-                ),
-                onTapUrl: (url) {
-                  currentUrl = url;
-                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                    return Scaffold(
-                      appBar: articleAppBar(),
-                      body: WebViewPage(url),
-                    );
-                  }));
-                },
-              ),
-            ) : Container(
-              color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
-              padding: EdgeInsets.all(20),
-              child: Shimmer.fromColors(
-                baseColor: Colors.grey[300],
-                highlightColor: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 16.0,
-                      color: Colors.white,
-                    ),
-                    Padding(
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 6.0),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 16.0,
-                      color: Colors.white,
-                    ),
-                    Padding(
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 6.0),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 16.0,
-                      color: Colors.white,
-                    ),
-                    Padding(
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 6.0),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 16.0,
-                      color: Colors.white,
-                    ),
-                    Padding(
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 6.0),
-                    ),
-                    Container(
-                      width: 60.0,
-                      height: 16.0,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-
-              ),
-            ),
-          );
-        },
-      );
-    } else {
-      return Scaffold(
-        appBar: articleAppBar(),
-        body: WebViewPage(entry.link),
-      );
-    }
+//    if (entry.form == 1 || readabilityOn) {
+//
+//      return BlocBuilder(
+//        bloc: articleBloc,
+//        builder: (BuildContext context, ArticleState state) {
+//          return Scaffold(
+//            appBar: articleAppBar(),
+//            body: state is ArticleLoaded ? SingleChildScrollView(
+//              child: HtmlWidget(
+//                header + "<div style=\"font-size:16px; text-decoration:none;\">" +  state.content + "</div>",
+//                webViewJs: true,
+//                webView: true,
+//                hyperlinkColor: Colors.blue,
+//                textPadding: EdgeInsets.fromLTRB(15, 5, 15, 5),
+////                  bodyPadding: EdgeInsets.all(15.0),
+//                textStyle: TextStyle(
+//                  fontSize: 16.0,
+//                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+//                  height: 1.3,
+//                ),
+//                onTapUrl: (url) {
+//                  currentUrl = url;
+//                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+//                    return Scaffold(
+//                      appBar: articleAppBar(),
+//                      body: WebViewPage(url),
+//                    );
+//                  }));
+//                },
+//              ),
+//            ) : Container(
+//              color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+//              padding: EdgeInsets.all(20),
+//              child: Shimmer.fromColors(
+//                baseColor: Colors.grey[300],
+//                highlightColor: Colors.white,
+//                child: Column(
+//                  crossAxisAlignment: CrossAxisAlignment.start,
+//                  children: [
+//                    Container(
+//                      width: double.infinity,
+//                      height: 16.0,
+//                      color: Colors.white,
+//                    ),
+//                    Padding(
+//                      padding:
+//                      const EdgeInsets.symmetric(vertical: 6.0),
+//                    ),
+//                    Container(
+//                      width: double.infinity,
+//                      height: 16.0,
+//                      color: Colors.white,
+//                    ),
+//                    Padding(
+//                      padding:
+//                      const EdgeInsets.symmetric(vertical: 6.0),
+//                    ),
+//                    Container(
+//                      width: double.infinity,
+//                      height: 16.0,
+//                      color: Colors.white,
+//                    ),
+//                    Padding(
+//                      padding:
+//                      const EdgeInsets.symmetric(vertical: 6.0),
+//                    ),
+//                    Container(
+//                      width: double.infinity,
+//                      height: 16.0,
+//                      color: Colors.white,
+//                    ),
+//                    Padding(
+//                      padding:
+//                      const EdgeInsets.symmetric(vertical: 6.0),
+//                    ),
+//                    Container(
+//                      width: 60.0,
+//                      height: 16.0,
+//                      color: Colors.white,
+//                    ),
+//                  ],
+//                ),
+//
+//              ),
+//            ),
+//          );
+//        },
+//      );
+//    } else {
+//      return Scaffold(
+//        appBar: articleAppBar(),
+//        body: WebViewPage(entry.link),
+//      );
+//    }
   }
 
 
@@ -185,7 +189,7 @@ class ArticlePageState extends State<ArticlePage> {
         IconButton(
           icon: readabilityOn ? Icon(Icons.chrome_reader_mode, color: Theme.of(context).accentColor,) : Icon(Icons.chrome_reader_mode),
           onPressed: () {
-            if (entry.loadChoice != 1 || entry.form != 1) {
+            if (entry.form != 1) {
               articleBloc = ArticleBloc(
                 entriesRepository: EntriesRepository(entriesApiClient: EntriesApiClient(httpClient: http.Client())),
               );
@@ -200,7 +204,7 @@ class ArticlePageState extends State<ArticlePage> {
             } else {
               setState(() {
                 readabilityOn = false;
-                if (entry.loadChoice == 1 || entry.form == 1) {
+                if (entry.form == 1) {
                   articleBloc.dispatch(FetchArticle(entryId: entry.id));
                 }
               });

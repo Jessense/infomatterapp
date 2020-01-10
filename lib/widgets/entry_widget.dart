@@ -92,7 +92,7 @@ class EntryWidgetState extends State<EntryWidget> {
             Column(
               children: <Widget>[
                 SizedBox(height: 8,),
-                _entry.form == 2 ? WeiboEntry(content: _entry.digest, photo: _entry.photo, isReaded: _entry.isReaded,)
+                _entry.form == 2 ? WeiboEntry(content: _entry.description, photo: _entry.photo, isReaded: _entry.isReaded,)
                     : ArticleEntry(entry: _entry,),
                 _entry.videoFrame.length > 0 ? VideoFrameWidget(videoUrl: _entry.videoFrame, ) : Container(),
                 SizedBox(height: 10,),
@@ -292,7 +292,7 @@ class ArticleEntry extends StatelessWidget{
               children: <Widget>[
                 Text(entry.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: entry.isReaded ? Colors.grey : Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white), maxLines: 2,),
                 SizedBox(height: 5,),
-                Text(entry.digest, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
+                Text(entry.description, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey), maxLines: 2,),
               ],
             ),
           ),

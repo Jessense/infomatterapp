@@ -4,6 +4,7 @@ class Entry extends Equatable {
   final int id;
   final String title;
   final String link;
+  String description;
   String digest;
   String pubDate;
   int form;
@@ -29,7 +30,7 @@ class Entry extends Equatable {
   //optional
   int starId;
 
-  Entry({this.id, this.title, this.link, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isReaded, this.isStarring, this.loadChoice, this.cluster, this.sim_count, this.video, this.videoFrame, this.audio, this.audioFrame}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
+  Entry({this.id, this.title, this.link, this.description, this.digest, this.pubDate, this.form, this.sourcePhoto, this.photo, this.sourceId, this.sourceName, this.starId, this.isReaded, this.isStarring, this.loadChoice, this.cluster, this.sim_count, this.video, this.videoFrame, this.audio, this.audioFrame}) : super([id, title, link, digest, pubDate, form, sourcePhoto, photo, sourceId, sourceName]);
 
 
   Entry copyWith({bool isStarring, bool isReaded}) {
@@ -37,6 +38,7 @@ class Entry extends Equatable {
       id: this.id,
       title: this.title,
       link: this.link,
+      description: this.description,
       digest: this.digest,
       pubDate: this.pubDate,
       form: this.form,
